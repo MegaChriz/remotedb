@@ -1,0 +1,504 @@
+<?php
+/**
+ * @file
+ * RemoteDB module file
+ */
+
+define('REMOTEDB_DISABLED',      0);
+define('REMOTEDB_STAGING',       1);
+define('REMOTEDB_LIVE',          2);
+
+define('REMOTEDB_REMOTEONLY',    0);
+define('REMOTEDB_REMOTEFIRST',   1);
+define('REMOTEDB_LOCALFIRST',    2);
+
+// Central Database User operations
+define('REMOTEDB_USER_BY_ID', 'uid');
+define('REMOTEDB_USER_BY_NAME', 'name');
+define('REMOTEDB_USER_BY_MAIL', 'mail');
+
+// ---------------------------------------------------------------------------
+// DRUPAL HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function remotedb_menu() {
+  $items = array();
+  $items['admin/config/system/remotedb'] = array(
+    'title' => 'RemoteDB settings',
+    'description' => 'RemoteDB configuration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedb_settings'),
+    'access arguments' => array('access RemoteDB administration page'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'remotedb.admin.inc',
+  );
+  $items['admin/config/system/remotedb/general'] = array(
+    'title' => 'General',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ *
+ * @return array
+ */
+function remotedb_permission() {
+  return array(
+    'access RemoteDB administration page' => array(
+      'title' => t('access RemoteDB administration page'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function remotedb_user_presave(&$edit, $account) {
+  // Save user to remote database
+  $remotedb_account = clone $account;
+  unset($remotedb_account->pass);
+  if (isset($edit['remotedb_pass']) && $edit['remotedb_pass']) {
+    $remotedb_account->pass = $edit['remotedb_pass'];
+  }
+  // Uitgezet omdat ik niet zeker weet of dit wel gewenst is.
+  /*
+  elseif (isset($edit['pass']) && $edit['pass']) {
+    $remotedb_account->pass = $edit['pass'];
+  }
+  //*/
+  if (isset($edit['remotedb_uid']) && $edit['remotedb_uid']) {
+    $account->remotedb_uid = $edit['remotedb_uid'];
+  }
+  if (!isset($remotedb_account->created)) {
+    $remotedb_account->created = REQUEST_TIME;
+  }
+  // Set other values if they are missing in $remotedb_account
+  foreach ($edit as $key => $value) {
+    if (!isset($remotedb_account->$key)) {
+      $remotedb_account->$key = $edit[$key];
+    }
+  }
+
+  try {
+    $result = RemoteDB::get()->sendRequest('user.save', $remotedb_account)->getResult();
+    $account->remotedb_uid = $result;
+    $edit['remotedb_uid'] = $result;
+    if (!$result) {
+      drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact op met ons op.', 'error');
+      watchdog('RemoteDB', 'Saving account failed for user %username (%uid)', array('%username' => $account->name, '%uid' => $account->uid), WATCHDOG_ERROR);
+    }
+  }
+  catch (RemoteDBDisabledException $e) {
+    // Ignore this exception
+  }
+}
+
+// ---------------------------------------------------------------------------
+// FORM ALTERS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Alters user login forms.
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param string $form_id
+ *
+ * @return array
+ */
+function remotedb_form_alter(&$form, $form_state, $form_id) {
+  if (!remotedb_is_enabled()) {
+    // Return if the RemoteDB is temporary disabled.
+    return $form;
+  }
+  // Replace login validation handler. Login needs to be checked via the remote database.
+  if (isset($form['#validate']) && is_array($form['#validate']) && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
+    $form['#validate'][$key] = 'remotedb_login_authenticate_validate';
+  }
+
+  // Replace current password validation handler. The custom password should be checked via the remote database instead of locally.
+  if (isset($form['#validate']) && is_array($form['#validate']) && ($key = array_search('user_validate_current_pass', $form['#validate']))) {
+    $form['#validate'][$key] = 'remotedb_user_validate_current_pass';
+  }
+
+  // Hash password for the remote database (happens in validation function)
+  if ($form_id == 'user_profile_form' || $form_id == 'user_register_form') {
+    $form['#validate'][] = 'remotedb_user_register_form_validate';
+  }
+
+  // Add validation handler to check for unique user name in the remote database.
+  if ($form_id == 'user_account_form' || $form_id == 'user_register_form') {
+    $form['#validate'][] = 'remotedb_user_account_form_validate';
+  }
+
+  // Ensure that mail field can not be edited
+  if ($form_id == 'user_profile_form') {
+    if (!user_access('administer users')) {
+      $form['account']['mail']['#access'] = FALSE;
+      $form['account']['mail_i'] = array(
+        '#type' => 'item',
+        '#markup' => $form['account']['mail']['#default_value'],
+        '#title' => $form['account']['mail']['#title'],
+        '#weight' => -1,
+      );
+    }
+  }
+  return $form;
+}
+
+/**
+ * Validation handler for user login forms.
+ *
+ * Authenticates users.
+ *
+ * @param array $form
+ * @param array $form_state
+ *
+ * @return void
+ */
+function remotedb_login_authenticate_validate($form, &$form_state) {
+  if ($user = remotedb_authenticate($form_state['values'])) {
+    if (is_numeric($user)) {
+      $uid = (int) $user;
+    }
+    elseif (is_object($user)) {
+      $uid = $user->uid;
+    }
+    $form_state['uid'] = $uid;
+  }
+}
+
+/**
+ * Validation handler for user account forms.
+ *
+ * @return boolean
+ * @see user_account_form()
+ * @see remotedb_form_alter()
+ */
+function remotedb_user_account_form_validate($form, &$form_state) {
+  if ($form['#user_category'] == 'account' || $form['#user_category'] == 'register') {
+    $account = $form['#user'];
+    // Validate new or changing username.
+    if (isset($form_state['values']['name']) && isset($form_state['values']['mail'])) {
+      if (!RemoteDB::get()->sendRequest('user.validatename', $form_state['values']['name'], $form_state['values']['mail'])->getResult()) {
+        form_set_error('name', t('The name %name is already taken.', array('%name' => $form_state['values']['name'])));
+        return FALSE;
+      }
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * Validates current password via remote database on the user_account_form().
+ *
+ * Similar to user_validate_current_pass() from user.module
+ *
+ * @see remotedb_form_alter()
+ * @see user_account_form()
+ * @see user_validate_current_pass()
+ */
+function remotedb_user_validate_current_pass(&$form, &$form_state) {
+  $account = $form['#user'];
+  foreach ($form_state['values']['current_pass_required_values'] as $key => $name) {
+    // This validation only works for required textfields (like mail) or
+    // form values like password_confirm that have their own validation
+    // that prevent them from being empty if they are changed.
+    if ((strlen(trim($form_state['values'][$key])) > 0) && ($form_state['values'][$key] != $account->$key)) {
+      require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+      $empty = empty($form_state['values']['current_pass']);
+      $current_pass_failed = empty($form_state['values']['current_pass']) || !remotedb_remote_authenticate($account->mail, $form_state['values']['current_pass']);
+      if ($current_pass_failed) {
+        form_set_error('current_pass', t("Your current password is missing or incorrect; it's required to change the %name.", array('%name' => $name)));
+        form_set_error($key);
+      }
+      // We only need to check the password once.
+      break;
+    }
+  }
+}
+
+/**
+ * Add RemoteDB hashed password to the form values.
+ */
+function remotedb_user_register_form_validate($form, &$form_state) {
+  if (isset($form_state['values']['pass']) && drupal_strlen($form_state['values']['pass']) > 0) {
+    $form_state['values']['remotedb_pass'] = remotedb_hash_password($form_state['values']['pass'], 'md5');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// USER AUTHENTICATE FUNCTIONS
+// ---------------------------------------------------------------------------
+
+/**
+ * Main user authentication function.
+ *
+ * If successful, sets the global $user object.
+ *
+ * @return int $uid
+ *  The user ID
+ */
+function remotedb_authenticate($form_values = array()) {
+  global $user;
+  $name = $form_values['name'];
+
+  // The user_login_name_validate() is not called if the user is being authenticated
+  // from the httpauth or services modules, therefore call it here.
+  $form_state['values'] = $form_values;
+  // user_login_name_validate(NULL, $form_state);
+
+  // (Design decision) uid=1 (admin user) must always authenticate to local database
+  // this user is critical for all drupal admin and upgrade operations so it is best
+  // left with drupal's native authentication.
+  $result = db_query("SELECT uid FROM {users} WHERE name = :name AND uid = :uid", array(':name' => $name, ':uid' => '1'));
+  if ($account = $result->fetch()) {
+    $name = $form_values['name']; // TODO Set these variables;
+    $password = $form_values['pass'];
+    return user_authenticate($name, $password);
+  }
+  // If there are any validations errors, we do not query the remote DB.
+  if (form_get_errors()) {
+    return;
+  }
+
+  switch (variable_get('remotedb_userdb', 0)) {
+    case REMOTEDB_LOCALFIRST:
+      // Authenticate local users first.
+      if (remotedb_local_login($form_values)) {
+        return $user;
+      }
+    case REMOTEDB_REMOTEONLY:
+      if (remotedb_remote_login($form_values)) {
+        return $user;
+      }
+      break;
+    case REMOTEDB_REMOTEFIRST:
+      if (!remotedb_remote_login($form_values)) {
+        if (remotedb_local_login($form_values)) {
+          return $user;
+        }
+      }
+    default:
+      return $user;
+  }
+}
+
+/**
+ * Log the user in locally.
+ *
+ * @param array $form_values
+ *
+ * @return boolean
+ */
+function remotedb_local_login($form_values) {
+  $name = $form_values['name'];
+  $result = db_query("SELECT name, data FROM {users} WHERE name = :name", array(':name' => $name));
+  if ($row = $result->fetch()) {
+    $name = $form_values['name']; // TODO Set these variables;
+    $password = $form_values['pass'];
+    if (user_authenticate($name, $password)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Log the user in using the central database.
+ *
+ * @param array $form_values
+ *
+ * @return mixed
+ *   User object in case the login succesfull.
+ *   NULL otherwise.
+ */
+function remotedb_remote_login($form_values) {
+  global $user;
+  $name = $form_values['name'];
+  $pass = trim($form_values['pass']);
+  $mail = '';
+  $account = array_shift(user_load_multiple(array(), array('name' => $name, 'status' => 1)));
+  if ($account && drupal_is_denied('mail', $account->mail)) {
+    form_set_error('name', t('The name %name is registered using a reserved e-mail address and therefore could not be logged in.', array('%name' => $account->name)));
+  }
+  if (is_object($account) && $account->name == $name) {
+    $name = $account->mail;
+  }
+
+  // Authenticate remote user.
+  $remotedb_uid = remotedb_remote_authenticate($name, $pass);
+  if (!$remotedb_uid) {
+    return;
+  }
+
+  if (!$account) {
+    // Register this new user.
+    if ($mail == '') {
+      $mail = $name;
+    }
+    // Check if the e-mail is not denied.
+    if (drupal_is_denied('mail', $mail)) {
+      form_set_error('name', t('The name %name is registered using a reserved e-mail address and therefore could not be logged in.', array('%name' => $name)));
+      return;
+    }
+
+    // Request account details from remote database
+    $user_edit = RemoteDB::get()->sendRequest('user.get', $mail, REMOTEDB_USER_BY_MAIL)->getResult();
+    if (!is_array($user_edit)) {
+      $user_edit = RemoteDB::get()->sendRequest('user.get', $name, REMOTEDB_USER_BY_NAME)->getResult();
+    }
+    $user_edit['pass_plain'] = $pass;
+    $user = remotedb_save_user($user_edit);
+  }
+  else {
+    // Login existing user.
+    if (!isset($account->remotedb_uid)) {
+      // Remote and local user conflict.
+      watchdog('RemoteDB', 'Remote user with Id %ruser has a naming conflict with a local drupal user %name', array('%ruser' => $account->uid, '%name' => $account->name), WATCHDOG_ERROR);
+      drupal_set_message(t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'), 'error');
+      return;
+    }
+    else {
+      $data['remotedb_uid'] = $remotedb_uid;
+    }
+
+    // Successfull login.
+    // Save the new login data.
+    $data['pass'] = remotedb_hash_password($pass, 'md5');
+    $data['pass_plain'] = $pass;
+    $user = remotedb_save_user($data, $account);
+  }
+  user_login_finalize($form_values);
+  return $user;
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function remotedb_user_delete($account, $aid = 0) {
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {authmap} WHERE uid=%d AND aid=%d AND module='wekadbauth'", $account->uid, $aid) */
+  $num_deleted = db_delete('authmap')
+    ->condition('uid', $account->uid)
+    ->condition('aid', $aid)
+    ->condition('module', 'wekadbauth')
+    ->execute();
+  if ($num_deleted) {
+    drupal_set_message(t('Account has been deleted.'));
+  }
+}
+
+/**
+ * Insert or update user data coming from the central database.
+ *
+ * @param array $user_edit
+ *   An array of values loaded from the central database.
+ * @param object $account
+ *   (optional) The user object to save the data for.
+ *
+ * @return
+ *   A fully-loaded $user object upon successful save or FALSE if the save failed.
+ */
+function remotedb_save_user($user_edit, $account = NULL) {
+  // Set RemoteDB UID
+  if (isset($user_edit['uid']) && !isset($user_edit['remotedb_uid'])) {
+    $user_edit += array(
+      'remotedb_uid' => $user_edit['uid'],
+    );
+  }
+  $hashed_pass = $user_edit['pass'];
+  $user_edit['remotedb_pass'] = $hashed_pass;
+  unset($user_edit['uid']);
+//  unset($user_edit['pass']);
+  if (isset($user_edit['pass_plain'])) {
+    $user_edit['pass'] = $user_edit['pass_plain'];
+  }
+
+  if (is_null($account)) {
+    $account = array_shift(user_load_multiple(array(), array('mail' => $user_edit['mail'], 'status' => 1)));
+  }
+  if (!$account) {
+    // Register this new user
+    $user_edit['init'] = $user_edit['mail'];
+    $user_edit['timezone'] = 'Europe/Amsterdam';
+
+    $account = user_save('', $user_edit);
+    watchdog('RemoteDB', 'New external user %name created from the remote DB %server.', array('%name' => $account->name, '%server' => RemoteDB::get()->getUrl()), WATCHDOG_NOTICE, l(t('edit'), 'user/' . $account->uid . '/edit'));
+  }
+  else {
+    $account = user_save($account, $user_edit);
+  }
+
+  return $account;
+}
+
+/**
+ * Wrapper for user_hash_password().
+ *
+ * @param string $plain_pass
+ *   The plain (unhashed) password
+ * @param string $method
+ *   The method to use.
+ *
+ * @return string
+ *   The hashed password.
+ */
+function remotedb_hash_password($plain_pass, $method = '') {
+  if ($method == 'md5') {
+    return md5($plain_pass);
+  }
+  require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+  return user_hash_password(trim($plain_pass));
+}
+
+/**
+ * Authenticates the user in the remote database
+ *
+ * @param string $name
+ *   The user's username
+ * @param string $pass
+ *   The user plain pass
+ *
+ * @return mixed
+ *   Remote database user id if authentication was succesfull
+ *   FALSE otherwise
+ */
+function remotedb_remote_authenticate($name, $pass) {
+  $remotedb_uid = FALSE;
+  $methods = array(
+    'md5',
+    'drupal7',
+  );
+  
+  for ($i = 0; $i < count($methods) && !$remotedb_uid; $i++) {
+    $hashed_pass = remotedb_hash_password($pass, $methods[$i]);
+    $remotedb_uid = RemoteDB::get()->sendRequest('user.authenticate', $name, $hashed_pass)->getResult();
+  }
+  return $remotedb_uid;
+}
+
+// ---------------------------------------------------------------------------
+// UTIL
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns if RemoteDB service is enabled or not
+ *
+ * @return boolean
+ */
+function remotedb_is_enabled() {
+  if (variable_get('remotedb_mode', 0) != REMOTEDB_DISABLED) {
+    return TRUE;
+  }
+  return FALSE;
+}

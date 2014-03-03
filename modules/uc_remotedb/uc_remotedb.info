@@ -1,0 +1,9 @@
+name = Ubercart RemoteDB
+description = "Enables order export via remote database"
+dependencies[] = views
+dependencies[] = uc_addresses
+dependencies[] = uc_order
+dependencies[] = remotedb
+package = "Remote DB"
+core = 7.x
+version = "6.x-1.0-prealpha002"

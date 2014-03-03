@@ -1,0 +1,233 @@
+<?php
+/**
+ * @file
+ *
+ */
+
+// ---------------------------------------------------------------------------
+// DRUPAL HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ * @return array
+ */
+function uc_remotedb_menu() {
+  $items = array();
+
+  // Add your menu items like this:
+  $items['admin/config/system/remotedb/ubercart'] = array(
+    'title' => 'Ubercart',
+    'description' => 'Configurations for Ubercart',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uc_remotedb_settings'),
+    'access arguments' => array('access RemoteDB administration page'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'uc_remotedb.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function uc_remotedb_cron() {
+  // Decide if it's time to export orders.
+  $time = strtotime(variable_get('uc_remotedb_order_export_freq', '1 day') . ' ago');
+  if (variable_get('uc_remotedb_order_export_last', 0) < $time) {
+    uc_remotedb_export_orders();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// REMOTE DB FUNCTIONS
+// ---------------------------------------------------------------------------
+
+/**
+ * Sends orders to remote database.
+ *
+ * @return ???
+ */
+function uc_remotedb_export_orders() {
+  // Load all orders ready for export.
+  $uc_remotedb_order_export_view = variable_get('uc_remotedb_order_export_view', NULL);
+  if (!$uc_remotedb_order_export_view) {
+    // No view has been selected. Abort export.
+    watchdog(
+      'remotedb',
+      'The order export is aborted, because there is no view specified to pull the results from. Go to the <a href="@admin-settings-url">Ubercart settings page</a> for RemoteDB to set this.',
+      array(
+      '@admin-settings-url' => url('admin/config/remotedb/ubercart'),
+    ),
+      WATCHDOG_WARNING
+    );
+    return;
+  }
+  $params = explode('|', $uc_remotedb_order_export_view);
+  $view_results = views_get_view_result($params[0], $params[1]);
+
+  if (count($view_results) > 0) {
+    foreach ($view_results as $view_result) {
+      if (!isset($view_result->order_id)) {
+        watchdog(
+          'remotedb',
+          'The view %view with display %display_id has no field called %order_id. The order export is aborted.',
+          array(
+          '%view' => $params[0],
+          '%display_id' => $params[1],
+          '%order_id' => 'order_id',
+        ),
+          WATCHDOG_WARNING
+        );
+        return;
+      }
+      // Load the order object.
+      $order = uc_order_load($view_result->order_id);
+      // Format for database
+      uc_remotedb_prepare_order_for_export($order);
+      // Keep array of orders to modify after successfull export.
+      $orders[] = $order;
+    }
+
+    $result = RemoteDB::get()->sendRequest('order.post', $_SERVER['HTTP_HOST'], $orders)->getResult();
+
+    // Update status for all orders (if set)
+    if ($order_export_status = variable_get('uc_remotedb_order_export_status', NULL)) {
+      $order->order_status = $order_export_status;
+      uc_order_save($order);
+    }
+
+    watchdog('remotedb', 'Send %number orders to remote database', array('%number' => count($view_results)));
+  }
+
+  // Update the order export timestamp.
+  variable_set('uc_remotedb_order_export_last', REQUEST_TIME);
+
+  return 'Result: ' . $result;
+}
+
+/**
+ * Prepare an order for being send to remote database
+ *
+ * @param object $order
+ *   An Ubercart order
+ *
+ * @return void
+ */
+function uc_remotedb_prepare_order_for_export($order) {
+  $order->uc_order_id = $order->order_id;
+  $order->email = $order->primary_email;
+  $order->order_date = $order->created;
+  $order->order_modified = $order->modified;
+
+  // Preprare addresses
+  if (isset($order->uc_addresses)) {
+    $order->delivery_address = $order->uc_addresses['shipping']->getFieldData();
+    $order->billing_address = $order->uc_addresses['billing']->getFieldData();
+
+    $address_types = array(
+      'delivery_',
+      'billing_',
+    );
+
+    // Fix addresses
+    foreach ($address_types as $address_type) {
+      foreach ($order->{$address_type . 'address'} as $fieldname => $value) {
+        // Substract ucxf prefix if available
+        if (strpos($fieldname, 'ucxf_') === 0) {
+          $fieldname = substr($fieldname, strlen('ucxf_'));
+        }
+        // Don't allow n/a values
+        if ($value == t('n/a')) {
+          $value = '';
+        }
+
+        $order->{$address_type . 'address'}[$fieldname] = $value;
+      }
+    }
+  }
+
+  // Prepare addresses
+  /*
+   $address_types = array(
+   'delivery_',
+   'billing_',
+   );
+   foreach ($address_types as $address_type) {
+   $address = array();
+   foreach ($order as $order_fieldname => $value) {
+   if (strpos($order_fieldname, $address_type) === 0) {
+   $fieldname = substr($order_fieldname, strlen($address_type));
+   // Substract ucxf prefix if available
+   if (strpos($fieldname, 'ucxf_') === 0) {
+   $fieldname = substr($fieldname, strlen('ucxf_'));
+   }
+   $address[$fieldname] = $value;
+   }
+   }
+   $order->{$address_type . 'address'} = $address;
+   }
+   */
+}
+
+/**
+ * Send order data to remote db
+ *
+ * This is a test function
+ *
+ * @param int $order_id
+ *
+ * @return string
+ */
+function uc_remotedb_send_order($order_id) {
+  $order = uc_order_load($order_id);
+
+  // Format for database
+  uc_remotedb_prepare_order_for_export($order);
+
+  return RemoteDB::get()->sendRequest('order.post', $_SERVER['HTTP_HOST'], array($order))->getResult();
+}
+
+/**
+ * Get orders from remote database.
+ *
+ * @return ???
+ */
+function uc_remotedb_import_orders() {
+  $result = RemoteDB::get()->sendRequest('order.get', $_SERVER['HTTP_HOST'])->getResult();
+  if (is_array($result) && count($result) > 0) {
+    foreach ($result as $order_values) {
+      if (isset($order_values['uc_order_id'])) {
+        $order_orig = uc_order_load($order_values['uc_order_id']);
+        $order = uc_order_load($order_values['uc_order_id']);
+      }
+      else {
+        $order = uc_order_new();
+      }
+
+      // Update order info
+      foreach ($order_values as $key => $value) {
+        if (!is_array($value)) {
+          $order->$key = $value;
+        }
+      }
+
+      // Update product info
+      $order->products = array();
+      foreach ($order_values['products'] as $product_values) {
+        $product = new stdClass();
+        foreach ($product_values as $key => $value) {
+          $product->$key = $value;
+        }
+        if (isset($product_values['uc_order_product_id'])) {
+          $product->order_product_id = $product_values['uc_order_product_id'];
+        }
+        $order->products[] = $product;
+      }
+      uc_order_save($order);
+    }
+  }
+  print_r_tree(get_defined_vars());
+  die();
+}

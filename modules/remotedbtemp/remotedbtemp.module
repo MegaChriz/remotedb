@@ -1,0 +1,69 @@
+<?php
+/**
+ * @file
+ * Temporary path to trigger remote database to get data from afas
+ */
+
+// ---------------------------------------------------------------------------
+// DRUPAL HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ * @return array
+ */
+function remotedbtemp_menu() {
+  $items = array();
+
+  $items['order_afas_post'] = array(
+    'title' => 'Post orders to Afas',
+    'description' => 'Triggers database to post orders to afas',
+    'page callback' => 'order_afas_post',
+    'access arguments' => array('access RemoteDB administration page'),
+    'menu_name' => 'primary-links',
+  );
+  $items['order_afas_get'] = array(
+    'title' => 'Get orders from Afas',
+    'description' => 'Triggers database to get orders from afas',
+    'page callback' => 'order_afas_get',
+    'access arguments' => array('access RemoteDB administration page'),
+    'menu_name' => 'primary-links',
+  );
+
+  if (module_exists('uc_remotedb')) {
+    $items['order_post'] = array(
+      'title' => 'Post orders to DB',
+      'description' => 'Posts Ubercart orders to remote database',
+      'page callback' => 'uc_remotedb_export_orders',
+      'access arguments' => array('access RemoteDB administration page'),
+      'menu_name' => 'primary-links',
+    );
+    $items['order_get'] = array(
+      'title' => 'Get orders from DB',
+      'description' => 'Get Ubercart orders from remote database',
+      'page callback' => 'uc_remotedb_import_orders',
+      'access arguments' => array('access RemoteDB administration page'),
+      'menu_name' => 'primary-links',
+    );
+  }
+
+  return $items;
+}
+
+// ---------------------------------------------------------------------------
+// PAGE CALLBACKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Triggers database to post orders to afas
+ */
+function order_afas_post() {
+  return 'Result: ' . RemoteDB::get()->sendRequest('order.afaspost')->getResult();
+}
+
+/**
+ * Triggers database to post orders to afas
+ */
+function order_afas_get() {
+  return 'Result: ' . RemoteDB::get()->sendRequest('order.afasget')->getResult();
+}

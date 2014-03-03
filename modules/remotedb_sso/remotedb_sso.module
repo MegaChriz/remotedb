@@ -1,0 +1,292 @@
+<?php
+/**
+ * @file
+ * SSO functionality with the remote database
+ */
+
+// ---------------------------------------------------------------------------
+// DRUPAL HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ */
+function remotedb_sso_menu() {
+  $items = array();
+
+  // Pass the user ID, timestamp, and hashed_pass
+  $items['sso/login/%/%/%'] = array(
+    'title' => 'Login',
+    'page callback' => 'remotedb_sso_login',
+    'page arguments' => array(2, 3, 4),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['sso/goto/%'] = array(
+    'title' => 'SSO Redirect',
+    'page callback' => 'remotedb_sso_goto',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/config/system/remotedb/sso'] = array(
+    'title' => 'SSO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedb_sso_settings'),
+    'access arguments' => array('access RemoteDB administration page'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+// ---------------------------------------------------------------------------
+// PAGE CALLBACKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Admin settings form for RemoteDB SSO
+ */
+function remotedb_sso_settings($form, $form_state) {
+  $form['remotedb_sso_websites'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Websites'),
+    '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".'),
+    '#default_value' => variable_get('remotedb_sso_websites', ''),
+  );
+  $form = system_settings_form($form);
+  return $form;
+}
+
+// ---------------------------------------------------------------------------
+// FILTER
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_filter_info().
+ */
+function remotedb_sso_filter_info() {
+  $filters = array();
+  $filters['remotedb_sso'] = array(
+    'title' => t('SSO Link filter'),
+    'description' => t('Automatically create SSO links from links to certain external websites'),
+    'process callback' => 'remotedb_sso_filter_process',
+    'settings callback' => 'remotedb_sso_filter_settings',
+    'default settings' => array(
+      'websites' => '',
+    ),
+    'tips callback' => 'remotedb_sso_filter_tips',
+  );
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_FILTER_tips().
+ *
+ * @param object $filter
+ * @param object $format
+ * @param boolean $long
+ *
+ * @return string
+ */
+function remotedb_sso_filter_tips($filter, $format, $long = FALSE) {
+  return t('SSO links to certain external websites will be automatically created.');
+}
+
+/**
+ * RemoteDB SSO filter process callback
+ *
+ * Creates SSO links from links to certain external websites.
+ *
+ * @param string $text
+ * @param object $filter
+ * @param object $format
+ *
+ * @return string $text
+ */
+function remotedb_sso_filter_process($text, $filter, $format = NULL) {
+  return remotedb_sso_filter_text($text, $filter->settings['websites']);
+}
+
+/**
+ * RemoteDB SSO filter settings callback
+ *
+ * Set for which sites you want to automatically create SSO links
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param object $filter
+ * @param object $format
+ * @param array $defaults
+ * @param array $filters
+ *
+ * @return array $elements
+ */
+function remotedb_sso_filter_settings($form, $form_state, $filter, $format, $defaults, $filters) {
+  $filter->settings += $defaults;
+
+  $elements = array();
+  $elements['websites'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Websites'),
+    '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at <a href="!remotedb-sso-settings-link">!remotedb-sso-settings-title</a> page.', array('!remotedb-sso-settings-link' => url('admin/config/system/remotedb/sso'), '!remotedb-sso-settings-title' => t('RemoteDB settings'))),
+    '#default_value' => $filter->settings['websites'],
+  );
+  return $elements;
+}
+
+/**
+ * Creates SSO links from links to certain external websites.
+ *
+ * @param string $text
+ *   The text to filter.
+ * @param array $sites
+ *   (optional) The external sites to replace in $text
+ *   May also be a string. In that case the string will split.
+ *   Takes variable 'remotedb_sso_websites' if omitted.
+ *
+ * @return string $text
+ */
+function remotedb_sso_filter_text($text, $sites = array()) {
+  if (remotedb_is_enabled()) {
+    if (
+      (is_array($sites) && count($sites) < 1)
+      || (is_string($sites) && !$sites)
+    ) {
+      $sites = variable_get('remotedb_sso_websites', '');
+    }
+    if (is_string($sites)) {
+      $sites = explode("\n", $sites);
+    }
+  
+    $sso_url = url('sso/goto/', array('absolute' => TRUE));
+    
+    foreach ($sites as $site) {
+      $site = trim($site);
+  
+      // Make $site regex safe first
+      $site = preg_quote($site);
+      
+      // Now replace the URLS.
+      $text = preg_replace('/http:\/\/(' . $site . '.*?)\"\>/i', $sso_url . '\\1">', $text);
+    }
+    return $text;
+  }
+  return $text;
+}
+
+// ---------------------------------------------------------------------------
+// UTIL
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate a ticket for the current user.
+ *
+ * @param object $account
+ *   (optional) The account to generate an URL for.
+ *   Defaults to the current logged in user.
+ *
+ * @return string
+ */
+function remotedb_sso_generate_ticket($account = NULL) {
+  if (!$account) {
+    global $user;
+    $account = $user;
+  }
+  return RemoteDB::get()->sendRequest('ticket.get', $account)->getResult();
+}
+
+/**
+ * Generate a drupal path based on the given arguments.
+ *
+ * @param array $args
+ *   An array of path parts
+ * @param int $count
+ *   The number of arguments to ignore
+ *
+ * @return string
+ */
+function remotedb_sso_target_path($args, $count = 1) {
+  while ($count-- > 0) {
+    array_shift($args);
+  }
+  $target_path = implode('/', $args);
+  return $target_path;
+}
+
+// ---------------------------------------------------------------------------
+// LOGIN
+// ---------------------------------------------------------------------------
+
+/**
+ * Login the specified user.
+ *
+ * @param int $remotedb_uid
+ *   User ID from the central database
+ * @param int $timestamp
+ *   Timestamp generated by the central database
+ * @param $hashes_pass
+ *   Hash generated by the central database.
+ *
+ * @return void
+ */
+function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
+  global $user;
+
+  $target_path = remotedb_sso_target_path(func_get_args(), 3);
+
+  if ($user->uid) {
+    // A user is already logged in, so ignore the attempt and go to the
+    // target url.
+    drupal_goto($target_path);
+  }
+
+  if (!$remotedb_uid) {
+    // The user anonymous, so ignore the attempt and go to the
+    // target url.
+    drupal_goto($target_path);
+  }
+
+  try {
+    if ($user_edit = RemoteDB::get()->sendRequest('ticket.validate', $remotedb_uid, $timestamp, $hashed_pass)->getResult()) {
+      // Ticket is valid, update account data in local database.
+      $user = remotedb_save_user($user_edit);
+      // Now log in the user.
+      user_login_finalize($user_edit);
+    }
+  }
+  catch (RemoteDBException $e) {
+    // Log any RemoteDB exceptions.
+    $e->logError(WATCHDOG_WARNING);
+  }
+  drupal_goto($target_path);
+}
+
+// ---------------------------------------------------------------------------
+// GOTO
+// ---------------------------------------------------------------------------
+
+/**
+ * Redirect the user to the website they wish to login at.
+ *
+ * @param string $website
+ *   The website to go to, without "http://"
+ *
+ * @return void
+ */
+function remotedb_sso_goto($website) {
+  try {
+    // Request a ticket from the central database
+    $ticket = remotedb_sso_generate_ticket();
+    // Generate target path
+    $target_path = remotedb_sso_target_path(func_get_args());
+    // Redirect
+    drupal_goto('http://' . $website . '/sso/login/' . $ticket . '/' . $target_path);
+  }
+  catch (RemoteDBException $e) {
+    $e->printMessage();
+    return '';
+  }
+}

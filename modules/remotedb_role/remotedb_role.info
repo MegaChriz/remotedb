@@ -1,0 +1,6 @@
+name = RemoteDB Roles
+description = "Assign and unassign roles based on subscriptions in remote database"
+dependencies[] = remotedb
+package = "Remote DB"
+core = 7.x
+version = "7.x-1.0-beta1"
