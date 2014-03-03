@@ -52,6 +52,77 @@ function remotedb_settings($form, &$form_state) {
     '#maxlength' => 255,
   );
 
+  $form['remotedb_login'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Remote login'),
+  );
+  $form['remotedb_login']['remotedb_login_username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Username'),
+    '#default_value' => variable_get('remotedb_login_username', ''),
+    '#size' => 40,
+    '#maxlength' => 255,
+  );
+  $form['remotedb_login']['remotedb_login_password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Password'),
+    '#default_value' => variable_get('remotedb_login_password', ''),
+    '#size' => 40,
+    '#maxlength' => 255,
+  );
+
   $form = system_settings_form($form);
   return $form;
+}
+
+/**
+ * Callback for: admin/config/system/remotedb/test.
+ *
+ * Form to perform a test request.
+ *
+ * @see remotedb_test_submit()
+ */
+function remotedb_test($form, $form_state) {
+  if (isset($form_state['remotedb_result'])) {
+    $form['remotedb_result'] = array(
+      '#type' => 'item',
+      '#title' => t('Result'),
+      '#markup' => krumo_ob($form_state['remotedb_result']),
+    );
+  }
+
+  $form['method'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Method'),
+    '#required' => TRUE,
+    '#description' => t('The method to call.'),
+  );
+  $form['params'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Parameters'),
+    '#description' => t('Specify the parameters to use, one on each line.'),
+  );
+  $form['execute'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send request'),
+  );
+
+  return $form;
+}
+
+/**
+ * Perform a test request.
+ *
+ * @see remotedb_test()
+ */
+function remotedb_test_submit($form, &$form_state) {
+  $method = $form_state['values']['method'];
+  $params = remotedb_text_to_params($form_state['values']['params']);
+
+  $oRemoteDB = RemoteDB::get();
+  $oRemoteDB->authenticate();
+  $oRemoteDB->sendRequest($method, $params);
+  $form_state['remotedb_result'] = $oRemoteDB->getResult();
+
+  $form_state['rebuild'] = TRUE;
 }

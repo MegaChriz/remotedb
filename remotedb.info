@@ -1,8 +1,8 @@
 name = "RemoteDB"
-description = "Enables registration and authentication via remote database"
+description = "Enables registration and authentication via remote database."
 core = 7.x
 package = "Remote DB"
-version = "7.x-1.0-alpha2"
+version = "7.x-2.0-alpha1"
 
 configure = admin/config/system/remotedb
 

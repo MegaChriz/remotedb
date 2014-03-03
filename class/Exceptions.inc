@@ -19,7 +19,7 @@ class RemoteDBException extends Exception {
    * Logs error in watchdog
    */
   public function logError($severity = WATCHDOG_ERROR) {
-    watchdog('RemoteDB', $this->getMessage(), array(), $severity);
+    watchdog('remotedb', $this->getMessage(), array(), $severity);
   }
 }
 

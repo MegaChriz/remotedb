@@ -38,6 +38,22 @@ class RemoteDB {
    */
   private $result;
 
+  /**
+   * An array of option to send along with the HTTP Request.
+   *
+   * @var array
+   * @access private
+   */
+  private $options;
+
+  /**
+   * Whether or not the authentication process has run.
+   *
+   * @var boolean
+   * @access private
+   */
+  private $authenticated;
+
   // ---------------------------------------------------------------------------
   // CONSTRUCT
   // ---------------------------------------------------------------------------
@@ -54,11 +70,15 @@ class RemoteDB {
   private function __construct($url) {
     $this->url = $url;
     $this->result = '';
+    $this->options = array(
+      //'timeout' => 120.0,
+    );
+    $this->authenticated = FALSE;
     self::$instances[$url] = $this;
   }
 
   /**
-   * Return a RemoteDB instance
+   * Return a RemoteDB instance.
    *
    * @param string $url
    *   (Optional) The URL of the remote database to connect to.
@@ -68,7 +88,7 @@ class RemoteDB {
    * @static
    *
    * @return RemoteDB
-   *   An instance of this class
+   *   An instance of this class.
    * @throws RemoteDBInvalidURLException
    */
   public static function get($url = NULL) {
@@ -131,6 +151,81 @@ class RemoteDB {
   // ---------------------------------------------------------------------------
 
   /**
+   * Authenticate to the XML-RPC server.
+   */
+  public function authenticate() {
+    // Get token.
+    $this->remoteGetCSRFToken();
+    
+    // Login on the remote database.
+    $this->authenticated = $this->remoteLogin();
+
+    // Get new token.
+    $this->remoteGetCSRFToken();
+  }
+
+  /**
+   * Tries to retrieve the CSRF token from the remote database.
+   */
+  protected function remoteGetCSRFToken() {
+    $params = array(
+      'user.token' => array(),
+    );
+    unset($this->options['headers']['X-CSRF-Token']);
+    $token = xmlrpc($this->url, $params, $this->options);
+    if (!empty($token) && isset($token['token'])) {
+      $this->options['headers']['X-CSRF-Token'] = $token['token'];
+    }
+  }
+
+  /**
+   * Logs in an user on the remote database.
+   *
+   * @param string $username
+   *   (optional) The name of the user to log in.
+   *   Defaults to variable 'remotedb_login_username'.
+   * @param string $password
+   *   (optional) The user's password.
+   *   Defaults to variable 'remotedb_login_password'.
+   *
+   * @return boolean
+   *   TRUE if:
+   *   - the user was succesfully logged in;
+   *   - no username was specified ('anonymous' login).
+   *   FALSE if login failed.
+   */
+  protected function remoteLogin($username = NULL, $password = NULL) {
+    if (is_null($username)) {
+      $username = variable_get('remotedb_login_username', NULL); 
+    }
+    if (is_null($password)) {
+      $password = variable_get('remotedb_login_password', NULL); 
+    }
+
+    if (!$username) {
+      // Logged in as anonymous user.
+      unset($this->options['headers']['cookie']);
+      return TRUE;
+    }
+
+    $params = array(
+      'user.login' => array(
+        'username' => $username,
+        'password' => $password,
+      ),
+    );
+
+    unset($this->options['headers']['cookie']);
+    $session = xmlrpc($this->url, $params, $this->options);
+    if ($session === FALSE) {
+      self::reportError(xmlrpc_error(), $this->url, 'user.login');
+      return FALSE;
+    }
+    $this->options['headers']['cookie'] = $session['session_name'] . '=' . $session['sessid'] . ';';
+    return TRUE;
+  }
+
+  /**
    * Send a request to the XML-RPC server.
    *
    * @param string $method
@@ -139,12 +234,23 @@ class RemoteDB {
    *
    * @return $this
    */
-  public function sendRequest($method) {
-    // Get params
-    $params = func_get_args();
-    array_shift($params);
-    // Call XML-RPC
-    $this->result = xmlrpc($this->url, array($method => $params));
+  public function sendRequest($method, $params = array()) {
+    if (!$this->authenticated) {
+      $this->authenticate();
+    }
+
+    if (!is_array($params)) {
+      // Get params.
+      $params = func_get_args();
+      array_shift($params);
+    }
+    $args = array($method => $params);
+    // Call XML-RPC.
+    $this->result = xmlrpc($this->url, $args, $this->options);
+    if ($this->result === FALSE) {
+      $this->result = xmlrpc_error();
+      self::reportError($this->result, $this->url, $method, $params);
+    }
     return $this;
   }
 
@@ -152,9 +258,61 @@ class RemoteDB {
    * Returns the latest result from a XML-RPC server.
    *
    * @return string
-   *   The XML-RPC Result
+   *   The XML-RPC Result.
    */
   public function getResult() {
     return $this->result;
+  }
+
+  /**
+   * Report an error.
+   *
+   * @param object $error
+   *   The error object.
+   * @param string $url
+   *   The URL that was used for the remote database.
+   * @param string $method
+   *   The method of the remote database that was called.
+   * @param array $params
+   *   (optional) The parameters used for the method.
+   */
+  protected static function reportError($error, $url, $method, $params = array()) {
+    if (is_object($error) && isset($error->is_error) && $error->is_error == TRUE) {
+      // This IS an error.
+    }
+    else {
+      // Not an error.
+      return;
+    }
+    // Prepare parameters for message.
+    $mess_params = array();
+    if (count($params) > 0) {
+      foreach ($params as $param) {
+        if (is_object($param)) {
+          $mess_params[] = get_class($param);
+        }
+        elseif (is_array($param)) {
+          $mess_params[] = 'array()';
+        }
+        else {
+          $mess_params[] = (string) $param;
+        }
+      }
+    }
+    if (count($mess_params) > 0) {
+      $mess_params = '(' . implode(', ', $mess_params) . ')';
+    }
+    else {
+      $mess_params = t('none');
+    }
+
+    $variables = array(
+      '@method' => $method,
+      '@params' => $mess_params,
+      '@message' => $error->message,
+      '@code' => $error->code,
+      '@url' => $url,
+    );
+    watchdog('remotedb', 'An error occured when fetching data from the remote database at @url: @message (@code). Method: @method; Params: @params', $variables, WATCHDOG_WARNING);
   }
 }

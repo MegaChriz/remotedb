@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Implementation of hook_schema_alter().
+ * Implements hook_schema_alter().
  * @param array $schema
  * @return void
  */
@@ -13,7 +14,7 @@ function remotedb_schema_alter(&$schema) {
 }
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  * @return array
  */
 function remotedb_install() {
@@ -29,11 +30,14 @@ function remotedb_install() {
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  * @return array
  */
 function remotedb_uninstall() {
   $ret = array();
   $ret[] = db_drop_field('users', 'remotedb_uid');
+  return $ret;
+}
+);
   return $ret;
 }

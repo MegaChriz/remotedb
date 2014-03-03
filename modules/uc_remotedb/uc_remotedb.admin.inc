@@ -35,7 +35,7 @@ function uc_remotedb_settings($form, &$form_state) {
     '#required' => TRUE,
   );
 
-  // Export frequency
+  // Export frequency.
   $form['uc_remotedb_sendtodb']['uc_remotedb_order_export_freq'] = array(
     '#type' => 'select',
     '#title' => t('Export frequency'),
@@ -50,7 +50,7 @@ function uc_remotedb_settings($form, &$form_state) {
     '#default_value' => variable_get('uc_remotedb_order_export_freq', '1 day'),
   );
 
-  // Order status
+  // Order status.
   $options = array(
     '' => t('Select one...'),
   );

@@ -15,36 +15,56 @@
 function remotedbtemp_menu() {
   $items = array();
 
-  $items['order_afas_post'] = array(
-    'title' => 'Post orders to Afas',
-    'description' => 'Triggers database to post orders to afas',
-    'page callback' => 'order_afas_post',
-    'access arguments' => array('access RemoteDB administration page'),
-    'menu_name' => 'primary-links',
-  );
-  $items['order_afas_get'] = array(
-    'title' => 'Get orders from Afas',
-    'description' => 'Triggers database to get orders from afas',
-    'page callback' => 'order_afas_get',
-    'access arguments' => array('access RemoteDB administration page'),
-    'menu_name' => 'primary-links',
-  );
+  if (module_exists('uc_store')) {
+    $items['admin/store/afas'] = array(
+      'title' => 'Afas',
+      'description' => 'Actions for remote database.',
+      'page callback' => 'system_admin_menu_block_page',
+      'access arguments' => array('access RemoteDB administration page'),
+      'type' => MENU_NORMAL_ITEM,
+      'file' => 'system.admin.inc',
+      'file path' => drupal_get_path('module', 'system'),
+    );
 
-  if (module_exists('uc_remotedb')) {
-    $items['order_post'] = array(
-      'title' => 'Post orders to DB',
-      'description' => 'Posts Ubercart orders to remote database',
-      'page callback' => 'uc_remotedb_export_orders',
+//*
+  
+    if (module_exists('uc_remotedb')) {
+      $items['admin/store/afas/order_post'] = array(
+        'title' => 'Post orders to DB',
+        'description' => 'Posts Ubercart orders to remote database',
+        'page callback' => 'uc_remotedb_export_orders',
+        'access arguments' => array('access RemoteDB administration page'),
+        //'menu_name' => 'main-menu',
+        'weight' => 1,
+      );
+      $items['admin/store/afas/order_get'] = array(
+        'title' => 'Get orders from DB',
+        'description' => 'Get Ubercart orders from remote database',
+        'page callback' => 'uc_remotedb_import_orders',
+        'access arguments' => array('access RemoteDB administration page'),
+        //'menu_name' => 'main-menu',
+        'weight' => 2,
+      );
+    }
+
+/*
+    $items['admin/store/afas/order_afas_post'] = array(
+      'title' => 'Post orders to Afas',
+      'description' => 'Triggers database to post orders to afas',
+      'page callback' => 'order_afas_post',
       'access arguments' => array('access RemoteDB administration page'),
-      'menu_name' => 'primary-links',
+      //'menu_name' => 'main-menu',
+      'weight' => 3,
     );
-    $items['order_get'] = array(
-      'title' => 'Get orders from DB',
-      'description' => 'Get Ubercart orders from remote database',
-      'page callback' => 'uc_remotedb_import_orders',
+    $items['admin/store/afas/order_afas_get'] = array(
+      'title' => 'Get orders from Afas',
+      'description' => 'Triggers database to get orders from afas',
+      'page callback' => 'order_afas_get',
       'access arguments' => array('access RemoteDB administration page'),
-      'menu_name' => 'primary-links',
+      //'menu_name' => 'main-menu',
+      'weight' => 4,
     );
+    //*/
   }
 
   return $items;
@@ -55,15 +75,21 @@ function remotedbtemp_menu() {
 // ---------------------------------------------------------------------------
 
 /**
- * Triggers database to post orders to afas
+ * Triggers database to post orders to afas.
+ *
+ * @todo No longer supported.
  */
 function order_afas_post() {
-  return 'Result: ' . RemoteDB::get()->sendRequest('order.afaspost')->getResult();
+  $result = RemoteDB::get()->sendRequest('order.afaspost', array('OKERCKAB'))->getResult();
+  return 'Result: ' . krumo_ob($result);
 }
 
 /**
- * Triggers database to post orders to afas
+ * Triggers database to get orders from afas.
+ *
+ * @todo No longer supported.
  */
 function order_afas_get() {
-  return 'Result: ' . RemoteDB::get()->sendRequest('order.afasget')->getResult();
+  $result = RemoteDB::get()->sendRequest('order.afasget', array('OKERCKAB'))->getResult();
+  return 'Result: ' . krumo_ob($result);
 }

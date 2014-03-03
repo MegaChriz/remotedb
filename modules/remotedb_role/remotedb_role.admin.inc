@@ -7,10 +7,10 @@
 /**
  * Admin settings form for RemoteDB Role
  */
-function remotedb_role_settings($form, $form_state) {  
+function remotedb_role_settings($form, $form_state) {
   $roles = user_roles(TRUE);
   unset($roles[DRUPAL_AUTHENTICATED_RID]);
-  
+
   $form['settings'] = array(
     '#type' => 'vertical_tabs',
     '#attached' => array(
@@ -23,7 +23,7 @@ function remotedb_role_settings($form, $form_state) {
       ),
     ),
   );
-  
+
   if (count($roles) > 0) {
     foreach ($roles as $rid => $role_name) {
       if (isset($form_state['input']['remotedb_role_' . $rid . '_active'])) {
@@ -59,14 +59,14 @@ function remotedb_role_settings($form, $form_state) {
       );
     }
   }
-  
+
   $form['remotedb_role_extra'] = array(
     '#type' => 'fieldset',
     '#title' => t('Extra'),
     '#collapsible' => TRUE,
     '#collapsed' => !variable_get('remotedb_role_debug', FALSE),
   );
-  
+
   // Debug setting
   $form['remotedb_role_extra']['remotedb_role_debug'] = array(
     '#type' => 'checkbox',
@@ -79,7 +79,7 @@ function remotedb_role_settings($form, $form_state) {
     '#title' => t('Get subscribtions from Afas'),
     '#description' => t('If enabled, the remote database will be triggered <em>once</em> to reload subscriptions from afas.'),
   );
-  
+
   $form['#submit'][] = 'remotedb_role_settings_submit';
 
   $form = system_settings_form($form);

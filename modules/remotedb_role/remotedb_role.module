@@ -51,7 +51,7 @@ function remotedb_role_help($path, $arg) {
 function remotedb_role_permission() {
   return array(
     'bypass automatic role assignment' => array(
-      'title' => t('Bypass automatic role assignment'), 
+      'title' => t('Bypass automatic role assignment'),
       'description' => t('Users with this permission are ignored when roles are automatically assigned/unassigned.'),
     ),
   );
@@ -60,7 +60,7 @@ function remotedb_role_permission() {
 /**
  * Implements hook_user_login().
  *
- * Assigns/Unassigns roles for account
+ * Assigns/Unassigns roles for account.
  *
  * @param array $edit
  * @param object $account
@@ -100,7 +100,7 @@ function remotedb_role_assign_roles($account) {
   if (!user_access('bypass automatic role assignment', $account)) {
     $role_names = user_roles();
     $role_settings = remotedb_role_get_active_settings();
-    $remotedb_subscriptions = RemoteDB::get()->sendRequest('subscription.getforuser', $account->mail, REMOTEDB_USER_BY_MAIL)->getResult();
+    $remotedb_subscriptions = RemoteDB::get()->sendRequest('dbsubscription.retrieve', $account->mail, REMOTEDB_USER_BY_MAIL)->getResult();
 
     if (count($remotedb_subscriptions) > 0) {
       // Loop through all roles and prepare a list of assign/unassign roles.
@@ -113,7 +113,7 @@ function remotedb_role_assign_roles($account) {
           }
         }
       }
-  
+
       // Unassign roles
       if (count($unassign) > 0) {
         foreach ($unassign as $rid => $role_name) {
@@ -164,7 +164,7 @@ function remotedb_role_get_active_settings() {
       if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
         if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
           $subscriptions = explode("\n", $subscriptions);
-          // Trim values
+          // Trim values.
           foreach ($subscriptions as $index => $subscription) {
              $subscriptions[$index] = trim($subscription);
           }

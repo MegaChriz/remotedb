@@ -1,5 +1,5 @@
 name = RemoteDB Single Sign-on
-description = "Provides Single Sign-on functionality for RemoteDB module"
+description = "Provides Single Sign-on functionality for RemoteDB module."
 dependencies[] = remotedb
 package = "Remote DB"
 core = 7.x
