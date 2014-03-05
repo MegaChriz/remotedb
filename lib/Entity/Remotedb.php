@@ -234,20 +234,16 @@ class Remotedb extends Entity implements RemotedbInterface {
    *
    * @param string $method
    *   The method to call on the server.
-   * @access public
+   * @param array $params
+   *   An array of parameters.
    *
-   * @return $this
+   * @return \Drupal\remotedb\Entity\RemotedbInterface
    */
-  public function sendRequest($method, $params = array()) {
+  public function sendRequest($method, array $params = array()) {
     if (!$this->authenticated) {
       $this->authenticate();
     }
 
-    if (!is_array($params)) {
-      // Get params.
-      $params = func_get_args();
-      array_shift($params);
-    }
     $args = array($method => $params);
     // Call XML-RPC.
     $this->result = xmlrpc($this->url, $args, $this->options);

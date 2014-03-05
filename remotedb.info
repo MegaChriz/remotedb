@@ -1,7 +1,7 @@
 name = "Remote database Base"
 description = "Base module for connection with remote database."
-core = 7.x
 package = "Remote database"
+core = 7.x
 dependencies[] = entity
 dependencies[] = psr0
 version = "7.x-3.0-prealpha001"
