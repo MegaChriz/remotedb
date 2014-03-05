@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\remotedb\Exception\RemoteDBException.
+ * Contains \Drupal\remotedb\Exception\RemotedbException.
  */
 
 namespace Drupal\remotedb\Exception;
@@ -18,9 +18,9 @@ class RemotedbException extends Exception {
   }
 
   /**
-   * Logs error in watchdog
+   * Logs error in watchdog.
    */
   public function logError($severity = WATCHDOG_ERROR) {
-    watchdog('remotedb', $this->getMessage(), array(), $severity);
+    watchdog_exception('remotedb', $this, NULL, array(), $severity);
   }
 }

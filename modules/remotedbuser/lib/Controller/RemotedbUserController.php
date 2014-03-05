@@ -8,6 +8,8 @@ namespace Drupal\remotedbuser\Controller;
 
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
+use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use \EntityAPIController;
 
 /**
@@ -185,7 +187,7 @@ class RemotedbUserController extends EntityAPIController {
    * @return object
    *   The unsaved account, filled with values from the remote user.
    */
-  public function toAccount($entity) {
+  public function toAccount(RemotedbUserInterface $entity) {
     // First, get account from local database, if it exists.
     // First find by remotedb_uid, then by mail and finally by name.
     $search = array(
@@ -199,6 +201,16 @@ class RemotedbUserController extends EntityAPIController {
         $account = reset($users);
         break;
       }
+    }
+
+    // Check if this account is already linked to a remote account. If so, we should not
+    // suddenly link it to an other account.
+    if (!empty($account->remotedb_uid) && $account->remotedb_uid != $entity->uid) {
+      $vars = array(
+        '@uid' => $account->uid,
+        '@remotedb_uid' => $entity->uid,
+      );
+      throw new RemotedbExistingUserException(t('Failed to syncronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
     }
 
     // Construct values to set on the local account.

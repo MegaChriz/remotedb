@@ -5,12 +5,14 @@
  * Enables registration and authentication via remote database..
  */
 
+use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
+use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 
 // Modes.
-define('REMOTEDB_REMOTEONLY',  0);
-define('REMOTEDB_REMOTEFIRST', 1);
-define('REMOTEDB_LOCALFIRST',  2);
+const REMOTEDB_REMOTEONLY =  0;
+const REMOTEDB_REMOTEFIRST = 1;
+const REMOTEDB_LOCALFIRST =  2;
 
 // ---------------------------------------------------------------------------
 // DRUPAL HOOKS
@@ -128,6 +130,41 @@ function remotedbuser_entity_info() {
 // ------------------------------------------------------------
 
 /**
+ * Implements hook_form_alter().
+ */
+function remotedbuser_form_alter(&$form, $form_state) {
+  $replacements = array(
+    // Replace login validation handler. Login needs to be checked via the remote database.
+    'user_login_authenticate_validate' => 'remotedb_login_authenticate_validate',
+  );
+
+  if (isset($form['#validate']) && is_array($form['#validate'])) {
+    foreach ($replacements as $search => $replace) {
+      $key = array_search($search, $form['#validate']);
+      if ($key) {
+        $form['#validate'][$key] = $replace;
+      }
+    }
+  }
+}
+
+/**
+ * Validation handler for user login forms.
+ *
+ * Authenticates users.
+ *
+ * @return void
+ * @see remotedbuser_form_alter()
+ */
+function remotedb_login_authenticate_validate($form, &$form_state) {
+  $password = trim($form_state['values']['pass']);
+  if (!empty($form_state['values']['name']) && !empty($password)) {
+    $name = $form_state['values']['name'];
+    $form_state['uid'] = remotedbuser_authenticate($name, $password);
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter() for form user_register_form().
  *
  * @return void
@@ -219,14 +256,83 @@ function remotedbuser_account_form_validate($form, &$form_state) {
       }
     }
   }
-//  form_set_error('mail', 'If you see no errors but this one, all is OK.');
 }
 
 // ---------------------------------------------------------------------------
 // UTIL
 // ---------------------------------------------------------------------------
 
+/**
+ * Try to validate the user's login credentials locally.
+ *
+ * @param string $name
+ *   User name to authenticate.
+ * @param string $password
+ *   A plain-text password, such as trimmed text from form values.
+ *
+ * @return int|boolean
+ *   The user's uid on success, or FALSE on failure to authenticate.
+ */
+function remotedbuser_authenticate($name, $password) {
+  switch (remotedbuser_variable_get('login')) {
+    case REMOTEDB_LOCALFIRST:
+      // Authenticate local users first.
+      $uid = user_authenticate($name, $password);
+      if ($uid) {
+        return $uid;
+      }
+    case REMOTEDB_REMOTEONLY:
+      $uid = remotedbuser_remote_authenticate($name, $password);
+      if ($uid) {
+        return $uid;
+      }
+      break;
+    case REMOTEDB_REMOTEFIRST:
+      $uid = remotedbuser_remote_authenticate($name, $password);
+      if ($uid) {
+        return $uid;
+      }
+      $uid = user_authenticate($name, $password);
+      if ($uid) {
+        return $uid;
+      }
+      break;
+  }
+  return FALSE;
+}
 
+/**
+ * Authenticates name/password against the remote database and copies over
+ * the remote user if needed.
+ *
+ * @return int|boolean
+ *   The user's uid on success, or FALSE on failure to authenticate.
+ * @todo Deal with conflicts.
+ */
+function remotedbuser_remote_authenticate($name, $password) {
+  $controller = remotedbuser_get();
+  $remotedb_uid = $controller->authenticate($name, $password);
+  if (!$remotedb_uid) {
+    // Authentication failed.
+    return FALSE;
+  }
+
+  // Get account details from the remote database.
+  $remote_account = $controller->loadBy($remotedb_uid);
+  if ($remote_account) {
+    // Save user locally.
+    try {
+      $account = $remote_account->toAccount();
+      entity_save('user', $account);
+      return $account->uid;
+    }
+    catch (RemotedbExistingUserException $e) {
+      $e->logError();
+      drupal_set_message(t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'), 'error');
+    }
+  }
+  return FALSE;
+}
 
 function myFunction() {
   $rd_controller = remotedbuser_get();
