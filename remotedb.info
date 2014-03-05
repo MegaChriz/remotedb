@@ -1,12 +1,9 @@
-name = "RemoteDB"
-description = "Enables registration and authentication via remote database."
+name = "Remote database Base"
+description = "Base module for connection with remote database."
 core = 7.x
-package = "Remote DB"
-version = "7.x-2.0-alpha1"
+package = "Remote database"
+dependencies[] = entity
+dependencies[] = psr0
+version = "7.x-3.0-prealpha001"
 
 configure = admin/config/system/remotedb
-
-files[] = remotedb.module
-files[] = remotedb.install
-files[] = class/Exceptions.inc
-files[] = class/RemoteDB.class.php

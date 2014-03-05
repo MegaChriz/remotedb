@@ -1,25 +1,31 @@
 <?php
+
 /**
  * @file
- * RemoteDB module file
+ * Enables registration and authentication via remote database.
  */
-
-define('REMOTEDB_DISABLED',      0);
-define('REMOTEDB_STAGING',       1);
-define('REMOTEDB_LIVE',          2);
-
-define('REMOTEDB_REMOTEONLY',    0);
-define('REMOTEDB_REMOTEFIRST',   1);
-define('REMOTEDB_LOCALFIRST',    2);
-
-// Central Database User operations
-define('REMOTEDB_USER_BY_ID', 'uid');
-define('REMOTEDB_USER_BY_NAME', 'name');
-define('REMOTEDB_USER_BY_MAIL', 'mail');
 
 // ---------------------------------------------------------------------------
 // DRUPAL HOOKS
 // ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ */
+function remotedb_menu() {
+  $items = array();
+
+  $items['admin/config/services/remotedb/test'] = array(
+    'title' => 'Test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedb_test_form'),
+    'access arguments' => array('remotedb.administer'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'remotedb.admin.inc',
+  );
+
+  return $items;
+}
 
 /**
  * Implements hook_hook_info().
@@ -27,11 +33,11 @@ define('REMOTEDB_USER_BY_MAIL', 'mail');
  * Declares available hooks invoked by this module.
  *
  * @return array
+ *   A list of hooks.
  */
 function remotedb_hook_info() {
   $hooks = array(
-    'remotedb_send_user',
-    'remotedb_retrieve_user',
+    'remotedb_authentication',
   );
   $return = array();
   foreach ($hooks as $hook) {
@@ -43,623 +49,52 @@ function remotedb_hook_info() {
 }
 
 /**
- * Implements hook_menu().
- *
- * @return array
- */
-function remotedb_menu() {
-  $items = array();
-  $items['admin/config/system/remotedb'] = array(
-    'title' => 'RemoteDB settings',
-    'description' => 'RemoteDB configuration',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedb_settings'),
-    'access arguments' => array('access RemoteDB administration page'),
-    'type' => MENU_NORMAL_ITEM,
-    'file' => 'remotedb.admin.inc',
-  );
-  $items['admin/config/system/remotedb/general'] = array(
-    'title' => 'General',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  $items['admin/config/system/remotedb/test'] = array(
-    'title' => 'Test',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedb_test'),
-    'access arguments' => array('access RemoteDB administration page'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'remotedb.admin.inc',
-  );
-
-  return $items;
-}
-
-/**
  * Implements hook_permission().
- *
- * @return array
  */
 function remotedb_permission() {
   return array(
-    'access RemoteDB administration page' => array(
-      'title' => t('access RemoteDB administration page'),
+    'remotedb.administer' => array(
+      'title' => t('Administer remote databases'),
     ),
   );
 }
 
-/**
- * Implements hook_user_insert().
- */
-function remotedb_user_insert(&$edit, $account) {
-  // Perform the same actions as when updating.
-  return remotedb_user_update($edit, $account);
-}
+// ---------------------------------------------------------------------------
+// ENTITY API HOOKS
+// ---------------------------------------------------------------------------
 
 /**
- * Implements hook_user_update().
+ * Implements hook_entity_info().
  */
-function remotedb_user_update(&$edit, $account) {
-  if (!remotedb_is_enabled()) {
-    // Do nothing if RemoteDB is temporary disabled.
-    return;
-  }
-
-  // Save user to remote database.
-  $remotedb_account = clone $account;
-  unset($remotedb_account->pass);
-  if (!empty($edit['remotedb_pass'])) {
-    $remotedb_account->pass = $edit['remotedb_pass'];
-  }
-  // Uitgezet omdat ik niet zeker weet of dit wel gewenst is.
-  /*
-  elseif (isset($edit['pass']) && $edit['pass']) {
-    $remotedb_account->pass = $edit['pass'];
-  }
-  //*/
-  if (isset($edit['remotedb_uid']) && $edit['remotedb_uid']) {
-    $account->remotedb_uid = $edit['remotedb_uid'];
-  }
-  if (!isset($remotedb_account->created)) {
-    $remotedb_account->created = REQUEST_TIME;
-  }
-  // Set other values if they are missing in $remotedb_account.
-  foreach ($edit as $key => $value) {
-    if (!isset($remotedb_account->$key)) {
-      $remotedb_account->$key = $edit[$key];
-    }
-  }
-
-  try {
-    // Send the account data to the remote database.
-    $result = remotedb_send_user($remotedb_account);
-    $account->remotedb_uid = $result;
-    $edit['remotedb_uid'] = $result;
-    if (!$result || !is_numeric($result)) {
-      drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact op met ons op.', 'error');
-      watchdog('remotedb', 'Saving account failed for user %username (%uid)', array('%username' => $account->name, '%uid' => $account->uid), WATCHDOG_ERROR);
-    }
-    elseif (is_numeric($result)) {
-      // Save remotedb uid.
-      db_update('users')
-        ->fields(array('remotedb_uid' => $account->remotedb_uid))
-        ->condition('uid', $account->uid)
-        ->execute();
-    }
-  }
-  catch (RemoteDBDisabledException $e) {
-    // Ignore this exception.
-  }
-}
-
-/**
- * Implements hook_user_view().
- *
- * Show Contact ID and Afas customer ID when viewing the user.
- *
- * @param object $account
- *   The user to view.
- */
-function remotedb_user_view($account) {
-  // Add ID details.
-  $account->content['remotedb'] = array(
-    '#type' => 'user_profile_category',
-    '#title' => t('Remote DB'),
-    '#access' => user_access('administer users'),
-    'afas_dbid' => array(
-      '#type' => 'user_profile_item',
-      '#title' => t('RemoteDB UID'),
-      '#markup' => check_plain($account->remotedb_uid),
+function remotedb_entity_info() {
+  $return = array(
+    'remotedb' => array(
+      'label' => t('Remote database'),
+      'entity class' => 'Drupal\\remotedb\\Entity\\Remotedb',
+      'controller class' => 'Drupal\\remotedb\\Controller\\RemotedbController',
+      'base table' => 'remotedb',
+      'fieldable' => FALSE,
+      'entity keys' => array(
+        'id' => 'remotedb_id',
+        'label' => 'label',
+      ),
+      'admin ui' => array(
+        'path' => 'admin/config/services/remotedb',
+        'file' => 'remotedb.admin.inc',
+        //'controller class' => 'EntityDefaultUIController',
+      ),
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
+      'module' => 'remotedb',
+      'access callback' => 'remotedb_access',
     ),
-    '#weight' => 1,
   );
-}
-
-/**
- * Implements hook_user_login().
- *
- * Retrieve account details from remote database.
- */
-function remotedb_user_login($edit, $account) {
-  // @todo nothing yet.
+  return $return;
 }
 
 // ---------------------------------------------------------------------------
-// VIEWS HOOKS
-// ---------------------------------------------------------------------------
-
-/**
- * Implements hook_views_api().
- */
-function remotedb_views_api() {
-  return array(
-    'api' => 3,
-  );
-}
-
-// ---------------------------------------------------------------------------
-// FORM ALTERS
-// ---------------------------------------------------------------------------
-
-/**
- * Implements hook_form_alter().
- *
- * Alters user login forms.
- *
- * @param array $form
- * @param array $form_state
- * @param string $form_id
- *
- * @return array
- */
-function remotedb_form_alter(&$form, $form_state, $form_id) {
-  if (!remotedb_is_enabled()) {
-    // Return if the RemoteDB is temporary disabled.
-    return $form;
-  }
-  // Replace login validation handler. Login needs to be checked via the remote database.
-  if (isset($form['#validate']) && is_array($form['#validate']) && ($key = array_search('user_login_authenticate_validate', $form['#validate']))) {
-    $form['#validate'][$key] = 'remotedb_login_authenticate_validate';
-  }
-
-  // Replace current password validation handler. The custom password should be checked via the remote database instead of locally.
-  if (isset($form['#validate']) && is_array($form['#validate']) && ($key = array_search('user_validate_current_pass', $form['#validate']))) {
-    $form['#validate'][$key] = 'remotedb_user_validate_current_pass';
-  }
-
-  // Hash password for the remote database (happens in validation function)
-  if ($form_id == 'user_profile_form' || $form_id == 'user_register_form') {
-    $form['#validate'][] = 'remotedb_user_register_form_validate';
-  }
-
-  // Add validation handler to check for unique user name in the remote database.
-  if ($form_id == 'user_account_form' || $form_id == 'user_register_form') {
-    $form['#validate'][] = 'remotedb_user_account_form_validate';
-  }
-
-  if ($form_id == 'user_pass') {
-    // Replace user_pass_validate with remotedb's version.
-    $key = array_search('user_pass_validate', $form['#validate']);
-    if ($key !== FALSE) {
-      $form['#validate'][$key] = 'remotedb_user_pass_validate';
-    }
-    else {
-      // Make sure we pass in our validation handler, even if 'user_pass_validate' is not available.
-      array_unshift($form['#validate'], 'remotedb_user_pass_validate');
-      // This may give undesired results. Report.
-      watchdog('remotedb', "The form %form misses the validation handler %handler. It can be that there is an incompatibility with an other module that removed this handler for a particular reason.", array('%form' => t('Request new password'), '%handler' => 'user_pass_validate'), WATCHDOG_WARNING);
-    }
-  }
-
-  // Ensure that mail field can not be edited
-  if ($form_id == 'user_profile_form') {
-    if (!user_access('administer users')) {
-      $form['account']['mail']['#access'] = FALSE;
-      $form['account']['mail_i'] = array(
-        '#type' => 'item',
-        '#markup' => $form['account']['mail']['#default_value'],
-        '#title' => $form['account']['mail']['#title'],
-        '#weight' => -1,
-      );
-    }
-  }
-  return $form;
-}
-
-/**
- * Validation handler for user login forms.
- *
- * Authenticates users.
- *
- * @param array $form
- * @param array $form_state
- *
- * @return void
- */
-function remotedb_login_authenticate_validate($form, &$form_state) {
-  if ($user = remotedb_authenticate($form_state['values'])) {
-    if (is_numeric($user)) {
-      $uid = (int) $user;
-    }
-    elseif (is_object($user)) {
-      $uid = $user->uid;
-    }
-    $form_state['uid'] = $uid;
-  }
-}
-
-/**
- * Validation handler for user account forms.
- *
- * @return boolean
- * @see user_account_form()
- * @see remotedb_form_alter()
- */
-function remotedb_user_account_form_validate(&$form, &$form_state) {
-  if ($form['#user_category'] == 'account' || $form['#user_category'] == 'register') {
-    // Validate new or changing username.
-    if (isset($form_state['values']['name']) && isset($form_state['values']['mail'])) {
-      if (!RemoteDB::get()->sendRequest('dbuser.validatename', $form_state['values']['name'], $form_state['values']['mail'])->getResult()) {
-        form_set_error('name', t('The name %name is already taken.', array('%name' => $form_state['values']['name'])));
-        return FALSE;
-      }
-    }
-
-    // Validate the e-mail address, and check if it is taken by an existing user in the remote database.
-    $remotedb_account = RemoteDB::get()->sendRequest('dbuser.retrieve', $form_state['values']['mail'], REMOTEDB_USER_BY_MAIL)->getResult();
-    if (!empty($remotedb_account)) {
-      // The account exists in the remote database.
-      if (empty($form['#user']->remotedb_uid) || $form['#user']->remotedb_uid != $remotedb_account['uid']) {
-        // The mail address is already taken.
-        if ($GLOBALS['user']->uid) {
-          // An authenticated user is editing account data.
-          // @todo Just copy over account data?
-
-          // @todo Biedt een keuzemogelijkheid:
-          // Een account met het e-mailadres %email bestaat al in de centrale database, maar nog niet op de website. Wat wilt u doen?
-          // - Het account in de centrale database overschrijven. Het account krijgt dan een nieuwe gebruikersnaam en een nieuw wachtwoord.
-          // - Het account van de centrale database overnemen.
-          // - Niks doen.
-
-          // Copy over account data.
-          remotedb_save_user($remotedb_account);
-
-          form_set_error('mail', t('The e-mail address %email already exists in the remote database.', array('%email' => $form_state['values']['mail'])));
-        }
-        else {
-          form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $form_state['values']['mail'], '@password' => url('user/password'))));
-        }
-      }
-    }
-  }
-  return TRUE;
-}
-
-/**
- * Validates current password via remote database on the user_account_form().
- *
- * Similar to user_validate_current_pass() from user.module
- *
- * @see remotedb_form_alter()
- * @see user_account_form()
- * @see user_validate_current_pass()
- */
-function remotedb_user_validate_current_pass(&$form, &$form_state) {
-  $account = $form['#user'];
-  foreach ($form_state['values']['current_pass_required_values'] as $key => $name) {
-    // This validation only works for required textfields (like mail) or
-    // form values like password_confirm that have their own validation
-    // that prevent them from being empty if they are changed.
-    if ((strlen(trim($form_state['values'][$key])) > 0) && ($form_state['values'][$key] != $account->$key)) {
-      require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
-      $empty = empty($form_state['values']['current_pass']);
-      $current_pass_failed = empty($form_state['values']['current_pass']) || !remotedb_remote_authenticate($account->mail, $form_state['values']['current_pass']);
-      if ($current_pass_failed) {
-        form_set_error('current_pass', t("Your current password is missing or incorrect; it's required to change the %name.", array('%name' => $name)));
-        form_set_error($key);
-      }
-      // We only need to check the password once.
-      break;
-    }
-  }
-}
-
-/**
- * Add RemoteDB hashed password to the form values.
- */
-function remotedb_user_register_form_validate($form, &$form_state) {
-  if (isset($form_state['values']['pass']) && drupal_strlen($form_state['values']['pass']) > 0) {
-    $form_state['values']['remotedb_pass'] = remotedb_hash_password($form_state['values']['pass']);
-  }
-}
-
-/**
- * Validation handler for the "Request new password" form.
- *
- * Checks if the user's name or user's mail address exists in the remote database.
- * This validation handler is used in place of user_pass_validate().
- *
- * @see remotedb_form_alter()
- */
-function remotedb_user_pass_validate($form, &$form_state) {
-  $name = trim($form_state['values']['name']);
-  // Search for local database first.
-  // Try to load by email.
-  $users = user_load_multiple(array(), array('mail' => $name, 'status' => '1'));
-  $account = reset($users);
-  if (!$account) {
-    // No success, try to load by name.
-    $users = user_load_multiple(array(), array('name' => $name, 'status' => '1'));
-    $account = reset($users);
-  }
-  if (isset($account->uid)) {
-    form_set_value(array('#parents' => array('account')), $account, $form_state);
-  }
-  else {
-    // Now search in remote database.
-    $account = RemoteDB::get()->sendRequest('dbuser.retrieve', $name, REMOTEDB_USER_BY_MAIL)->getResult();
-    if (!$account) {
-      // No success, try to load by name.
-      $account = RemoteDB::get()->sendRequest('dbuser.retrieve', $name, REMOTEDB_USER_BY_NAME)->getResult();
-    }
-    if (isset($account['uid']) && !empty($account['status'])) {
-      // Copy over account data.
-      remotedb_save_user($account);
-    }
-    // Follow the usual validation.
-    return user_pass_validate($form, $form_state);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// USER AUTHENTICATE FUNCTIONS
-// ---------------------------------------------------------------------------
-
-/**
- * Main user authentication function.
- *
- * If successful, sets the global $user object.
- *
- * @return int $uid
- *   The user ID.
- */
-function remotedb_authenticate($form_values = array()) {
-  global $user;
-  $name = $form_values['name'];
-  $password = $form_values['pass'];
-
-  // The user_login_name_validate() is not called if the user is being authenticated
-  // from the httpauth or services modules, therefore call it here.
-  $form_state['values'] = $form_values;
-  // user_login_name_validate(NULL, $form_state);
-
-  // (Design decision) uid = 1 (admin user) must always authenticate to local database
-  // this user is critical for all drupal admin and upgrade operations so it is best
-  // left with drupal's native authentication.
-  $result = db_query("SELECT uid FROM {users} WHERE name = :name AND uid = :uid", array(':name' => $name, ':uid' => '1'));
-  $account = $result->fetch();
-  if ($account) {
-    return user_authenticate($name, $password);
-  }
-  // If there are any validations errors, we do not query the remote DB.
-  if (form_get_errors()) {
-    return;
-  }
-
-  switch (variable_get('remotedb_userdb', 0)) {
-    case REMOTEDB_LOCALFIRST:
-      // Authenticate local users first.
-      if (remotedb_local_login($form_values)) {
-        return $user;
-      }
-    case REMOTEDB_REMOTEONLY:
-      if (remotedb_remote_login($form_values)) {
-        return $user;
-      }
-      break;
-    case REMOTEDB_REMOTEFIRST:
-      if (!remotedb_remote_login($form_values)) {
-        if (remotedb_local_login($form_values)) {
-          return $user;
-        }
-      }
-    default:
-      return $user;
-  }
-}
-
-/**
- * Log the user in locally.
- *
- * @param array $form_values
- *
- * @return boolean
- */
-function remotedb_local_login($form_values) {
-  $name = $form_values['name'];
-  $password = $form_values['pass'];
-  $result = db_query("SELECT name, data FROM {users} WHERE name = :name", array(':name' => $name));
-  $row = $result->fetch();
-  if ($row) {
-    if (user_authenticate($name, $password)) {
-      return TRUE;
-    }
-  }
-  return FALSE;
-}
-
-/**
- * Log the user in using the central database.
- *
- * @param array $form_values
- *
- * @return mixed
- *   User object in case the login succesfull.
- *   NULL otherwise.
- */
-function remotedb_remote_login($form_values) {
-  global $user;
-  $name = $form_values['name'];
-  $pass = trim($form_values['pass']);
-  $mail = '';
-  $account = array_shift(user_load_multiple(array(), array('name' => $name, 'status' => 1)));
-  if ($account && drupal_is_denied('mail', $account->mail)) {
-    form_set_error('name', t('The name %name is registered using a reserved e-mail address and therefore could not be logged in.', array('%name' => $account->name)));
-  }
-  if (is_object($account) && $account->name == $name) {
-    $name = $account->mail;
-  }
-
-  // Authenticate remote user.
-  $remotedb_uid = remotedb_remote_authenticate($name, $pass);
-  if (!$remotedb_uid) {
-    return;
-  }
-
-  if (!$account) {
-    // Register this new user.
-    if ($mail == '') {
-      $mail = $name;
-    }
-    // Check if the e-mail is not denied.
-    if (drupal_is_denied('mail', $mail)) {
-      form_set_error('name', t('The name %name is registered using a reserved e-mail address and therefore could not be logged in.', array('%name' => $name)));
-      return;
-    }
-
-    // Request account details from remote database.
-    $user_edit = RemoteDB::get()->sendRequest('dbuser.retrieve', $mail, REMOTEDB_USER_BY_MAIL)->getResult();
-    if (!is_array($user_edit)) {
-      $user_edit = RemoteDB::get()->sendRequest('dbuser.retrieve', $name, REMOTEDB_USER_BY_NAME)->getResult();
-    }
-    $user_edit['pass_plain'] = $pass;
-    $user = remotedb_save_user($user_edit);
-  }
-  else {
-    // Login existing user.
-    if (!isset($account->remotedb_uid)) {
-      // Remote and local user conflict.
-      watchdog('remotedb', 'Remote user with Id %ruser has a naming conflict with a local drupal user %name', array('%ruser' => $account->uid, '%name' => $account->name), WATCHDOG_ERROR);
-      drupal_set_message(t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'), 'error');
-      return;
-    }
-    else {
-      $data['remotedb_uid'] = $remotedb_uid;
-    }
-
-    // Successfull login.
-    // Save the new login data.
-    // Request account details from remote database.
-    $user_edit = RemoteDB::get()->sendRequest('dbuser.retrieve', $account->remotedb_uid, REMOTEDB_USER_BY_ID)->getResult();
-    if (is_array($user_edit)) {
-      $user_edit['pass'] = remotedb_hash_password($pass, 'drupal7');
-      $user_edit['pass_plain'] = $pass;
-      $user = remotedb_save_user($user_edit, $account);
-    }
-  }
-  user_login_finalize($form_values);
-  return $user;
-}
-
-/**
- * Insert or update user data coming from the central database.
- *
- * @param array $user_edit
- *   An array of values loaded from the central database.
- * @param object $account
- *   (optional) The user object to save the data for.
- *
- * @return
- *   A fully-loaded $user object upon successful save or FALSE if the save failed.
- */
-function remotedb_save_user($user_edit, $account = NULL) {
-  // Set RemoteDB UID.
-  if (isset($user_edit['uid']) && !isset($user_edit['remotedb_uid'])) {
-    $user_edit += array(
-      'remotedb_uid' => $user_edit['uid'],
-    );
-  }
-  $hashed_pass = $user_edit['pass'];
-  $user_edit['remotedb_pass'] = $hashed_pass;
-  unset($user_edit['uid']);
-//  unset($user_edit['pass']);
-  if (isset($user_edit['pass_plain'])) {
-    $user_edit['pass'] = $user_edit['pass_plain'];
-  }
-
-  if (is_null($account)) {
-    $account = array_shift(user_load_multiple(array(), array('mail' => $user_edit['mail'], 'status' => 1)));
-  }
-  if (!$account) {
-    // Register this new user.
-    $user_edit['init'] = $user_edit['mail'];
-    $user_edit['timezone'] = 'Europe/Amsterdam';
-
-    $account = user_save('', $user_edit);
-    watchdog('remotedb', 'New external user %name created from the remote DB %server.', array('%name' => $account->name, '%server' => RemoteDB::get()->getUrl()), WATCHDOG_INFO, l(t('edit'), 'user/' . $account->uid . '/edit'));
-  }
-  else {
-    $account = user_save($account, $user_edit);
-  }
-
-  // Allow other modules to react on this.
-  module_invoke_all('remotedb_retrieve_user', $account);
-
-  return $account;
-}
-
-/**
- * Wrapper for user_hash_password().
- *
- * @param string $plain_pass
- *   The plain (unhashed) password
- * @param string $method
- *   The method to use.
- *
- * @return string
- *   The hashed password.
- */
-function remotedb_hash_password($plain_pass, $method = '') {
-  switch ($method) {
-    case 'md5':
-      return md5($plain_pass);
-    case 'plain':
-      return $plain_pass;
-  }
-
-  require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
-  return user_hash_password(trim($plain_pass));
-}
-
-/**
- * Authenticates the user in the remote database.
- *
- * @param string $name
- *   The user's username.
- * @param string $pass
- *   The user plain pass.
- *
- * @return mixed
- *   Remote database user id if authentication was succesful.
- *   FALSE otherwise.
- */
-function remotedb_remote_authenticate($name, $pass) {
-  $remotedb_uid = FALSE;
-  $methods = array(
-    'md5',
-    'drupal7',
-    'plain',
-  );
-
-  for ($i = 0; $i < count($methods) && !$remotedb_uid; $i++) {
-    $hashed_pass = remotedb_hash_password($pass, $methods[$i]);
-    $remotedb_uid = RemoteDB::get()->sendRequest('dbuser.authenticate', $name, $hashed_pass)->getResult();
-  }
-  return $remotedb_uid;
-}
-
-// ---------------------------------------------------------------------------
-// FEEDS HOOKS
+// CTOOLS HOOKS
+// + function for finding the plugins.
 // ---------------------------------------------------------------------------
 
 /**
@@ -673,131 +108,81 @@ function remotedb_ctools_plugin_api($owner, $api) {
   if ($owner == 'feeds' && $api == 'plugins') {
     return array('version' => 1);
   }
+  if ($owner == 'remotedb' && $api == 'authentication') {
+    return array(
+      'version' => 3,
+    );
+  }
 }
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function remotedb_ctools_plugin_type() {
+  return array(
+    'authentication' => array(
+      'use hooks' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Returns an array of plugins.
+ */
+function remotedb_discover_plugins() {
+  ctools_include('plugins');
+  ctools_plugin_api_include('remotedb', 'authentication', 3, 3);
+  $plugins = ctools_get_plugins('remotedb', 'authentication');
+  drupal_alter('authentication', $plugins);
+  return $plugins;
+}
+
+// ---------------------------------------------------------------------------
+// FEEDS HOOKS
+// ---------------------------------------------------------------------------
 
 /**
  * Implements hook_feeds_plugins().
  */
 function remotedb_feeds_plugins() {
   $info = array();
-  $info['FeedsRemoteDBFetcher'] = array(
-    'name' => 'RemoteDB Fetcher',
-    'description' => 'Fetches data from remote database via XML-RPC.',
+  $info['RemotedbFetcher'] = array(
+    'name' => 'Remote database fetcher',
+    'description' => 'Fetches data from the remote database via XML-RPC.',
     'handler' => array(
       'parent' => 'FeedsFetcher',
-      'class' => 'FeedsRemoteDBFetcher',
-      'file' => 'FeedsRemoteDBFetcher.inc',
-      'path' => drupal_get_path('module', 'remotedb') . '/plugins',
+      'class' => 'Drupal\\remotedb\\Plugin\\Feeds\\RemotedbFetcher',
+      'file' => 'RemotedbFetcher.php',
+      'path' => drupal_get_path('module', 'remotedb') . '/lib/Drupal/remotedb/Plugin/Feeds',
     ),
   );
   return $info;
 }
 
 // ---------------------------------------------------------------------------
-// UTIL
+// ACCESS CALLBACKS
 // ---------------------------------------------------------------------------
 
 /**
- * Returns if RemoteDB service is enabled or not.
- *
- * @return boolean
- *   TRUE if the service is enabled.
- *   FALSE otherwise.
+ * Access callback for remotedb entity.
  */
-function remotedb_is_enabled() {
-  if (variable_get('remotedb_mode', 0) != REMOTEDB_DISABLED) {
-    return TRUE;
-  }
-  return FALSE;
+function remotedb_access($entity, $op) {
+  // @todo Implement!
+  return TRUE;
 }
 
-/**
- * Sends user data to remote database.
- *
- * @param object|array $account
- *   An array or object containing account data.
- *
- * @return int
- *   The uid in the remote database.
- * @throws RemoteDBException
- *   If the given account doesn't have a mail address.
- */
-function remotedb_send_user($account) {
-  $account = (array) $account;
-
-  if (!isset($account['mail'])) {
-    throw new RemoteDBException(t("The account can not be saved in the remote database, because it doesn't have a mail address."));
-  }
-  if (!isset($account['remotedb_pass']) && !isset($account['pass'])) {
-    // Send local stored password along.
-    $account['remotedb_pass'] = db_select('users')
-      ->fields('users', array('pass'))
-      ->condition('uid', $account['uid'])
-      ->execute()
-      ->fetchField();
-  }
-
-  // Allow other modules to add data to the account array that is being send.
-  foreach (module_implements('remotedb_send_user') as $module) {
-    $function = $module . '_' . 'remotedb_send_user';
-    if (function_exists($function)) {
-      $function($account);
-    }
-  }
-
-  // Delete "original". This could confuse the remote database.
-  unset($account['original']);
-
-  // Make sure the plain pass does't get send.
-  if (isset($account['pass_plain'])) {
-    unset($account['pass_plain']);
-  }
-
-  return RemoteDB::get()->sendRequest('dbuser.save', array($account))->getResult();
-}
+// ---------------------------------------------------------------------------
+// THEMING
+// ---------------------------------------------------------------------------
 
 /**
- * Converts text to paramaters.
- *
- * @param string $text
- *  The string to convert.
- *
- * @return array
- *   An array of parameters that can be used.
+ * Implements hook_theme().
  */
-function remotedb_text_to_params($text) {
-  $params = explode("\n", $text);
-  $params2 = array();
-  // Trim all params
-  foreach ($params as $index => $value) {
-    $key = $index;
-    remotedb_text_to_params_parse($value, $key);
-    $params2[$key] = $value;
-  }
-  return $params2;
-}
-
-/**
- * Parse a single param value.
- *
- * @return void
- */
-function remotedb_text_to_params_parse(&$value, &$key) {
-  $value = trim($value);
-  if (strpos($value, '|') !== FALSE) {
-    $paramparts = explode('|', $value);
-    $key = $paramparts[0];
-    $value = $paramparts[1];
-  }
-  $value = trim($value);
-  $regex = '/^array\((.+)\)$/i';
-  if (preg_match($regex, $value)) {
-    $sValues = preg_replace($regex, '${1}', $value);
-    $aValues = explode(',', $sValues);
-    $value = array();
-    foreach ($aValues as $index => $sValuePart) {
-      remotedb_text_to_params_parse($sValuePart, $index);
-      $value[$index] = $sValuePart;
-    }
-  }
+function remotedb_theme() {
+  return array(
+    'authentication_methods_order' => array(
+      'render element' => 'element',
+      'file' => 'remotedb.admin.inc',
+    ),
+  );
 }

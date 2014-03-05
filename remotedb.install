@@ -1,43 +1,44 @@
 <?php
 
 /**
- * Implements hook_schema_alter().
- * @param array $schema
- * @return void
+ * @file
+ * Installation file for remote database.
  */
-function remotedb_schema_alter(&$schema) {
-  $schema['users']['fields']['remotedb_uid'] = array(
-    'type' => 'int',
-    'not null' => TRUE,
-    'default' => 0,
-  );
-}
 
 /**
- * Implements hook_install().
- * @return array
+ * Implements hook_schema().
  */
-function remotedb_install() {
-  $ret = array();
-  $field = array(
-    'type' => 'int',
-    'not null' => TRUE,
-    'default' => 0,
-    'initial' => 0,
+function remotedb_schema() {
+  $schema['remotedb'] = array(
+    'description' => 'A list of remote databases.',
+    'fields' => array(
+      'remotedb_id' => array(
+        'description' => 'Unique identifier.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'Administrative name of this remote database.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'url' => array(
+        'description' => 'Url to the remote database.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'authentication_methods' => array(
+        'description' => 'Enabled methods for this configuration.',
+        'type' => 'blob',
+        'size' => 'big',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('remotedb_id'),
   );
-  $ret[] = db_add_field('users', 'remotedb_uid', $field);
-  return $ret;
-}
 
-/**
- * Implements hook_uninstall().
- * @return array
- */
-function remotedb_uninstall() {
-  $ret = array();
-  $ret[] = db_drop_field('users', 'remotedb_uid');
-  return $ret;
-}
-);
-  return $ret;
+  return $schema;
 }
