@@ -1,0 +1,287 @@
+<?php
+
+/**
+ * @file
+ * Enables registration and authentication via remote database..
+ */
+
+use Drupal\remotedbuser\Controller\RemotedbUserController;
+
+// Modes.
+define('REMOTEDB_REMOTEONLY',  0);
+define('REMOTEDB_REMOTEFIRST', 1);
+define('REMOTEDB_LOCALFIRST',  2);
+
+// ---------------------------------------------------------------------------
+// DRUPAL HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ */
+function remotedbuser_menu() {
+  $items = array();
+
+  $items['admin/config/services/remotedb/user'] = array(
+    'title' => 'User',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedbuser_admin_settings_form'),
+    'access arguments' => array('remotedb.administer'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'remotedbuser.admin.inc',
+  );
+
+  return $items;
+}
+
+// ---------------------------------------------------------------------------
+// USER HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_user_update().
+ */
+function remotedbuser_user_insert(&$edit, $account) {
+  // Perform the same actions as when updating.
+  return remotedbuser_user_update($edit, $account);
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function remotedbuser_user_update(&$edit, $account) {
+  // Check if a remote user is already assigned.
+  if (isset($account->remotedb_user)) {
+    // We assume that the local account was updated with information from the
+    // remote account. So there is no need to update the remote account.
+    return;
+  }
+
+  // Create remote account based on the local account.
+  $controller = entity_get_controller('remotedb_user');
+  $remote_account = $controller->fromAccount($account);
+
+  // Save remote account.
+  $result = $remote_account->save();
+  if (!$result) {
+    drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact op met ons op.', 'error');
+    watchdog('remotedb', 'Saving account failed for user %username (%uid)', array('%username' => $account->name, '%uid' => $account->uid), WATCHDOG_ERROR);
+  }
+  elseif (empty($account->remotedb_uid) || $remote_account->uid != $account->remotedb_uid) {
+    // Save remote account uid on local account.
+    db_update('users')
+      ->fields(array('remotedb_uid' => $remote_account->uid))
+      ->condition('uid', $account->uid)
+      ->execute();
+  }
+}
+
+/**
+ * Implements hook_user_view().
+ *
+ * Shows remote database user ID.
+ */
+function remotedbuser_user_view($account) {
+  // Add ID details.
+  $account->content['remotedb'] = array(
+    '#type' => 'user_profile_category',
+    '#title' => t('Remote Database'),
+    '#access' => user_access('administer users'),
+    'afas_dbid' => array(
+      '#type' => 'user_profile_item',
+      '#title' => t('Remote database UID'),
+      '#markup' => check_plain($account->remotedb_uid),
+    ),
+    '#weight' => 1,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ENTITY API HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_entity_info().
+ */
+function remotedbuser_entity_info() {
+  $return = array(
+    'remotedb_user' => array(
+      'label' => t('Remote database user'),
+      'entity class' => 'Drupal\\remotedbuser\\Entity\\RemotedbUser',
+      'controller class' => 'Drupal\\remotedbuser\\Controller\\RemotedbUserController',
+      'base table' => NULL,
+      'fieldable' => FALSE,
+      'entity keys' => array(
+        'id' => 'uid',
+        'label' => 'name',
+      ),
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
+      'module' => 'remotedbuser',
+    ),
+  );
+  return $return;
+}
+
+// ------------------------------------------------------------
+// FORM ALTERS
+// ------------------------------------------------------------
+
+/**
+ * Implements hook_form_FORM_ID_alter() for form user_register_form().
+ *
+ * @return void
+ */
+function remotedbuser_form_user_register_form_alter(&$form, $form_state) {
+  // Add validation functions for checking existing mail and username.
+  $form['#validate'][] = 'remotedbuser_account_form_validate';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for form user_profile_form().
+ *
+ * Makes Remote database user ID editable.
+ *
+ * @return void
+ */
+function remotedbuser_form_user_profile_form_alter(&$form, $form_state) {
+  // Add field for remote database user.
+  $form['remotedb'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Remote database'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#access' => user_access('remotedb.administer'),
+  );
+  $form['remotedb']['remotedb_uid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Remote database user ID'),
+    '#default_value' => $form['#user']->remotedb_uid,
+  );
+
+  // Add validation functions for changing mail and username.
+  $form['#validate'][] = 'remotedbuser_account_form_validate';
+}
+
+/**
+ * Form validation handler for user_account_form().
+ *
+ * @see user_account_form()
+ */
+function remotedbuser_account_form_validate($form, &$form_state) {
+  $rd_controller = remotedbuser_get();
+  if ($form['#user_category'] == 'account' || $form['#user_category'] == 'register') {
+    $account = $form['#user'];
+    $is_new = empty($account->uid);
+    $is_admin = !empty($form['administer_users']['#value']);
+    $name = isset($form_state['values']['name']) ? $form_state['values']['name'] : NULL;
+    $mail = isset($form_state['values']['mail']) ? $form_state['values']['mail'] : NULL;
+
+    if ($is_new && $is_admin) {
+      // An administrator is creating an account.
+      if (form_get_errors()) {
+        // Don't continue in case of other errors.
+        return;
+      }
+
+      // Get account from the remote database, if it exists.
+      $remote_account = $rd_controller->loadBy($mail, RemotedbUserController::BY_MAIL);
+      if ($remote_account) {
+        // Account exists. Make sure that the chosen username is not already taken if the
+        // remote account has an other username.
+        if ($remote_account->name != $name) {
+          if (!$rd_controller->validateName($name, $account)) {
+            form_set_error('name', t('The name %name is already taken.', array('%name' => $name)));
+          }
+        }
+      }
+    }
+    else {
+      // The account is an existing account or the account is not created by an administrator.
+
+      // Validate new or changing username.
+      if ($name) {
+        if (!$rd_controller->validateName($name, $account)) {
+          form_set_error('name', t('The name %name is already taken.', array('%name' => $name)));
+        }
+      }
+
+      // Validate the e-mail address, and check if it is taken by an existing user in the remote database.
+      if (!$rd_controller->validateMail($mail, $account)) {
+        // The mail address is already taken.
+        if ($GLOBALS['user']->uid) {
+          // An authenticated user is editing account data.
+          form_set_error('mail', t('The e-mail address %email is already taken.', array('%email' => $mail)));
+        }
+        else {
+          form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $mail, '@password' => url('user/password'))));
+        }
+      }
+    }
+  }
+//  form_set_error('mail', 'If you see no errors but this one, all is OK.');
+}
+
+// ---------------------------------------------------------------------------
+// UTIL
+// ---------------------------------------------------------------------------
+
+
+
+function myFunction() {
+  $rd_controller = remotedbuser_get();
+  /*
+  $account = user_load(9);
+  $controller = entity_get_controller('remotedb_user');
+  $entity = $controller->fromAccount($account);
+  $entity->name = 'HBenninga';
+  $entity->save();
+  */
+  
+  $account = user_load(9);
+  $name = 'HBenninga';
+  $valid = $rd_controller->validateName($name, $account);
+  
+  print_r_tree(get_defined_vars());die();
+
+  /*
+  $controller = entity_get_controller('remotedb_user');
+  $remote_account = $controller->loadBy('hbenninga@kerckebosch.nl', RemotedbUserController::BY_MAIL);
+  $account = $controller->toAccount($remote_account);
+  entity_save('user', $account);
+  print_r_tree(get_defined_vars());die();
+  */
+}
+
+/**
+ * Returns controller.
+ */
+function remotedbuser_get() {
+  return entity_get_controller('remotedb_user');
+}
+
+/**
+ * Get a remotedbuser setting.
+ *
+ * @param string $name
+ *   The setting to get.
+ *
+ * @return mixed
+ *   The value of the setting.
+ */
+function remotedbuser_variable_get($name) {
+  $value = variable_get('remotedbuser_' . $name, NULL);
+  if (is_null($value)) {
+    switch ($name) {
+      case 'remotedb':
+        $options = entity_get_controller('remotedb')->options();
+        if (empty($options)) {
+          return NULL;
+        }
+        return reset($options);
+      case 'login':
+        return REMOTEDB_LOCALFIRST;
+    }
+  }
+  return $value;
+}
