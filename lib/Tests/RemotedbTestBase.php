@@ -19,7 +19,7 @@ abstract class RemotedbTestBase extends DrupalWebTestCase {
    * @return void
    */
   protected function setUp(array $modules = array()) {
-    $modules = array_merge($modules, array('remotedb', 'remotedb_mock_test'));
+    $modules = array_merge($modules, array('remotedb', 'remotedb_test', 'yvklibrary'));
     parent::setUp($modules);
   }
 }

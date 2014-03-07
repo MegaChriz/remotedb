@@ -23,5 +23,6 @@ class UserLoginTestCase extends RemotedbUserTestBase {
    */
   public function testUserLogin() {
     // @todo Implement!
+    $this->remotedbCreateUser();
   }
 }

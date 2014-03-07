@@ -38,14 +38,6 @@ class Remotedb extends Entity implements RemotedbInterface {
   protected $authentication_methods = array();
 
   /**
-   * Contains the latest result from a XML-RPC Request.
-   *
-   * @var string
-   * @access private
-   */
-  private $result;
-
-  /**
    * An array of option to send along with the HTTP Request.
    *
    * @var array
@@ -163,16 +155,6 @@ class Remotedb extends Entity implements RemotedbInterface {
     return NULL;
   }
 
-  /**
-   * Returns the latest result from a XML-RPC server.
-   *
-   * @return string
-   *   The XML-RPC Result.
-   */
-  public function getResult() {
-    return $this->result;
-  }
-
   // ---------------------------------------------------------------------------
   // SETTERS
   // ---------------------------------------------------------------------------
@@ -237,7 +219,8 @@ class Remotedb extends Entity implements RemotedbInterface {
    * @param array $params
    *   An array of parameters.
    *
-   * @return \Drupal\remotedb\Entity\RemotedbInterface
+   * @return mixed
+   *   The result of the request.
    */
   public function sendRequest($method, array $params = array()) {
     if (!$this->authenticated) {
@@ -246,12 +229,12 @@ class Remotedb extends Entity implements RemotedbInterface {
 
     $args = array($method => $params);
     // Call XML-RPC.
-    $this->result = xmlrpc($this->url, $args, $this->options);
-    if ($this->result === FALSE) {
-      $this->result = xmlrpc_error();
+    $result = xmlrpc($this->url, $args, $this->options);
+    if ($result === FALSE) {
+      $result = xmlrpc_error();
       //self::reportError($this->result, $this->url, $method, $params);
     }
-    return $this;
+    return $result;
   }
 
   /**

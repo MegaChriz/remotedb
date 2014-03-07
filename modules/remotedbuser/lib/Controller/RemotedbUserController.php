@@ -85,7 +85,7 @@ class RemotedbUserController extends EntityAPIController {
 
     foreach ($ids as $id) {
       // The remote database only supports loading one remote user at a time.
-      $data = $this->sendRequest('dbuser.retrieve', array($id, $conditions['load_by']))->getResult();
+      $data = $this->sendRequest('dbuser.retrieve', array($id, $conditions['load_by']));
       if ($data) {
         $data['is_new'] = FALSE;
         $entity = $this->create($data);

@@ -41,14 +41,6 @@ interface RemotedbInterface {
    */
   public function getHeader($header);
 
-  /**
-   * Returns the latest result from a XML-RPC server.
-   *
-   * @return string
-   *   The XML-RPC Result.
-   */
-  public function getResult();
-
   // ---------------------------------------------------------------------------
   // SETTERS
   // ---------------------------------------------------------------------------
@@ -86,7 +78,8 @@ interface RemotedbInterface {
    * @param array $params
    *   An array of parameters.
    *
-   * @return \Drupal\remotedb\Entity\RemotedbInterface
+   * @return string
+   *   The XML-RPC Result.
    */
   public function sendRequest($method, array $params = array());
 }

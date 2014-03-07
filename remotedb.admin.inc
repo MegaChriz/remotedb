@@ -230,8 +230,7 @@ function remotedb_test_form_submit($form, &$form_state) {
   $params = $string->textToArray($form_state['values']['params']);
   $remotedb = entity_load_single('remotedb', $form_state['values']['remotedb']);
   if ($remotedb) {
-    $remotedb->sendRequest($method, $params);
-    $form_state['remotedb_result'] = $remotedb->getResult();
+    $form_state['remotedb_result'] = $remotedb->sendRequest($method, $params);
   }
   $form_state['rebuild'] = TRUE;
 }
