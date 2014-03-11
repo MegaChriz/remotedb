@@ -71,6 +71,7 @@ function remotedbuser_user_update(&$edit, $account) {
   }
   elseif (empty($account->remotedb_uid) || $remote_account->uid != $account->remotedb_uid) {
     // Save remote account uid on local account.
+    $account->remotedb_uid = $remote_account->uid;
     db_update('users')
       ->fields(array('remotedb_uid' => $remote_account->uid))
       ->condition('uid', $account->uid)
@@ -135,7 +136,7 @@ function remotedbuser_entity_info() {
 function remotedbuser_form_alter(&$form, $form_state) {
   $replacements = array(
     // Replace login validation handler. Login needs to be checked via the remote database.
-    'user_login_authenticate_validate' => 'remotedb_login_authenticate_validate',
+    'user_login_authenticate_validate' => 'remotedbuser_login_authenticate_validate',
   );
 
   if (isset($form['#validate']) && is_array($form['#validate'])) {
@@ -156,7 +157,7 @@ function remotedbuser_form_alter(&$form, $form_state) {
  * @return void
  * @see remotedbuser_form_alter()
  */
-function remotedb_login_authenticate_validate($form, &$form_state) {
+function remotedbuser_login_authenticate_validate($form, &$form_state) {
   $password = trim($form_state['values']['pass']);
   if (!empty($form_state['values']['name']) && !empty($password)) {
     $name = $form_state['values']['name'];

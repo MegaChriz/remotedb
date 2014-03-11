@@ -12,6 +12,22 @@ interface RemotedbInterface {
   // ---------------------------------------------------------------------------
 
   /**
+   * Creates a new entity.
+   *
+   * @param array $values
+   *   An array of values to set, keyed by property name.
+   * @param string $entity_type
+   *   The type of the entity.
+   *
+   * @return Drupal\remotedb\Entity\RemotedbInterface.
+   */
+  public function __construct(array $values = array(), $entityType = NULL);
+
+  // ---------------------------------------------------------------------------
+  // GETTERS
+  // ---------------------------------------------------------------------------
+
+  /**
    * Returns label for this remote database.
    */
   public function label();

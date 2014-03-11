@@ -42,6 +42,8 @@ class InstallTest extends RemotedbTestBase {
   }
 
   /**
+   * Callback for remote database calls.
+   *
    * @param string $method
    *   The method being called.
    * @param array $params

@@ -49,10 +49,13 @@ class RemotedbUserController extends EntityAPIController {
    */
   public function __construct($entityType) {
     parent::__construct($entityType);
-    // Set default remote database.
-    $remotedb = entity_load_single('remotedb', remotedbuser_variable_get('remotedb'));
-    if ($remotedb instanceof RemotedbInterface) {
-      $this->setRemotedb($remotedb);
+    // Set default remote database (if defined).
+    $remotedb_id = remotedbuser_variable_get('remotedb');
+    if ($remotedb_id) {
+      $remotedb = entity_load_single('remotedb', $remotedb_id);
+      if ($remotedb instanceof RemotedbInterface) {
+        $this->setRemotedb($remotedb);
+      }
     }
   }
 
@@ -128,7 +131,7 @@ class RemotedbUserController extends EntityAPIController {
    */
   public function save($entity) {
     // Save remote user into the remote database.
-    $result = $this->sendRequest('dbuser.save', array($entity->toArray()))->getResult();
+    $result = $this->sendRequest('dbuser.save', array($entity->toArray()));
     if (empty($result) || !is_numeric($result)) {
       return FALSE;
     }
@@ -189,11 +192,11 @@ class RemotedbUserController extends EntityAPIController {
    */
   public function toAccount(RemotedbUserInterface $entity) {
     // First, get account from local database, if it exists.
-    // First find by remotedb_uid, then by mail and finally by name.
+    // First find by remotedb_uid, then by name and finally by mail.
     $search = array(
       'remotedb_uid' => $entity->uid,
-      'mail' => $entity->mail,
       'name' => $entity->name,
+      'mail' => $entity->mail,
     );
     foreach ($search as $key => $value) {
       $users = user_load_multiple(array(), array($key => $value));
@@ -210,7 +213,30 @@ class RemotedbUserController extends EntityAPIController {
         '@uid' => $account->uid,
         '@remotedb_uid' => $entity->uid,
       );
-      throw new RemotedbExistingUserException(t('Failed to syncronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
+      throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
+    }
+
+    // Name and mail must be unique. If an account was found, make sure that no other account
+    // exists that has either the name or the mail address from the remote account.
+    if ($account) {
+      $search = array(
+        'name' => $entity->name,
+        'mail' => $entity->mail,
+      );
+      foreach ($search as $key => $value) {
+        $users = user_load_multiple(array(), array($key => $value));
+        if (!empty($users)) {
+          $account2 = reset($users);
+          if ($account->uid != $account2->uid) {
+            // We have a conflict here.
+            $vars = array(
+              '@uid' => $account2->uid,
+              '@remotedb_uid' => $entity->uid,
+            );
+            throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
+          }
+        }
+      }
     }
 
     // Construct values to set on the local account.
@@ -254,7 +280,7 @@ class RemotedbUserController extends EntityAPIController {
    *   The remotedb user's uid on success, or FALSE on failure to authenticate.
    */
   public function authenticate($name, $pass) {
-    return $this->sendRequest('dbuser.authenticate', array($name, $pass))->getResult();
+    return $this->sendRequest('dbuser.authenticate', array($name, $pass));
   }
 
   /**
@@ -323,8 +349,8 @@ class RemotedbUserController extends EntityAPIController {
    * @param array $params
    *   The parameters to send.
    *
-   * @return \Drupal\remotedb\Entity\RemotedbInterface
-   *   An instance of the remote database.
+   * @return mixed
+   *   The result of the method call.
    * @throws RemotedbException
    *   In case the remote database object was not set.
    */

@@ -20,6 +20,11 @@ class MockRemotedb implements RemotedbInterface {
   /**
    * {@inheritdoc}
    */
+  public function __construct(array $values = array(), $entityType = NULL) { }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label() {
     return 'Mock';
   }

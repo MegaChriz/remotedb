@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Dummy module providing a mock class for remotedb entity.
+ */
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function remotedbuser_test_entity_info_alter(&$entiy_info) {
+  $entiy_info['remotedb_user']['controller class'] = 'Drupal\\remotedbuser_test\\Controller\\RemotedbUserController';
+}
+

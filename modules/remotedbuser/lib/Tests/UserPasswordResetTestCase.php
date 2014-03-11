@@ -19,9 +19,34 @@ class UserPasswordResetTestCase extends RemotedbUserTestBase {
   }
 
   /**
-   * Tests password reset functionality.
+   * Tests password reset using username.
    */
-  public function testUserPasswordReset() {
-    // @todo Implement!
+  public function testUserPasswordResetByName() {
+    $remote_account = $this->remotedbCreateRemoteUser();
+
+    // Attempt to reset password.
+    $edit = array('name' => $remote_account->name);
+    $this->drupalPost('user/password', $edit, t('E-mail new password'));
+    // Confirm the password reset.
+    $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
+
+    // Assert that the remote account now exists locally and has a remote_uid.
+    $this->assertLocalUser($remote_account->uid);
+  }
+
+  /**
+   * Tests password reset using mail.
+   */
+  public function XtestUserPasswordResetByMail() {
+    $remote_account = $this->remotedbCreateRemoteUser();
+
+    // Attempt to reset password.
+    $edit = array('name' => $remote_account->mail);
+    $this->drupalPost('user/password', $edit, t('E-mail new password'));
+    // Confirm the password reset.
+    $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
+
+    // Assert that the remote account now exists locally and has a remote_uid.
+    $this->assertLocalUser($remote_account->uid);
   }
 }
