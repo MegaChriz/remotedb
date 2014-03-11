@@ -30,14 +30,14 @@ class UserPasswordResetTestCase extends RemotedbUserTestBase {
     // Confirm the password reset.
     $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
 
-    // Assert that the remote account now exists locally and has a remote_uid.
+    // Assert that the remote account now exists locally and has a remotedb_uid.
     $this->assertLocalUser($remote_account->uid);
   }
 
   /**
    * Tests password reset using mail.
    */
-  public function XtestUserPasswordResetByMail() {
+  public function testUserPasswordResetByMail() {
     $remote_account = $this->remotedbCreateRemoteUser();
 
     // Attempt to reset password.
@@ -46,7 +46,7 @@ class UserPasswordResetTestCase extends RemotedbUserTestBase {
     // Confirm the password reset.
     $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
 
-    // Assert that the remote account now exists locally and has a remote_uid.
+    // Assert that the remote account now exists locally and has a remotedb_uid.
     $this->assertLocalUser($remote_account->uid);
   }
 }

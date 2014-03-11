@@ -218,7 +218,7 @@ class RemotedbUserController extends EntityAPIController {
 
     // Name and mail must be unique. If an account was found, make sure that no other account
     // exists that has either the name or the mail address from the remote account.
-    if ($account) {
+    if (!empty($account)) {
       $search = array(
         'name' => $entity->name,
         'mail' => $entity->mail,
