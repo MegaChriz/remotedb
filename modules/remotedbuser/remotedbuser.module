@@ -207,7 +207,7 @@ function remotedbuser_form_user_profile_form_alter(&$form, $form_state) {
  * @see user_account_form()
  */
 function remotedbuser_account_form_validate($form, &$form_state) {
-  $rd_controller = remotedbuser_get();
+  $rd_controller = entity_get_controller('remotedb_user');
   if ($form['#user_category'] == 'account' || $form['#user_category'] == 'register') {
     $account = $form['#user'];
     $is_new = empty($account->uid);
@@ -297,7 +297,7 @@ function remotedbuser_form_user_pass_validate($form, &$form_state) {
   }
   else {
     // Account not found locally. Search in the remote database.
-    $rd_controller = remotedbuser_get();
+    $rd_controller = entity_get_controller('remotedb_user');
     // Try to load by email.
     $remote_account = $rd_controller->loadBy($name, RemotedbUserController::BY_MAIL);
     if (!$remote_account) {
@@ -366,7 +366,7 @@ function remotedbuser_authenticate($name, $password) {
  * @todo Deal with conflicts.
  */
 function remotedbuser_remote_authenticate($name, $password) {
-  $controller = remotedbuser_get();
+  $controller = entity_get_controller('remotedb_user');
   $remotedb_uid = $controller->authenticate($name, $password);
   if (!$remotedb_uid) {
     // Authentication failed.
@@ -388,38 +388,6 @@ function remotedbuser_remote_authenticate($name, $password) {
     }
   }
   return FALSE;
-}
-
-function myFunction() {
-  $rd_controller = remotedbuser_get();
-  /*
-  $account = user_load(9);
-  $controller = entity_get_controller('remotedb_user');
-  $entity = $controller->fromAccount($account);
-  $entity->name = 'HBenninga';
-  $entity->save();
-  */
-  
-  $account = user_load(9);
-  $name = 'HBenninga';
-  $valid = $rd_controller->validateName($name, $account);
-  
-  print_r_tree(get_defined_vars());die();
-
-  /*
-  $controller = entity_get_controller('remotedb_user');
-  $remote_account = $controller->loadBy('hbenninga@kerckebosch.nl', RemotedbUserController::BY_MAIL);
-  $account = $controller->toAccount($remote_account);
-  entity_save('user', $account);
-  print_r_tree(get_defined_vars());die();
-  */
-}
-
-/**
- * Returns controller.
- */
-function remotedbuser_get() {
-  return entity_get_controller('remotedb_user');
 }
 
 /**

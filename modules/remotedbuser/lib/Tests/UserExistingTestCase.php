@@ -184,7 +184,7 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $this->assertRaw(t("The changes have been saved."));
 
     $remotes = $this->controller->getRemoteAccounts();
-    outputlog(get_defined_vars());
+    //outputlog(get_defined_vars());
   }
 
   /**

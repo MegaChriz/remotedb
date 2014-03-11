@@ -90,9 +90,6 @@ class RemotedbUserController extends \Drupal\remotedbuser\Controller\RemotedbUse
         $pass = $params[1];
         return $this->dbuserAuthenticate($name, $pass);
     }
-    if (module_exists('yvklibrary')) {
-      outputlog(get_defined_vars());
-    }
   }
 
   /**

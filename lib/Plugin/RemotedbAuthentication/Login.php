@@ -11,8 +11,6 @@ use Drupal\remotedb\Plugin\AuthenticationBase;
 
 /**
  * Logs in an user on the remote database.
- *
- * @todo username/password import.
  */
 class Login extends AuthenticationBase {
   /**
