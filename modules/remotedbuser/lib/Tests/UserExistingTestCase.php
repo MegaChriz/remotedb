@@ -18,13 +18,6 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     );
   }
 
-  public function run(array $methods = array()) {
-    $methods = array(
-      'testExistingUserLocalLogin',
-    );
-    parent::run($methods);
-  }
-
   /**
    * Tests if a local user gets linked to the expected remote user if the name equals,
    * but the mail differs.
