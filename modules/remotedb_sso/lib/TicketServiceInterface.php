@@ -7,14 +7,12 @@
 
 namespace Drupal\remotedb_sso;
 
-use Drupal\remotedb\Entity\RemotedbInterface;
-
 interface TicketServiceInterface {
   /**
    * Generate a ticket for the given user.
    *
    * @param object $account
-   *   The account to generate an URL for.
+   *   The account to generate a ticket for.
    *
    * @return string
    *   The ticket.
@@ -22,7 +20,7 @@ interface TicketServiceInterface {
   public function getTicket($account);
 
   /**
-   * Generate a ticket for the given user.
+   * Validate a ticket.
    *
    * @param integer $remotedb_uid
    *   The remote user uid.
