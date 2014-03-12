@@ -96,6 +96,13 @@ class RemotedbUserController extends EntityAPIController {
       }
     }
 
+    // Pass all entities loaded from the database through $this->attachLoad(),
+    // which attaches fields (if supported by the entity type) and calls the
+    // entity type specific load callback, for example hook_node_load().
+    if (!empty($entities)) {
+      $this->attachLoad($entities, FALSE);
+    }
+
     return $entities;
   }
 
@@ -130,12 +137,25 @@ class RemotedbUserController extends EntityAPIController {
    *   FALSE otherwise.
    */
   public function save($entity) {
+    // Invoke presave hook.
+    $entity->is_new = !empty($entity->is_new) || empty($entity->{$this->idKey});
+    $this->invoke('presave', $entity);
+
     // Save remote user into the remote database.
     $result = $this->sendRequest('dbuser.save', array($entity->toArray()));
     if (empty($result) || !is_numeric($result)) {
       return FALSE;
     }
     $entity->uid = $result;
+
+    // Invoke postsave hook.
+    if ($entity->is_new) {
+      $this->invoke('insert', $entity);
+    }
+    else {
+      $this->invoke('update', $entity);
+    }
+
     // We don’t call parent::save(), because we don’t have anything to save locally.
     return TRUE;
   }
