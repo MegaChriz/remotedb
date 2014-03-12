@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file
+ * Provides Single Sign-on functionality for remote users.
+ */
+
+use \Drupal\remotedb_sso\Filter\SSO;
+
+// ---------------------------------------------------------------------------
+// DRUPAL HOOKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_menu().
+ */
+function remotedb_sso_menu() {
+  $items = array();
+
+  // Pass the user ID, timestamp, and hashed_pass.
+  $items['sso/login/%/%/%'] = array(
+    'title' => 'Login',
+    'page callback' => 'remotedb_sso_login',
+    'page arguments' => array(2, 3, 4),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'remotedb_sso.pages.inc',
+  );
+  $items['sso/goto/%'] = array(
+    'title' => 'SSO Redirect',
+    'page callback' => 'remotedb_sso_goto',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'remotedb_sso.pages.inc',
+  );
+
+  $items['admin/config/services/remotedb/sso'] = array(
+    'title' => 'SSO',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedb_sso_settings_form'),
+    'access arguments' => array('access RemoteDB administration page'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'remotedb_sso.admin.inc',
+  );
+
+  return $items;
+}
+
+// ---------------------------------------------------------------------------
+// FILTER
+// ---------------------------------------------------------------------------
+
+/**
+ * Implements hook_filter_info().
+ */
+function remotedb_sso_filter_info() {
+  $filters = array();
+  $filters['remotedb_sso'] = array(
+    'title' => t('SSO Link filter'),
+    'description' => t('Automatically create SSO links from links to certain external websites'),
+    'process callback' => 'remotedb_sso_filter_process',
+    'settings callback' => 'remotedb_sso_filter_settings',
+    'default settings' => array(
+      'websites' => '',
+    ),
+    'tips callback' => 'remotedb_sso_filter_tips',
+  );
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_FILTER_tips().
+ */
+function remotedb_sso_filter_tips($filter, $format, $long = FALSE) {
+  return t('SSO links to certain external websites will be automatically created.');
+}
+
+/**
+ * Filter process callback for remotedb_sso filter.
+ *
+ * Creates SSO links from links to certain external websites.
+ *
+ * @return string
+ *   Text with generated SSO links.
+ */
+function remotedb_sso_filter_process($text, $filter, $format = NULL) {
+  $sso = new SSO();
+  return $sso->filterText($text, $filter->settings['websites']);
+}
+
+/**
+ * Filter settings callback for remotedb_sso filter.
+ */
+function remotedb_sso_filter_settings($form, $form_state, $filter, $format, $defaults, $filters) {
+  $filter->settings += $defaults;
+
+  $elements = array();
+  $elements['websites'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Websites'),
+    '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at !remotedb_sso_settings_url page.', array('!remotedb_sso_settings_url' => l(t('RemoteDB settings'), 'admin/config/system/remotedb/sso'))),
+    '#default_value' => $filter->settings['websites'],
+  );
+
+  return $elements;
+}
+
+// ---------------------------------------------------------------------------
+// UTIL
+// ---------------------------------------------------------------------------
+
+/**
+ * Gets a remotedb_sso setting.
+ *
+ * @param string $name
+ *   The setting to get.
+ *
+ * @return mixed
+ *   The value of the setting.
+ */
+function remotedb_sso_variable_get($name) {
+  $value = variable_get('remotedb_sso_' . $name, NULL);
+  if (is_null($value)) {
+    switch ($name) {
+    }
+  }
+  return $value;
+}

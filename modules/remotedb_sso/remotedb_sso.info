@@ -1,0 +1,6 @@
+name = Remote database Single Sign-on
+description = "UNFINISHED Provides Single Sign-on functionality for remote users."
+dependencies[] = remotedbuser
+package = "Remote database"
+core = 7.x
+version = "7.x-3.0-prealpha001"
