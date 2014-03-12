@@ -66,7 +66,6 @@ class Remotedb extends Entity implements RemotedbInterface {
     if (is_null($entityType)) {
       $entityType = 'remotedb';
     }
-    $this->result = '';
     $this->options = array();
     $this->authenticated = FALSE;
     parent::__construct($values, $entityType);
