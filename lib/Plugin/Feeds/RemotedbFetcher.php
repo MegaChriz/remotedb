@@ -9,6 +9,8 @@ namespace Drupal\remotedb\Plugin\Feeds;
 
 use Drupal\remotedb\Plugin\Feeds\RemotedbFetcherResult;
 use \FeedsFetcher;
+use \FeedsSource;
+use \FeedsNotExistingException;
 
 /**
  * Fetches data via HTTP.
@@ -20,15 +22,11 @@ class RemotedbFetcher extends FeedsFetcher {
   public function fetch(FeedsSource $source) {
     $source_config = $source->getConfigFor($this);
     $config = $source_config + $this->config;
-    if (!empty($config['override'])) {
-      $url = $source_config['source'];
+    $remotedb = entity_load_single('remotedb', $config['remotedb']);
+    if (empty($remotedb)) {
+      throw new FeedsNotExistingException(t('Source configuration not valid.'));
     }
-    else {
-      $url = RemoteDB::get()->getUrl();
-      $source_config['source'] = $url;
-      $source->setConfigFor($this, $source_config);
-    }
-    return new RemotedbFetcherResult($url, $config);
+    return new RemotedbFetcherResult($remotedb, $config);
   }
 
   /**
@@ -36,6 +34,7 @@ class RemotedbFetcher extends FeedsFetcher {
    */
   public function configDefaults() {
     return array(
+      'remotedb' => NULL,
       'method' => '',
       'params' => '',
       'override' => FALSE,
@@ -47,6 +46,16 @@ class RemotedbFetcher extends FeedsFetcher {
    */
   public function configForm(&$form_state) {
     $form = array();
+
+    $form['remotedb'] = array(
+      '#type' => 'select',
+      '#options' => entity_get_controller('remotedb')->options(),
+      '#title' => t('Database'),
+      '#required' => TRUE,
+      '#description' => t('The remote database.'),
+      '#default_value' => $this->config['remotedb'],
+    );
+
     $form['method'] = array(
       '#type' => 'textfield',
       '#title' => t('Method'),
@@ -78,17 +87,15 @@ class RemotedbFetcher extends FeedsFetcher {
     if (!$this->config['override']) {
       return $form;
     }
-    try {
-      $form = array();
-      $form['source'] = array(
-        '#type' => 'textfield',
-        '#value' => RemoteDB::get()->getUrl(),
-      );
-    }
-    catch (Exception $e) {
-      drupal_set_message($e->getMessage(), 'error');
-    }
 
+    $form['remotedb'] = array(
+      '#type' => 'select',
+      '#options' => entity_get_controller('remotedb')->options(),
+      '#title' => t('Database'),
+      '#required' => TRUE,
+      '#description' => t('The remote database.'),
+      '#default_value' => isset($source_config['remotedb']) ? $source_config['remotedb'] : NULL,
+    );
     $form['method'] = array(
       '#type' => 'textfield',
       '#title' => t('Method'),

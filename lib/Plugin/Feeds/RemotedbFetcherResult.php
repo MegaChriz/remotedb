@@ -7,20 +7,34 @@
 
 namespace Drupal\remotedb\Plugin\Feeds;
 
+use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb\Component\String;
 use \FeedsFetcherResult;
 
 /**
  * Result of FeedsHTTPFetcher::fetch().
  */
 class RemotedbFetcherResult extends FeedsFetcherResult {
-  protected $url;
+  /**
+   * The remote database to fetch data from.
+   *
+   * @var \Drupal\remotedb\Entity\RemotedbInterface
+   */
+  protected $remotedb;
+
+  /**
+   * Configuration for the request to send to remote database.
+   *
+   * @var array
+   */
   protected $config;
 
   /**
    * Constructor.
    */
-  public function __construct($url = NULL, $config) {
-    $this->url = $url;
+  public function __construct(RemotedbInterface $remotedb, array $config) {
+    $this->remotedb = $remotedb;
     $this->config = $config;
   }
 
@@ -28,15 +42,15 @@ class RemotedbFetcherResult extends FeedsFetcherResult {
    * Overrides FeedsFetcherResult::getRaw();
    */
   public function getRaw() {
-    $oRemoteDB = RemoteDB::get($this->url);
-    $oRemoteDB->sendRequest($this->config['method'], remotedb_text_to_params($this->config['params']));
-    $result = $oRemoteDB->getResult();
+    $string = new String();
+    $params = $string->textToArray($this->config['params']);
+    $result = $this->remotedb->sendRequest($this->config['method'], $params);
     if (is_object($result) && isset($result->is_error) && $result->is_error == TRUE) {
       $variables = array(
         '@message' => $result->message,
         '@code' => $result->code,
       );
-      throw new RemoteDBException(t('An error occured when fetching data from the remote database: @message (@code)', $variables));
+      throw new RemotedbException(t('An error occured when fetching data from the remote database: @message (@code)', $variables));
     }
     return serialize($result);
   }
