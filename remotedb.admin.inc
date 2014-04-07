@@ -28,6 +28,18 @@ function remotedb_form($form, $form_state) {
     '#maxlength' => 255,
     '#default_value' => $remotedb->label,
   );
+  $form['name'] = array(
+    '#type' => 'machine_name',
+    '#size' => '64',
+    '#default_value' => $remotedb->name,
+    '#required' => TRUE,
+    '#machine_name' => array(
+      'exists' => 'remotedb_load',
+      'source' => array('label'),
+      'replace_pattern' => '[^0-9a-z_\-]',
+      'error' => t('Please only use lowercase alphanumeric characters, underscores (_), and hyphens (-) for style names.'),
+    ),
+  );
   $form['url'] = array(
     '#type' => 'textfield',
     '#title' => t('URL'),

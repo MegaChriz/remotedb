@@ -45,4 +45,22 @@ class RemotedbController extends EntityAPIController {
     }
     return $options;
   }
+
+  /**
+   * Implements EntityAPIController::export().
+   */
+  function export($entity, $prefix = '') {
+    $vars = array(
+      'name' => $entity->id(),
+      'label' => $entity->label(),
+      'url' => $entity->getUrl(),
+    );
+    $methods = $entity->getAuthenticationMethods();
+    foreach ($methods as $key => $method) {
+      $vars['authentication_methods'][$key] = $method->getConfiguration();
+    }
+    $vars += get_object_vars($entity);
+    unset($vars['is_new']);
+    return entity_var_json_export($vars, $prefix);
+  }
 }
