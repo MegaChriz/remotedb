@@ -74,6 +74,20 @@ class RemotedbUserController extends EntityAPIController {
   }
 
   // ---------------------------------------------------------------------------
+  // GETTERS
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Returns remote database that is used.
+   *
+   * @return RemotedbInterface $remotedb
+   *   A remote database object.
+   */
+  public function getRemotedb() {
+    return $this->remotedb;
+  }
+
+  // ---------------------------------------------------------------------------
   // LOADING/SAVING
   // ---------------------------------------------------------------------------
 
@@ -323,8 +337,12 @@ class RemotedbUserController extends EntityAPIController {
       return TRUE;
     }
     elseif (empty($account->remotedb_uid)) {
-      // @todo...
-      //print_r_tree(get_defined_vars());die();
+      // This could be a valid case, but only if user name and mail exactly match.
+      if (isset($account->mail)) {
+        if ($name == $remote_account->name && $account->mail == $remote_account->mail) {
+          return TRUE;
+        }
+      }
     }
     elseif ($account->remotedb_uid == $remote_account->uid) {
       // Accounts match.
@@ -351,7 +369,12 @@ class RemotedbUserController extends EntityAPIController {
       return TRUE;
     }
     elseif (empty($account->remotedb_uid)) {
-      // @todo...
+      // This could be a valid case, but only if user name and mail exactly match.
+      if (isset($account->name)) {
+        if ($account->name == $remote_account->name && $mail == $remote_account->mail) {
+          return TRUE;
+        }
+      }
     }
     elseif ($account->remotedb_uid == $remote_account->uid) {
       // Accounts match.
