@@ -5,7 +5,6 @@
  * Enables registration and authentication via remote database..
  */
 
-use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 
@@ -91,7 +90,7 @@ function remotedbuser_user_view($account) {
       '#type' => 'user_profile_category',
       '#title' => t('Remote Database'),
       '#access' => user_access('administer users'),
-      'afas_dbid' => array(
+      'remotedb_uid' => array(
         '#type' => 'user_profile_item',
         '#title' => t('Remote database UID'),
         '#markup' => check_plain($account->remotedb_uid),
@@ -126,6 +125,21 @@ function remotedbuser_entity_info() {
     ),
   );
   return $return;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ *
+ * Describe remotedb_uid field.
+ */
+function remotedbuser_entity_property_info_alter(&$info) {
+  $user_properties = &$info['user']['properties'];
+  $user_properties['remotedb_uid'] = array(
+    'label' => t('Remote database UID'),
+    'type' => 'integer',
+    'description' => t('The ID of the user in the remote database.'),
+    'schema field' => 'remotedb_uid',
+  );
 }
 
 // ---------------------------------------------------------------------------
