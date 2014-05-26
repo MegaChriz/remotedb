@@ -196,6 +196,9 @@ function remotedbuser_form_user_register_form_alter(&$form, $form_state) {
  * @return void
  */
 function remotedbuser_form_user_profile_form_alter(&$form, $form_state) {
+  if (empty($form['#user_category']) || $form['#user_category'] != 'account') {
+    return;
+  }
   // Add field for remote database user.
   $form['remotedb'] = array(
     '#type' => 'fieldset',
