@@ -25,6 +25,13 @@ class MockRemotedb implements RemotedbInterface {
   /**
    * {@inheritdoc}
    */
+  public function id() {
+    return 'mock';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label() {
     return 'Mock';
   }

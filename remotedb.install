@@ -12,9 +12,10 @@ function remotedb_schema() {
   $schema['remotedb'] = array(
     'description' => 'A list of remote databases.',
     'fields' => array(
-      'remotedb_id' => array(
+      'name' => array(
         'description' => 'Unique identifier.',
-        'type' => 'serial',
+        'type' => 'varchar',
+        'length' => '255',
         'not null' => TRUE,
       ),
       'label' => array(
@@ -36,8 +37,21 @@ function remotedb_schema() {
         'serialize' => TRUE,
         'not null' => FALSE,
       ),
+      'status' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'default' => 0x01,
+        'not null' => TRUE,
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
     ),
-    'primary key' => array('remotedb_id'),
+    'primary key' => array('name'),
   );
 
   return $schema;

@@ -23,6 +23,14 @@ class Remotedb extends Entity implements RemotedbInterface {
   private $url;
 
   /**
+   * The unique identifier for this remote database.
+   *
+   * @var string
+   * @access private
+   */
+  private $name;
+
+  /**
    * The administrative name of this remote database.
    *
    * @var string
@@ -76,6 +84,13 @@ class Remotedb extends Entity implements RemotedbInterface {
   // ---------------------------------------------------------------------------
 
   /**
+   * Implements RemotedbInterface::id().
+   */
+  public function id() {
+    return $this->identifier();
+  }
+
+  /**
    * Magic getter.
    *
    * @return mixed
@@ -106,7 +121,7 @@ class Remotedb extends Entity implements RemotedbInterface {
   }
 
   /**
-   * Returns the used url.
+   * Implements RemotedbInterface::getUrl().
    */
   public function getUrl() {
     return $this->url;

@@ -59,6 +59,19 @@ function remotedb_permission() {
   );
 }
 
+/**
+ * Loads a remote database.
+ *
+ * @param $id
+ *   The ID of the remote database to load.
+ *
+ * @return Drupal\remotedb\Entity\RemotedbInterface
+ *   An instance of RemotedbInterface.
+ */
+function remotedb_load($id) {
+  entity_object_load($id, 'remotedb');
+}
+
 // ---------------------------------------------------------------------------
 // ENTITY API HOOKS
 // ---------------------------------------------------------------------------
@@ -75,15 +88,15 @@ function remotedb_entity_info() {
       'base table' => 'remotedb',
       'fieldable' => FALSE,
       'entity keys' => array(
-        'id' => 'remotedb_id',
+        'id' => 'name',
         'label' => 'label',
       ),
+      'exportable' => TRUE,
       'admin ui' => array(
         'path' => 'admin/config/services/remotedb',
         'file' => 'remotedb.admin.inc',
-        //'controller class' => 'EntityDefaultUIController',
+        'controller class' => 'EntityDefaultUIController',
       ),
-      'label callback' => 'entity_class_label',
       'uri callback' => 'entity_class_uri',
       'module' => 'remotedb',
       'access callback' => 'remotedb_access',

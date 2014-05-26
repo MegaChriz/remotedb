@@ -28,12 +28,26 @@ interface RemotedbInterface {
   // ---------------------------------------------------------------------------
 
   /**
+   * Returns the ID of this remote database instance.
+   *
+   * @return string
+   *   The ID of this remote database.
+   */
+  public function id();
+
+  /**
    * Returns label for this remote database.
+   *
+   * @return string
+   *   The label of this remote database.
    */
   public function label();
 
   /**
    * Returns the used url.
+   *
+   * @return string
+   *   The url of the remote database connection.
    */
   public function getUrl();
 

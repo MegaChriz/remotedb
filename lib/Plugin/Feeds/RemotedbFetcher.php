@@ -76,6 +76,7 @@ class RemotedbFetcher extends FeedsFetcher {
       '#description' => t('Allow the import form to override the values above.'),
       '#default_value' => $this->config['override'],
     );
+
     return $form;
   }
 
@@ -88,27 +89,40 @@ class RemotedbFetcher extends FeedsFetcher {
       return $form;
     }
 
+    // Merge source config with default config.
+    $source_config += $this->config;
+    $source_config += $this->configDefaults();
+
+    if (empty($source_config['method'])) {
+      foreach ($source_config as $key => $value) {
+        if (empty($value) && isset($this->config[$key])) {
+          $source_config[$key] = $this->config[$key];
+        }
+      }
+    }
+
     $form['remotedb'] = array(
       '#type' => 'select',
       '#options' => entity_get_controller('remotedb')->options(),
       '#title' => t('Database'),
       '#required' => TRUE,
       '#description' => t('The remote database.'),
-      '#default_value' => isset($source_config['remotedb']) ? $source_config['remotedb'] : NULL,
+      '#default_value' => $source_config['remotedb'],
     );
     $form['method'] = array(
       '#type' => 'textfield',
       '#title' => t('Method'),
       '#required' => TRUE,
       '#description' => t('The method to call.'),
-      '#default_value' => isset($source_config['method']) ? $source_config['method'] : '',
+      '#default_value' => $source_config['method'],
     );
     $form['params'] = array(
       '#type' => 'textarea',
       '#title' => t('Parameters'),
       '#description' => t('Specify the parameters to use, one on each line.'),
-      '#default_value' => isset($source_config['params']) ? $source_config['params'] : '',
+      '#default_value' => $source_config['params'],
     );
+
     return $form;
   }
 }
