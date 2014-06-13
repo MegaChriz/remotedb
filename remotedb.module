@@ -179,9 +179,8 @@ function remotedb_feeds_plugins() {
 /**
  * Access callback for remotedb entity.
  */
-function remotedb_access($entity, $op) {
-  // @todo Implement!
-  return TRUE;
+function remotedb_access($op, $entity, $account) {
+  return user_access('remotedb.administer', $account);
 }
 
 // ---------------------------------------------------------------------------
