@@ -50,12 +50,9 @@ class RemotedbUserController extends EntityAPIController {
   public function __construct($entityType) {
     parent::__construct($entityType);
     // Set default remote database (if defined).
-    $remotedb_id = remotedbuser_variable_get('remotedb');
-    if ($remotedb_id) {
-      $remotedb = entity_load_single('remotedb', $remotedb_id);
-      if ($remotedb instanceof RemotedbInterface) {
-        $this->setRemotedb($remotedb);
-      }
+    $remotedb = remotedbuser_get_remotedb();
+    if ($remotedb instanceof RemotedbInterface) {
+      $this->setRemotedb($remotedb);
     }
   }
 

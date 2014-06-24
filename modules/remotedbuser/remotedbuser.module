@@ -5,6 +5,7 @@
  * Enables registration and authentication via remote database..
  */
 
+use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 
@@ -375,6 +376,7 @@ function remotedbuser_authenticate($name, $password) {
         return $uid;
       }
       break;
+
     case REMOTEDB_REMOTEFIRST:
       $uid = remotedbuser_remote_authenticate($name, $password);
       if ($uid) {
@@ -423,6 +425,24 @@ function remotedbuser_remote_authenticate($name, $password) {
 }
 
 /**
+ * Gets remote database to use for user related actions.
+ *
+ * @return \Drupal\remotedb\Entity\RemotedbInterface | NULL
+ *   An instance of RemotedbInterface, if found.
+ *   NULL otherwise.
+ */
+function remotedbuser_get_remotedb() {
+  $remotedb_id = remotedbuser_variable_get('remotedb');
+  if ($remotedb_id) {
+    $remotedb = entity_load_single('remotedb', $remotedb_id);
+    if ($remotedb instanceof RemotedbInterface) {
+      return $remotedb;
+    }
+  }
+  return NULL;
+}
+
+/**
  * Get a remotedbuser setting.
  *
  * @param string $name
@@ -441,6 +461,7 @@ function remotedbuser_variable_get($name) {
           return NULL;
         }
         return reset($options);
+
       case 'login':
         return REMOTEDB_LOCALFIRST;
     }
