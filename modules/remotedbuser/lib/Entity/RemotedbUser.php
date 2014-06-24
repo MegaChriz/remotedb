@@ -13,7 +13,12 @@ class RemotedbUser extends Entity implements RemotedbUserInterface {
    * Implements RemotedbUserInterface::toArray().
    */
   public function toArray() {
-    return get_object_vars($this);
+    $values = get_object_vars($this);
+
+    // Don't send attached account along.
+    unset($values['account']);
+
+    return $values;
   }
 
   /**

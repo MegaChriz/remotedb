@@ -177,7 +177,7 @@ class RemotedbUserController extends EntityAPIController {
    * @param object $account
    *   The local user account.
    *
-   * @return \Drupal\remotedb\Entity\RemotedbUser
+   * @return \Drupal\remotedb\Entity\RemotedbUserInterface
    *   A remotedb user object.
    * @throws RemotedbException
    *   If the passed in account does not have a mail address.
@@ -209,13 +209,20 @@ class RemotedbUserController extends EntityAPIController {
       ->execute()
       ->fetchField();
 
-    return $this->create($values);
+    // Instantiate a RemotedbUserInterface object.
+    $entity = $this->create($values);
+
+    // Cross reference.
+    $entity->account = $account;
+    $account->remotedb_user = $entity;
+
+    return $entity;
   }
 
   /**
    * Sets data from a remote account to the local account.
    *
-   * @param \Drupal\remotedb\Entity\RemotedbUser $entity
+   * @param \Drupal\remotedb\Entity\RemotedbUserInterface $entity
    *   The Remote user.
    *
    * @return object
