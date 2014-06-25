@@ -36,6 +36,29 @@ function remotedbuser_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_hook_info().
+ *
+ * Declares available hooks invoked by this module.
+ *
+ * @return array
+ *   A list of hooks.
+ */
+function remotedbuser_hook_info() {
+  $hooks = array(
+    'remotedb_user_presave',
+    'remotedb_user_insert',
+    'remotedb_user_update',
+  );
+  $return = array();
+  foreach ($hooks as $hook) {
+    $return[$hook] = array(
+      'group' => 'remotedb',
+    );
+  }
+  return $return;
+}
+
 // ---------------------------------------------------------------------------
 // USER HOOKS
 // ---------------------------------------------------------------------------
