@@ -112,7 +112,7 @@ class RemotedbUserTestBase extends RemotedbTestBase {
    * @var int $remotedb_uid
    *   The expected remote user uid.
    *
-   * @return boolean
+   * @return bool
    *   TRUE on pass, FALSE on fail.
    */
   protected function assertLocalUser($remotedb_uid) {

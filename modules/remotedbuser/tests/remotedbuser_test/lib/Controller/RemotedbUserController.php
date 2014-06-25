@@ -142,7 +142,7 @@ class RemotedbUserController extends \Drupal\remotedbuser\Controller\RemotedbUse
    * @param string $password
    *   The user's password.
    *
-   * @return int|boolean
+   * @return int|bool
    *   The remote user's ID if authentication was succesful.
    *   FALSE otherwise.
    */

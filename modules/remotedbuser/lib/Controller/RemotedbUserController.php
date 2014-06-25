@@ -143,7 +143,7 @@ class RemotedbUserController extends EntityAPIController {
   /**
    * Overrides EntityAPIController::save().
    *
-   * @return boolean
+   * @return bool
    *   TRUE if saving succeeded.
    *   FALSE otherwise.
    */
@@ -314,7 +314,7 @@ class RemotedbUserController extends EntityAPIController {
    * @param string $password
    *   A plain-text password.
    *
-   * @return int|boolean
+   * @return int|bool
    *   The remotedb user's uid on success, or FALSE on failure to authenticate.
    */
   public function authenticate($name, $pass) {
@@ -329,7 +329,7 @@ class RemotedbUserController extends EntityAPIController {
    * @param object $account
    *   The user's account.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if validation passes.
    *   FALSE otherwise.
    * @todo Remotedb_uid should probably be send along instead.
@@ -364,7 +364,9 @@ class RemotedbUserController extends EntityAPIController {
    * @param object $account
    *   The user's account.
    *
-   * @return boolean
+   * @return bool
+   *   TRUE if validation passes.
+   *   FALSE otherwise.
    */
   public function validateMail($mail, $account) {
     $remote_account = $this->loadBy($mail, self::BY_MAIL);

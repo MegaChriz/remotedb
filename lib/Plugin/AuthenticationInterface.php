@@ -35,7 +35,7 @@ interface AuthenticationInterface {
   /**
    * Executes authentication method.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if authentication was succesful.
    *   FALSE otherwise.
    */

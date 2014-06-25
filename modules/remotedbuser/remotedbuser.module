@@ -359,7 +359,7 @@ function remotedbuser_form_user_pass_validate($form, &$form_state) {
  * @param string $password
  *   A plain-text password, such as trimmed text from form values.
  *
- * @return int|boolean
+ * @return int|bool
  *   The user's uid on success, or FALSE on failure to authenticate.
  */
 function remotedbuser_authenticate($name, $password) {
@@ -395,7 +395,7 @@ function remotedbuser_authenticate($name, $password) {
  * Authenticates name/password against the remote database and copies over
  * the remote user if needed.
  *
- * @return int|boolean
+ * @return int|bool
  *   The user's uid on success, or FALSE on failure to authenticate.
  * @todo Deal with conflicts.
  */

@@ -56,7 +56,7 @@ class Remotedb extends Entity implements RemotedbInterface {
   /**
    * Whether or not the authentication process has run.
    *
-   * @var boolean
+   * @var bool
    * @access private
    */
   private $authenticated;
@@ -105,7 +105,7 @@ class Remotedb extends Entity implements RemotedbInterface {
   /**
    * Magic method for giving back if property exists or not.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if the property exists.
    *   FALSE otherwise.
    */
