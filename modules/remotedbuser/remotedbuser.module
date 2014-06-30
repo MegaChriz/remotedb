@@ -483,7 +483,8 @@ function remotedbuser_variable_get($name) {
         if (empty($options)) {
           return NULL;
         }
-        return reset($options);
+        reset($options);
+        return key($options);
 
       case 'login':
         return REMOTEDB_LOCALFIRST;
