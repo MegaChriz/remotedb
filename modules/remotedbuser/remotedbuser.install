@@ -7,8 +7,6 @@
 
 /**
  * Implements hook_schema_alter().
- * @param array $schema
- * @return void
  */
 function remotedbuser_schema_alter(&$schema) {
   $schema['users']['fields']['remotedb_uid'] = array(
@@ -20,26 +18,26 @@ function remotedbuser_schema_alter(&$schema) {
 
 /**
  * Implements hook_install().
- * @return array
  */
 function remotedbuser_install() {
-  $ret = array();
+  // Add remotedb_uid field to the users table.
   $field = array(
     'type' => 'int',
     'not null' => TRUE,
     'default' => 0,
     'initial' => 0,
   );
-  $ret[] = db_add_field('users', 'remotedb_uid', $field);
-  return $ret;
+  db_add_field('users', 'remotedb_uid', $field);
 }
 
 /**
  * Implements hook_uninstall().
- * @return array
  */
 function remotedbuser_uninstall() {
-  $ret = array();
-  $ret[] = db_drop_field('users', 'remotedb_uid');
-  return $ret;
+  // Drop remotedb_uid from users table.
+  db_drop_field('users', 'remotedb_uid');
+
+  // Remove variables defined by this module.
+  variable_del('remotedbuser_remotedb');
+  variable_del('remotedbuser_login');
 }

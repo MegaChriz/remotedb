@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Installation for Remote database Single Sign-on.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function remotedb_sso_uninstall() {
+  // Remove variables defined by this module.
+  variable_del('remotedb_sso_websites');
+}

@@ -76,8 +76,6 @@ function remotedb_role_settings_form($form, $form_state) {
     '#default_value' => variable_get('remotedb_role_debug', FALSE),
   );
 
-  $form['#submit'][] = 'remotedb_role_settings_submit';
-
   $form = system_settings_form($form);
   return $form;
 }
