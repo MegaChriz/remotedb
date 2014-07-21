@@ -6,6 +6,7 @@
  */
 
 use Drupal\remotedb\Component\String;
+use Drupal\remotedb\Exception\RemotedbException;
 
 // ---------------------------------------------------------------------------
 // ENTITY FORM
@@ -242,7 +243,12 @@ function remotedb_test_form_submit($form, &$form_state) {
   $params = $string->textToArray($form_state['values']['params']);
   $remotedb = entity_load_single('remotedb', $form_state['values']['remotedb']);
   if ($remotedb) {
-    $form_state['remotedb_result'] = $remotedb->sendRequest($method, $params);
+    try {
+      $form_state['remotedb_result'] = $remotedb->sendRequest($method, $params);
+    }
+    catch (RemotedbException $e) {
+      $e->printMessage();
+    }
   }
   $form_state['rebuild'] = TRUE;
 }

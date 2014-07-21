@@ -407,6 +407,12 @@ class RemotedbUserController extends EntityAPIController {
     if (!($this->remotedb instanceof RemotedbInterface)) {
       throw new RemotedbException(t('Can not perform request to the remote database, because the RemotedbUserController did not receive a remote database object.'));
     }
-    return $this->remotedb->sendRequest($method, $params);
+    try {
+      return $this->remotedb->sendRequest($method, $params);
+    }
+    catch (RemotedbException $e) {
+      $e->logError();
+      return FALSE;
+    }
   }
 }

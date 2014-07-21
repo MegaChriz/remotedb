@@ -44,11 +44,13 @@ class RemotedbFetcherResult extends FeedsFetcherResult {
   public function getRaw() {
     $string = new String();
     $params = $string->textToArray($this->config['params']);
-    $result = $this->remotedb->sendRequest($this->config['method'], $params);
-    if (is_object($result) && isset($result->is_error) && $result->is_error == TRUE) {
+    try {
+      $result = $this->remotedb->sendRequest($this->config['method'], $params);
+    }
+    catch (RemotedbException $e) {
       $variables = array(
-        '@message' => $result->message,
-        '@code' => $result->code,
+        '@message' => $e->getMessage(),
+        '@code' => $e->getCode(),
       );
       throw new RemotedbException(t('An error occured when fetching data from the remote database: @message (@code)', $variables));
     }

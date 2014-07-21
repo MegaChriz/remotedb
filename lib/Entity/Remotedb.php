@@ -6,8 +6,9 @@
 
 namespace Drupal\remotedb\Entity;
 
-use Drupal\remotedb\Entity\RemotedbInterface;
 use \Entity;
+use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Exception\RemotedbException;
 
 class Remotedb extends Entity implements RemotedbInterface {
   // ---------------------------------------------------------------------------
@@ -235,6 +236,8 @@ class Remotedb extends Entity implements RemotedbInterface {
    *
    * @return mixed
    *   The result of the request.
+   * @throws Drupal\remotedb\Exception\RemotedbException
+   *   In case of errors during the request.
    */
   public function sendRequest($method, array $params = array()) {
     if (!$this->authenticated) {
@@ -246,7 +249,7 @@ class Remotedb extends Entity implements RemotedbInterface {
     $result = xmlrpc($this->url, $args, $this->options);
     if ($result === FALSE) {
       $result = xmlrpc_error();
-      //self::reportError($this->result, $this->url, $method, $params);
+      throw new RemotedbException($result->message, $result->code);
     }
     return $result;
   }
