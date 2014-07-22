@@ -248,8 +248,11 @@ class Remotedb extends Entity implements RemotedbInterface {
     // Call XML-RPC.
     $result = xmlrpc($this->url, $args, $this->options);
     if ($result === FALSE) {
-      $result = xmlrpc_error();
-      throw new RemotedbException($result->message, $result->code);
+      $error = xmlrpc_error();
+      // Throw exception in case of errors.
+      if (is_object($error) && !empty($error->is_error)) {
+        throw new RemotedbException($error->message, $error->code);
+      }
     }
     return $result;
   }
