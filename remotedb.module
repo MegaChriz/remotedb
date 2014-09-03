@@ -166,7 +166,7 @@ function remotedb_feeds_plugins() {
       'parent' => 'FeedsFetcher',
       'class' => 'Drupal\\remotedb\\Plugin\\Feeds\\RemotedbFetcher',
       'file' => 'RemotedbFetcher.php',
-      'path' => drupal_get_path('module', 'remotedb') . '/lib/Drupal/remotedb/Plugin/Feeds',
+      'path' => drupal_get_path('module', 'remotedb') . '/lib/Plugin/Feeds',
     ),
   );
   return $info;
