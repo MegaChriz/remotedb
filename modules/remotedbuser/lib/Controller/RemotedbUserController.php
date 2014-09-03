@@ -290,9 +290,18 @@ class RemotedbUserController extends EntityAPIController {
     }
     else {
       // Update user account.
-      foreach ($values as $key => $value) {
-        $account->$key = $value;
+      $update_props = remotedbuser_variable_get('sync_properties');
+      foreach ($update_props as $key) {
+        if (empty($key)) {
+          continue;
+        }
+        if (isset($values[$key])) {
+          $account->$key = $values[$key];
+        }
       }
+
+      // Always set remotedb_uid.
+      $account->remotedb_uid = $values['remotedb_uid'];
     }
 
     // Cross reference.

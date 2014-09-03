@@ -488,7 +488,27 @@ function remotedbuser_variable_get($name) {
 
       case 'login':
         return REMOTEDB_LOCALFIRST;
+
+      case 'sync_properties':
+        $properties = array(
+          'name',
+          'mail',
+          'pass',
+          'last_access',
+          'last_login',
+          'status',
+          'created',
+          'language',
+        );
+        return array_combine($properties, $properties);
     }
   }
+
+  if ($name == 'sync_properties') {
+    // Name and mail should always be synced.
+    $value['name'] = 'name';
+    $value['mail'] = 'mail';
+  }
+
   return $value;
 }
