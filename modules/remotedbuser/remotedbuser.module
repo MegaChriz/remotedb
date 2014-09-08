@@ -89,7 +89,7 @@ function remotedbuser_user_update(&$edit, $account) {
   // Save remote account.
   $result = $remote_account->save();
   if (!$result) {
-    drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact op met ons op.', 'error');
+    drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.', 'error');
     watchdog('remotedb', 'Saving account failed for user %username (%uid)', array('%username' => $account->name, '%uid' => $account->uid), WATCHDOG_ERROR);
   }
   elseif (empty($account->remotedb_uid) || $remote_account->uid != $account->remotedb_uid) {
