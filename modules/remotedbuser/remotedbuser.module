@@ -32,6 +32,21 @@ function remotedbuser_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'remotedbuser.admin.inc',
   );
+  $items['admin/config/services/remotedb/user/settings'] = array(
+    'title' => 'Settings',
+    'access arguments' => array('remotedb.administer'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  $items['admin/config/services/remotedb/user/get'] = array(
+    'title' => 'Get remote user',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedbuser_get_remote_user_form'),
+    'access arguments' => array('remotedb.administer'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'remotedbuser.admin.inc',
+    'weight' => 1,
+  );
 
   return $items;
 }

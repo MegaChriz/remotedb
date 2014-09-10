@@ -5,6 +5,8 @@
  * Administrative page callbacks.
  */
 
+use Drupal\remotedbuser\Controller\RemotedbUserController;
+
 /**
  * Callback for: admin/settings/remotedb/user.
  *
@@ -79,4 +81,62 @@ function remotedbuser_sync_properties_disable(&$element) {
     }
   }
   return $element;
+}
+
+/**
+ * Form callback for admin/config/services/remotedb/user/get
+ *
+ * Copy over an user from the remote database.
+ *
+ * @see remotedbuser_get_remote_user_form_submit()
+ */
+function remotedbuser_get_remote_user_form($form, $form_state) {
+  $form['user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Remote user (ID, username or mail address)'),
+    '#description' => t('Put in the user ID, username or mail address of the user to copy over from the remote database.'),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Get'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for remotedbuser_get_remote_user_form().
+ *
+ * @see remotedbuser_get_remote_user_form()
+ */
+function remotedbuser_get_remote_user_form_submit($form, $form_state) {
+  $user_id = trim($form_state['values']['user']);
+
+  $rd_controller = entity_get_controller('remotedb_user');
+
+  // Try to load by email.
+  $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
+  if (!$remote_account) {
+    // No success, try to load by name.
+    $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_NAME);
+  }
+  if (!$remote_account) {
+    // Still no success, try to load by ID.
+    $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_ID);
+  }
+
+  if (isset($remote_account->uid)) {
+    // Copy over account data.
+    $account = $remote_account->toAccount();
+    entity_save('user', $account);
+    $uri = entity_uri('user', $account);
+    drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
+      '@url' => url($uri['path'], $uri['options']),
+      '%name' => $account->name,
+    )));
+  }
+  else {
+    drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));
+  }
 }
