@@ -66,7 +66,7 @@ function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $
     }
   }
 
-  if (!isset($account->uid)) {
+  if (isset($account->uid)) {
     // Set value.
     $importer = $source->importer();
     $entity_type = $importer->processor->entityType();
