@@ -9,6 +9,15 @@
  * Admin settings form for RemoteDB Role
  */
 function remotedb_role_settings_form($form, $form_state) {
+  $form['remotedb_role_remotedb'] = array(
+    '#type' => 'select',
+    '#options' => entity_get_controller('remotedb')->options(),
+    '#title' => t('Database'),
+    '#required' => TRUE,
+    '#description' => t('The remote database.'),
+    '#default_value' => remotedb_role_variable_get('remotedb'),
+  );
+
   $roles = user_roles(TRUE);
   unset($roles[DRUPAL_AUTHENTICATED_RID]);
 
@@ -65,7 +74,7 @@ function remotedb_role_settings_form($form, $form_state) {
     '#type' => 'fieldset',
     '#title' => t('Extra'),
     '#collapsible' => TRUE,
-    '#collapsed' => !variable_get('remotedb_role_debug', FALSE),
+    '#collapsed' => !remotedb_role_variable_get('debug'),
   );
 
   // Debug settings.
@@ -73,7 +82,7 @@ function remotedb_role_settings_form($form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Debug'),
     '#description' => t('If enabled, a message about which roles were assigned/unassigned will be displayed when users login.'),
-    '#default_value' => variable_get('remotedb_role_debug', FALSE),
+    '#default_value' => remotedb_role_variable_get('debug'),
   );
 
   $form = system_settings_form($form);

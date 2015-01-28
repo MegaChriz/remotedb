@@ -40,9 +40,9 @@ class SubscriptionService implements SubscriptionServiceInterface {
   // ---------------------------------------------------------------------------
 
   /**
-   * Implements SubscriptionInterface::getSubscription().
+   * Implements SubscriptionInterface::getSubscriptions().
    */
-  public function getSubscription($account) {
+  public function getSubscriptions($account) {
     return $this->sendRequest('dbsubscription.retrieve', array($account->mail, 'mail'));
   }
 

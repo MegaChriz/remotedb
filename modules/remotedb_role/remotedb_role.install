@@ -10,6 +10,7 @@
  */
 function remotedb_role_uninstall() {
   // Remove variables defined by this module.
+  variable_del('remotedb_role_remotedb');
   db_delete('variable')
     ->condition('name', 'remotedb_role_%_active', 'LIKE')
     ->execute();

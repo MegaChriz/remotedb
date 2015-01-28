@@ -20,6 +20,13 @@ use Drupal\remotedb_role\SubscriptionServiceInterface;
  */
 class AssignRoles {
   /**
+   * Configuration information passed into the plugin.
+   *
+   * @var array
+   */
+  protected $configuration;
+
+  /**
    * A service to get subscriptions from.
    *
    * @var \Drupal\remotedb_role\SubscriptionServiceInterface
@@ -29,12 +36,16 @@ class AssignRoles {
   /**
    * AssignRoles object constructor.
    *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
    * @param \Drupal\remotedb_role\SubscriptionServiceInterface
    *   A service that can return subscriptions.
    *
    * @return \Drupal\remotedb_role\Plugin\Action\AssignRoles
    */
-  public function __construct(SubscriptionServiceInterface $subscription_service) {
+  public function __construct(array $configuration, SubscriptionServiceInterface $subscription_service) {
+    $this->configuration = $configuration;
+    $this->configuration += $this->defaultConfiguration();
     $this->subscription_service = $subscription_service;
   }
 
@@ -61,15 +72,15 @@ class AssignRoles {
     $changed = FALSE;
 
     $role_names = user_roles();
-    $role_settings = remotedb_role_get_active_settings();
+    $role_settings = $this->configuration['roles'];
     $subscriptions = $this->subscription_service->getSubscriptions($account);
 
     if (count($subscriptions) > 0) {
       // Loop through all roles and prepare a list of assign/unassign roles.
       foreach ($role_settings as $rid => $role_setting) {
         $unassign[$rid] = $role_names[$rid];
-        foreach ($remotedb_subscriptions as $remotedb_subscription) {
-          if (in_array($remotedb_subscription['subscription_id'], $role_setting['subscriptions'])) {
+        foreach ($subscriptions as $subscription) {
+          if (in_array($subscription['subscription_id'], $role_setting['subscriptions'])) {
             $assign[$rid] = $role_names[$rid];
             unset($unassign[$rid]);
           }
@@ -104,5 +115,31 @@ class AssignRoles {
       $assign,
       $unassign,
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $config = array();
+
+    $roles = user_roles(TRUE);
+    unset($roles[DRUPAL_AUTHENTICATED_RID]);
+    if (count($roles) > 0) {
+      foreach ($roles as $rid => $role_name) {
+        if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
+          if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
+            $subscriptions = explode("\n", $subscriptions);
+            // Trim values.
+            foreach ($subscriptions as $index => $subscription) {
+               $subscriptions[$index] = trim($subscription);
+            }
+            $config['roles'][$rid]['subscriptions'] =  $subscriptions;
+          }
+        }
+      }
+    }
+
+    return $config;
   }
 }
