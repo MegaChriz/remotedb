@@ -43,14 +43,19 @@ class TicketService implements TicketServiceInterface {
    * Implements TicketInterface::getTicket().
    */
   public function getTicket($account) {
-    return $this->sendRequest('ticket.get', array($account));
+    return $this->sendRequest('ticket.retrieve', array($account->mail, 'mail'));
   }
 
   /**
    * Implements TicketInterface::validateTicket().
    */
-  public function validateTicket($remotedb_uid, $timestamp, $pass) {
-    return $this->sendRequest('ticket.validate', array($remotedb_uid, $timestamp, $pass));
+  public function validateTicket($remotedb_uid, $timestamp, $hash) {
+    if ($this->sendRequest('ticket.validate', array($remotedb_uid, $timestamp, $hash))) {
+      $controller = entity_get_controller('remotedb_user');
+
+      // Get account details from the remote database.
+      return $controller->loadBy($remotedb_uid);
+    }
   }
 
   /**

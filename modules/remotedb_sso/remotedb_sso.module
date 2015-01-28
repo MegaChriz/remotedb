@@ -5,7 +5,8 @@
  * Provides Single Sign-on functionality for remote users.
  */
 
-use \Drupal\remotedb_sso\Filter\SSO;
+use Drupal\remotedb_sso\Filter\SSO;
+use Drupal\remotedb_sso\TicketServiceInterface;
 
 // ---------------------------------------------------------------------------
 // DRUPAL HOOKS
@@ -73,7 +74,8 @@ function remotedb_sso_filter_info() {
  * Implements hook_filter_FILTER_tips().
  */
 function remotedb_sso_filter_tips($filter, $format, $long = FALSE) {
-  return t('SSO links to certain external websites will be automatically created.');
+  $sso_filter = new SSO($filter);
+  return $sso_filter->tips($long);
 }
 
 /**
@@ -85,8 +87,8 @@ function remotedb_sso_filter_tips($filter, $format, $long = FALSE) {
  *   Text with generated SSO links.
  */
 function remotedb_sso_filter_process($text, $filter, $format = NULL) {
-  $sso = new SSO();
-  return $sso->filterText($text, $filter->settings['websites']);
+  $sso_filter = new SSO($filter);
+  return $sso_filter->process($text);
 }
 
 /**
@@ -95,20 +97,32 @@ function remotedb_sso_filter_process($text, $filter, $format = NULL) {
 function remotedb_sso_filter_settings($form, $form_state, $filter, $format, $defaults, $filters) {
   $filter->settings += $defaults;
 
-  $elements = array();
-  $elements['websites'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Websites'),
-    '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at !remotedb_sso_settings_url page.', array('!remotedb_sso_settings_url' => l(t('RemoteDB settings'), 'admin/config/system/remotedb/sso'))),
-    '#default_value' => $filter->settings['websites'],
-  );
-
-  return $elements;
+  $sso_filter = new SSO($filter);
+  return $sso_filter->settingsForm($form, $form_state);
 }
 
 // ---------------------------------------------------------------------------
 // UTIL
 // ---------------------------------------------------------------------------
+
+/**
+ * Gets ticket service to use.
+ *
+ * @return \Drupal\remotedb_sso\TicketServiceInterface | NULL
+ *   An instance of TicketServiceInterface, if found.
+ *   NULL otherwise.
+ */
+function remotedb_sso_get_ticket_service() {
+  $remotedb = remotedbuser_get_remotedb();
+  if ($remotedb) {
+    $ticket_service_class = remotedb_sso_variable_get('ticket_service');
+    $ticket_service = new $ticket_service_class($remotedb);
+    if ($ticket_service instanceof TicketServiceInterface) {
+      return $ticket_service;
+    }
+  }
+  return NULL;
+}
 
 /**
  * Gets a remotedb_sso setting.
@@ -123,6 +137,8 @@ function remotedb_sso_variable_get($name) {
   $value = variable_get('remotedb_sso_' . $name, NULL);
   if (is_null($value)) {
     switch ($name) {
+      case 'ticket_service':
+        return 'Drupal\remotedb_sso\TicketService';
     }
   }
   return $value;

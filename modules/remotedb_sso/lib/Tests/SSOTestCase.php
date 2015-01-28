@@ -32,6 +32,6 @@ class SSOTestCase extends RemotedbTestBase {
     $ticket = $ticket_service->getTicket($user);
     list($remotedb_uid, $timestamp, $hashed_pass) = explode('/', $ticket);
     // Validate ticket.
-    $remote_account = $ticket_server->validateTicket($remotedb_uid, $timestamp, $hashed_pass);
+    $remote_account = $ticket_service->validateTicket($remotedb_uid, $timestamp, $hashed_pass);
   }
 }

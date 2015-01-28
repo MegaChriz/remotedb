@@ -5,7 +5,6 @@
  * Page callbacks.
  */
 
-//use Drupal\remotedb\Component\ServiceContainer;
 use Drupal\remotedb\Exception\RemotedbException;
 
 /**
@@ -39,17 +38,16 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
   }
 
   try {
-    // @todo Instantiate TicketService class.
-    // $container = new ServiceContainer();
-    // $ticket_service = $container->get('remotedb_sso', 'ticket');
+    $ticket_service = remotedb_sso_get_ticket_service();
     if ($ticket_service) {
       $remote_account = $ticket_service->validateTicket($remotedb_uid, $timestamp, $hashed_pass);
       if ($remote_account) {
         // Ticket is valid. Update account data in local database.
         $account = $remote_account->toAccount();
-        $account->save();
+        entity_save('user', $account);
+
         // Now login the user.
-        $user = user_load($account->uid, TRUE);
+        $user = $account;
         user_login_finalize();
       }
     }
@@ -74,9 +72,7 @@ function remotedb_sso_goto($website) {
   global $user;
   try {
     // Request a ticket from the central database.
-    // @todo Instantiate TicketService class.
-    //$container = new ServiceContainer();
-    //$ticket_service = $container->get('remotedb_sso', 'ticket');
+    $ticket_service = remotedb_sso_get_ticket_service();
     if ($ticket_service) {
       $ticket = $ticket_service->getTicket($user);
       // Generate target path.

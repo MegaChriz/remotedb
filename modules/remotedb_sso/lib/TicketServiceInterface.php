@@ -25,12 +25,13 @@ interface TicketServiceInterface {
    * @param integer $remotedb_uid
    *   The remote user uid.
    * @param integer $timestamp
-   *   ?
-   * @param string $pass
-   *   ?
+   *   The time the ticket was generated.
+   * @param string $hash
+   *   The generated ticket hash.
    *
    * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface.
-   *   ?
+   *   An instance of RemotedbUserInterface, if the ticket was valid.
+   *   NULL otherwise.
    */
-  public function validateTicket($remotedb_uid, $timestamp, $pass);
+  public function validateTicket($remotedb_uid, $timestamp, $hash);
 }

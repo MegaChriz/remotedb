@@ -11,4 +11,5 @@
 function remotedb_sso_uninstall() {
   // Remove variables defined by this module.
   variable_del('remotedb_sso_websites');
+  variable_del('remotedb_sso_ticket_service');
 }
