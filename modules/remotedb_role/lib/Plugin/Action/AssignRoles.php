@@ -75,7 +75,7 @@ class AssignRoles {
     $role_settings = $this->configuration['roles'];
     $subscriptions = $this->subscription_service->getSubscriptions($account);
 
-    if (count($subscriptions) > 0) {
+    if (is_array($subscriptions)) {
       // Loop through all roles and prepare a list of assign/unassign roles.
       foreach ($role_settings as $rid => $role_setting) {
         $unassign[$rid] = $role_names[$rid];

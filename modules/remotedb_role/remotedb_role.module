@@ -84,7 +84,6 @@ function remotedb_role_user_login($edit, $account) {
  */
 function remotedb_role_assign_roles($account) {
   if (!user_access('remotedb_role.bypass', $account)) {
-    // @todo Execute action.
     $remotedb = remotedb_role_get_remotedb();
     if ($remotedb instanceof RemotedbInterface) {
       $subscription_service_class = remotedb_role_variable_get('subscription_service');
