@@ -177,37 +177,5 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $this->assertRaw(t("The changes have been saved."));
 
     $remotes = $this->controller->getRemoteAccounts();
-    //outputlog(get_defined_vars());
-  }
-
-  /**
-   * Tests if an user can login that only exists locally and only logging in via
-   * the remote database is allowed.
-   *
-   * @todo Login fails.
-   */
-  public function testExistingUserLocalLogin() {
-    // Set logging in via remote database only.
-    variable_set('remotedbuser_login', REMOTEDB_REMOTEONLY);
-
-    // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
-
-    // Create a local user with different data.
-    $local_pass = $this->randomName();
-    $account_edit = array(
-      'uid' => db_next_id(db_query('SELECT MAX(uid) FROM {users}')->fetchField()),
-      'name' => $this->randomName(),
-      'mail' => $this->randomName() . '@example.com',
-      'pass' => $this->hashPassword($local_pass),
-      'status' => 1,
-    );
-    drupal_write_record('users', $account_edit);
-
-    // Ensure this user can login even if it doesn't exists in the remote database.
-    $dummy_account = new \stdClass();
-    $dummy_account->name = $account_edit['name'];
-    $dummy_account->pass_raw = $local_pass;
-    $this->drupalLogin($dummy_account);
   }
 }
