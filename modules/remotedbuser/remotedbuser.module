@@ -433,7 +433,7 @@ function remotedbuser_authenticate($name, $password) {
  * Authenticates name/password against the remote database and copies over
  * the remote user if needed.
  *
- * @return int|bool
+ * @return int|false
  *   The user's uid on success, or FALSE on failure to authenticate.
  * @todo Deal with conflicts.
  */

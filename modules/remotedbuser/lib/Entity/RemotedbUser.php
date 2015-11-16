@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Contains Drupal\remotedbuser\Entity\RemotedbUser.
+ * @file
+ * Contains \Drupal\remotedbuser\Entity\RemotedbUser.
  */
 
 namespace Drupal\remotedbuser\Entity;

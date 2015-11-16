@@ -1,15 +1,18 @@
 <?php
 
 /**
+ * @file
  * Contains Drupal\remotedbuser_test\Controller\RemotedbUserController.
  */
 
 namespace Drupal\remotedbuser_test\Controller;
 
+use Drupal\remotedbuser\Controller\RemotedbUserController as OriginalRemotedbUserController;
+
 /**
  * Remotedb entity controller class.
  */
-class RemotedbUserController extends \Drupal\remotedbuser\Controller\RemotedbUserController {
+class RemotedbUserController extends OriginalRemotedbUserController {
   // ---------------------------------------------------------------------------
   // CONSTRUCT
   // ---------------------------------------------------------------------------
@@ -82,9 +85,11 @@ class RemotedbUserController extends \Drupal\remotedbuser\Controller\RemotedbUse
         $id = $params[0];
         $by = $params[1];
         return $this->dbuserRetrieve($id, $by);
+
       case 'dbuser.save':
         $account = $params[0];
         return $this->dbuserSave($account);
+
       case 'dbuser.authenticate':
         $name = $params[0];
         $pass = $params[1];
@@ -142,20 +147,25 @@ class RemotedbUserController extends \Drupal\remotedbuser\Controller\RemotedbUse
    * @param string $password
    *   The user's password.
    *
-   * @return int|bool
+   * @return int|false
    *   The remote user's ID if authentication was succesful.
    *   FALSE otherwise.
    */
   private function dbuserAuthenticate($name, $password) {
     require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
-    $accounts = $this->getRemoteAccounts();
     $account = $this->dbuserRetrieve($name, 'name');
-    if (!empty($account)) {
-      $account = (object) $account;
-      if (user_check_password($password, $account)) {
-        return $account->uid;
-      }
+
+    // No account found? Return FALSE.
+    if (empty($account)) {
+      return FALSE;
     }
+
+    $account = (object) $account;
+    if (user_check_password($password, $account)) {
+      return $account->uid;
+    }
+
+    // In all other cases, the password is invalid.
     return FALSE;
   }
 }

@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Contains Drupal\remotedbuser\Controller\RemotedbUserController.
+ * @file
+ * Contains \Drupal\remotedbuser\Controller\RemotedbUserController.
  */
 
 namespace Drupal\remotedbuser\Controller;
@@ -167,7 +168,7 @@ class RemotedbUserController extends EntityAPIController {
       $this->invoke('update', $entity);
     }
 
-    // We don’t call parent::save(), because we don’t have anything to save locally.
+    // We don't call parent::save(), because we don't have anything to save locally.
     return TRUE;
   }
 
