@@ -345,6 +345,11 @@ class RemotedbUserController extends EntityAPIController {
    * @todo Remotedb_uid should probably be send along instead.
    */
   public function validateName($name, $account) {
+    if (!empty($account->name) && $account->name == $name) {
+      // The username did not change. No need to validate.
+      return TRUE;
+    }
+
     $remote_account = $this->loadBy($name, self::BY_NAME);
     if (empty($remote_account)) {
       // Name is not taken yet.
@@ -379,6 +384,11 @@ class RemotedbUserController extends EntityAPIController {
    *   FALSE otherwise.
    */
   public function validateMail($mail, $account) {
+    if (!empty($account->mail) && $account->mail == $mail) {
+      // The mail address did not change. No need to validate.
+      return TRUE;
+    }
+
     $remote_account = $this->loadBy($mail, self::BY_MAIL);
     if (empty($remote_account)) {
       // Mail address is not taken yet.

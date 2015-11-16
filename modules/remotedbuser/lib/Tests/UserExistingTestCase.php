@@ -130,7 +130,18 @@ class UserExistingTestCase extends RemotedbUserTestBase {
    * Tests if two local users don't get the same mail address when the first user
    * has an username that exists in remote database and the second user has a mail
    * address of that same remote user.
-   * Tests if login succeeds using the local password.
+   * So, for example:
+   * - Remote user:
+   *     name: foo
+   *     mail: baz@example.com
+   * - Local user 1:
+   *     name: foo
+   *     mail: bar@example.com
+   * - Local user 2:
+   *     name: qux
+   *     mail: baz@example.com
+   *
+   * Also tests if login succeeds using the local password.
    *
    * @todo editing account fails with 'username is already taken'.
    */
@@ -176,6 +187,36 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $this->drupalPost("user/$account1->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("The changes have been saved."));
 
+    // Login with the second user now.
+    $dummy_account = new \stdClass();
+    $dummy_account->name = $account_edit2['name'];
+    $dummy_account->pass_raw = $local_pass;
+    $this->drupalLogin($dummy_account);
+
+    // Try to edit the profile of this user too.
+    $edit = array();
+    $this->drupalPost("user/$account2->uid/edit", $edit, t('Save'));
+    $this->assertRaw(t("The changes have been saved."));
+
+    // Check that there are remote accounts for each local user now.
+    $account1_found = FALSE;
+    $account2_found = FALSE;
     $remotes = $this->controller->getRemoteAccounts();
+    foreach ($remotes as $remote_user) {
+      switch ($remote_user['name']) {
+        case $account_edit1['name']:
+          $this->assertEqual($account_edit1['mail'], $remote_user['mail'], 'For account 1 a remote user with the expected mail address exists.');
+          $account1_found = TRUE;
+          break;
+
+        case $account_edit2['name']:
+          $this->assertEqual($account_edit2['mail'], $remote_user['mail'], 'For account 2 a remote user with the expected mail address exists.');
+          $account2_found = TRUE;
+          break;
+      }
+    }
+
+    $this->assertTrue($account1_found, 'Account 1 was found in the remote database.');
+    $this->assertTrue($account2_found, 'Account 2 was found in the remote database.');
   }
 }
