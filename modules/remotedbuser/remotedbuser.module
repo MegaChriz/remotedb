@@ -61,6 +61,7 @@ function remotedbuser_menu() {
  */
 function remotedbuser_hook_info() {
   $hooks = array(
+    'remotedb_user_load',
     'remotedb_user_presave',
     'remotedb_user_insert',
     'remotedb_user_update',
