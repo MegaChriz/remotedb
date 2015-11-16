@@ -67,7 +67,7 @@ class UserImportTestCase extends RemotedbUserTestBase {
   }
 
   /**
-   * Test that importing non-existing users do not abort the process.
+   * Tests that importing non-existing users do not abort the process.
    */
   public function testWithFailures() {
     // Create two remote users.
@@ -109,5 +109,26 @@ class UserImportTestCase extends RemotedbUserTestBase {
     $account2 = user_load_by_name($remote_account2->name);
     $this->assertNotNull($account2, 'Account 2 exists on the local database.');
     $this->assertEqual($account2->remotedb_uid, $remote_account2->uid, 'Account 2 got a remote database user id.');
+  }
+
+  /**
+   * Tests that all users get through the import process (which is divided in multiple chunks).
+   */
+  public function testImportManyUsers() {
+    $mails = array();
+    for ($i = 0; $i < 25; $i++) {
+      $mails[] = $this->randomName() . '@example.com';
+    }
+
+    // Try to import users using the admin form.
+    $edit = array(
+      'user' => implode("\n", $mails),
+    );
+    $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
+    foreach ($mails as $mail) {
+      $this->assertText(format_string('No remote user found for @user.', array(
+        '@user' => $mail,
+      )));
+    }
   }
 }
