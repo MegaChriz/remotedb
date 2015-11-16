@@ -5,6 +5,7 @@
  * Administrative page callbacks.
  */
 
+use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 
 /**
@@ -117,37 +118,47 @@ function remotedbuser_get_remote_user_form_submit($form, $form_state) {
   $rd_controller = entity_get_controller('remotedb_user');
 
   foreach ($user_ids as $user_id) {
-    // Remove extra spaces.
-    $user_id = trim($user_id);
+    try {
+      // Remove extra spaces.
+      $user_id = trim($user_id);
 
-    if (empty($user_id)) {
-      // Skip "empty" users.
-      continue;
-    }
+      if (empty($user_id)) {
+        // Skip "empty" users.
+        continue;
+      }
 
-    // Try to load by email.
-    $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
-    if (!$remote_account) {
-      // No success, try to load by name.
-      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_NAME);
-    }
-    if (!$remote_account) {
-      // Still no success, try to load by ID.
-      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_ID);
-    }
+      // Try to load by email.
+      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
+      if (!$remote_account) {
+        // No success, try to load by name.
+        $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_NAME);
+      }
+      if (!$remote_account) {
+        // Still no success, try to load by ID.
+        $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_ID);
+      }
 
-    if (isset($remote_account->uid)) {
-      // Copy over account data.
-      $account = $remote_account->toAccount();
-      entity_save('user', $account);
-      $uri = entity_uri('user', $account);
-      drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
-        '@url' => url($uri['path'], $uri['options']),
-        '%name' => $account->name,
-      )));
+      if (isset($remote_account->uid)) {
+        // Copy over account data.
+        $account = $remote_account->toAccount();
+        entity_save('user', $account);
+        $uri = entity_uri('user', $account);
+        drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
+          '@url' => url($uri['path'], $uri['options']),
+          '%name' => $account->name,
+        )));
+      }
+      else {
+        drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));
+      }
     }
-    else {
-      drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));
+    catch (RemotedbException $e) {
+      $e->logError();
+      $e->printMessage();
+    }
+    catch (Exception $e) {
+      watchdog_exception('remotedb', $e);
+      drupal_set_message($e->getMessage(), 'error');
     }
   }
 }
