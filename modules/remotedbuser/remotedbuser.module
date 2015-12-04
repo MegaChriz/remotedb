@@ -42,10 +42,21 @@ function remotedbuser_menu() {
     'title' => 'Get remote user',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('remotedbuser_get_remote_user_form'),
-    'access arguments' => array('remotedb.administer'),
+    'access callback' => 'remotedbuser_get_remote_user_access',
+    'access arguments' => array(),
     'type' => MENU_LOCAL_TASK,
     'file' => 'remotedbuser.admin.inc',
     'weight' => 1,
+  );
+
+  $items['admin/people/remotedbuser-get'] = array(
+    'title' => 'Get remote user',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('remotedbuser_get_remote_user_form'),
+    'access callback' => 'remotedbuser_get_remote_user_access',
+    'access arguments' => array(),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'remotedbuser.admin.inc',
   );
 
   return $items;
@@ -73,6 +84,29 @@ function remotedbuser_hook_info() {
     );
   }
   return $return;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function remotedbuser_permission() {
+  return array(
+    'remotedbuser.getuser' => array(
+      'title' => t('Get remote user'),
+      'description' => t('Copy over an user from the remote database'),
+    ),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ACCESS CALLBACKS
+// ---------------------------------------------------------------------------
+
+/**
+ * Access callback for admin/config/services/remotedb/user/get.
+ */
+function remotedbuser_get_remote_user_access() {
+  return user_access('remotedb.administer') || user_access('remotedbuser.getuser');
 }
 
 // ---------------------------------------------------------------------------

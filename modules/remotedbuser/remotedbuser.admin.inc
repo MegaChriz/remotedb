@@ -92,6 +92,9 @@ function remotedbuser_sync_properties_disable(&$element) {
  * @see remotedbuser_get_remote_user_form_submit()
  */
 function remotedbuser_get_remote_user_form($form, $form_state) {
+  $form['help'] = array(
+    '#markup' => '<p>' . t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
+  );
   $form['user'] = array(
     '#type' => 'textarea',
     '#title' => t('Remote users (ID, username or mail address)'),
