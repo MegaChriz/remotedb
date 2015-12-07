@@ -6,6 +6,7 @@
  */
 
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb_sso\Util;
 
 /**
  * Login the specified user.
@@ -38,7 +39,7 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
   }
 
   try {
-    $ticket_service = remotedb_sso_get_ticket_service();
+    $ticket_service = Util::getTicketService();
     if ($ticket_service) {
       $remote_account = $ticket_service->validateTicket($remotedb_uid, $timestamp, $hashed_pass);
       if ($remote_account) {
@@ -72,7 +73,7 @@ function remotedb_sso_goto($website) {
   global $user;
   try {
     // Request a ticket from the central database.
-    $ticket_service = remotedb_sso_get_ticket_service();
+    $ticket_service = Util::getTicketService();
     if ($ticket_service) {
       $ticket = $ticket_service->getTicket($user);
       // Generate target path.

@@ -6,7 +6,6 @@
  */
 
 use Drupal\remotedb_sso\Filter\SSO;
-use Drupal\remotedb_sso\TicketServiceInterface;
 
 // ---------------------------------------------------------------------------
 // DRUPAL HOOKS
@@ -99,47 +98,4 @@ function remotedb_sso_filter_settings($form, $form_state, $filter, $format, $def
 
   $sso_filter = new SSO($filter);
   return $sso_filter->settingsForm($form, $form_state);
-}
-
-// ---------------------------------------------------------------------------
-// UTIL
-// ---------------------------------------------------------------------------
-
-/**
- * Gets ticket service to use.
- *
- * @return \Drupal\remotedb_sso\TicketServiceInterface | NULL
- *   An instance of TicketServiceInterface, if found.
- *   NULL otherwise.
- */
-function remotedb_sso_get_ticket_service() {
-  $remotedb = remotedbuser_get_remotedb();
-  if ($remotedb) {
-    $ticket_service_class = remotedb_sso_variable_get('ticket_service');
-    $ticket_service = new $ticket_service_class($remotedb);
-    if ($ticket_service instanceof TicketServiceInterface) {
-      return $ticket_service;
-    }
-  }
-  return NULL;
-}
-
-/**
- * Gets a remotedb_sso setting.
- *
- * @param string $name
- *   The setting to get.
- *
- * @return mixed
- *   The value of the setting.
- */
-function remotedb_sso_variable_get($name) {
-  $value = variable_get('remotedb_sso_' . $name, NULL);
-  if (is_null($value)) {
-    switch ($name) {
-      case 'ticket_service':
-        return 'Drupal\remotedb_sso\TicketService';
-    }
-  }
-  return $value;
 }

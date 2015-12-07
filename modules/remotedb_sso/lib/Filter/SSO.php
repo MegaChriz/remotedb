@@ -8,6 +8,7 @@
 namespace Drupal\remotedb_sso\Filter;
 
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb_sso\Util;
 
 /**
  * Provides a filter to limit allowed HTML tags.
@@ -61,7 +62,7 @@ class SSO {
   public function process($text) {
     try {
       // Check if the ticket service is available.
-      $ticket_service = remotedb_sso_get_ticket_service();
+      $ticket_service = Util::getTicketService();
       if (!$ticket_service) {
         // No ticket service available. Abort.
         return $text;
@@ -69,7 +70,7 @@ class SSO {
 
       $sites = $this->settings['websites'];
       if (empty($sites)) {
-        $sites = remotedb_sso_variable_get('websites');
+        $sites = Util::variableGet('websites');
       }
 
       $sites = explode("\n", $sites);
