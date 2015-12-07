@@ -198,11 +198,21 @@ function theme_authentication_methods_order($variables) {
  */
 function remotedb_test_form($form, $form_state) {
   if (isset($form_state['remotedb_result'])) {
-    $form['remotedb_result'] = array(
-      '#type' => 'item',
-      '#title' => t('Result'),
-      '#markup' => krumo_ob($form_state['remotedb_result']),
-    );
+    if (function_exists('krumo_ob')) {
+      $form['remotedb_result'] = array(
+        '#type' => 'item',
+        '#title' => t('Result'),
+        '#markup' => krumo_ob($form_state['remotedb_result']),
+      );
+    }
+    else {
+      drupal_set_message(t('Enable the Devel module to get a more human readable representation of the response from the remote database.'));
+      $form['remotedb_result'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Result'),
+        '#value' => print_r($form_state['remotedb_result'], TRUE),
+      );
+    }
   }
 
   $form['remotedb'] = array(
