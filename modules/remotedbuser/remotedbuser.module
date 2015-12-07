@@ -91,9 +91,13 @@ function remotedbuser_hook_info() {
  */
 function remotedbuser_permission() {
   return array(
+    'remotedbuser.create' => array(
+      'title' => t('Overwrite remote accounts'),
+      'description' => t('Allow users who can create accounts to create accounts that already exist in the remote database.'),
+    ),
     'remotedbuser.getuser' => array(
       'title' => t('Get remote user'),
-      'description' => t('Copy over an user from the remote database'),
+      'description' => t('Copy over an user from the remote database.'),
     ),
   );
 }
@@ -104,9 +108,12 @@ function remotedbuser_permission() {
 
 /**
  * Access callback for admin/config/services/remotedb/user/get.
+ *
+ * @param object $account
+ *   (optional) The account to check access for.
  */
-function remotedbuser_get_remote_user_access() {
-  return user_access('remotedb.administer') || user_access('remotedbuser.getuser');
+function remotedbuser_get_remote_user_access($account = NULL) {
+  return user_access('remotedb.administer', $account) || user_access('remotedbuser.getuser', $account);
 }
 
 // ---------------------------------------------------------------------------
@@ -321,7 +328,7 @@ function remotedbuser_account_form_validate($form, &$form_state) {
     $name = isset($form_state['values']['name']) ? $form_state['values']['name'] : NULL;
     $mail = isset($form_state['values']['mail']) ? $form_state['values']['mail'] : NULL;
 
-    if ($is_new && $is_admin) {
+    if ($is_new && $is_admin && user_access('remotedbuser.create')) {
       // An administrator is creating an account.
       if (form_get_errors()) {
         // Don't continue in case of other errors.
@@ -346,7 +353,15 @@ function remotedbuser_account_form_validate($form, &$form_state) {
       // Validate new or changing username.
       if ($name) {
         if (!$rd_controller->validateName($name, $account)) {
-          form_set_error('name', t('The name %name is already taken.', array('%name' => $name)));
+          $message = t('The name %name is already taken.', array('%name' => $name));
+          if (remotedbuser_get_remote_user_access()) {
+            $message = t('An user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', array(
+              '%name' => $name,
+              '@link' => url('admin/people/remotedbuser-get'),
+              '@title' => t('Get remote user'),
+            ));
+          }
+          form_set_error('name', $message);
         }
       }
 
@@ -355,7 +370,15 @@ function remotedbuser_account_form_validate($form, &$form_state) {
         // The mail address is already taken.
         if ($GLOBALS['user']->uid) {
           // An authenticated user is editing account data.
-          form_set_error('mail', t('The e-mail address %email is already taken.', array('%email' => $mail)));
+          $message = t('The e-mail address %email is already taken.', array('%email' => $mail));
+          if (remotedbuser_get_remote_user_access()) {
+            $message = t('An user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', array(
+              '%email' => $mail,
+              '@link' => url('admin/people/remotedbuser-get'),
+              '@title' => t('Get remote user'),
+            ));
+          }
+          form_set_error('mail', $message);
         }
         else {
           form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $mail, '@password' => url('user/password'))));
