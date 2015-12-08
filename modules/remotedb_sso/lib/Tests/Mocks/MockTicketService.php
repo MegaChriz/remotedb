@@ -14,6 +14,11 @@ class MockTicketService implements TicketServiceInterface {
    * Implements TicketInterface::getTicket().
    */
   public function getTicket($account) {
+    $uid = 0;
+    if (!empty($account->remotedb_uid)) {
+      $uid = $account->remotedb_uid;
+    }
+    return implode('/', array($uid, REQUEST_TIME, user_password()));
   }
 
   /**

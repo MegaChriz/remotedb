@@ -17,7 +17,7 @@ use Drupal\remotedb_sso\Tests\RemotedbSSOTestBase;
 class SSOTest extends RemotedbSSOTestBase {
   public static function getInfo() {
     return array(
-      'name' => 'Remote database SSO: SSO Filter',
+      'name' => 'SSO: SSO Filter',
       'description' => 'Test if the SSO Filter works as expected.',
       'group' => 'Remote database',
     );
