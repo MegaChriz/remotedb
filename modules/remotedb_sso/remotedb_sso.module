@@ -39,7 +39,7 @@ function remotedb_sso_menu() {
     'title' => 'SSO',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('remotedb_sso_settings_form'),
-    'access arguments' => array('access RemoteDB administration page'),
+    'access arguments' => array('remotedb.administer'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'remotedb_sso.admin.inc',
   );
