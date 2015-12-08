@@ -7,6 +7,7 @@
 
 namespace Drupal\remotedb_sso\Filter;
 
+use stdClass;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedb_sso\Util;
 
@@ -38,6 +39,23 @@ class SSO {
   }
 
   /**
+   * Creates SSO links from links to certain external websites using the global
+   * settings.
+   *
+   * @param string $text
+   *   The text to filter.
+   *
+   * @return string
+   *   The filtered text.
+   */
+  public static function processDefault($text) {
+    $filter = new stdClass();
+    $filter->settings = array();
+    $sso_filter = new static($filter);
+    return $sso_filter->process($text);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, $form_state) {
@@ -57,7 +75,8 @@ class SSO {
    * @param string $text
    *   The text to filter.
    *
-   * @return string $text
+   * @return string
+   *   The filtered text.
    */
   public function process($text) {
     try {
@@ -68,8 +87,10 @@ class SSO {
         return $text;
       }
 
-      $sites = $this->settings['websites'];
-      if (empty($sites)) {
+      if (!empty($this->settings['websites'])) {
+        $sites = $this->settings['websites'];
+      }
+      else {
         $sites = Util::variableGet('websites');
       }
 
