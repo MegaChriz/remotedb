@@ -102,7 +102,7 @@ class SSO {
         // Remove whitespace.
         $site = trim($site);
         // Make $site regex safe first.
-        $site = preg_quote($site);
+        $site = preg_quote($site, '/');
         // Now replace the URLS.
         $text = preg_replace('/http:\/\/(' . $site . '.*?)\"\>/i', $sso_url . '\\1">', $text);
       }

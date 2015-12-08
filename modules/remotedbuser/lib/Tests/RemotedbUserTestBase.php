@@ -9,7 +9,7 @@ namespace Drupal\remotedbuser\Tests;
 
 use Drupal\remotedb\Tests\RemotedbTestBase;
 
-class RemotedbUserTestBase extends RemotedbTestBase {
+abstract class RemotedbUserTestBase extends RemotedbTestBase {
   /**
    * The controller for the remotedb_user entity.
    *
