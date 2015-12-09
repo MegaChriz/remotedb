@@ -27,14 +27,13 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
   $target_path = remotedb_sso_target_path(func_get_args(), 3);
 
   if ($user->uid) {
-    // A user is already logged in, so ignore the attempt and go to the
-    // target url.
+    // A user is already logged in, so ignore the attempt and go to the target
+    // url.
     drupal_goto($target_path);
   }
 
   if (!$remotedb_uid) {
-    // The user anonymous, so ignore the attempt and go to the
-    // target url.
+    // The user anonymous, so ignore the attempt and go to the target url.
     drupal_goto($target_path);
   }
 
@@ -46,6 +45,10 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
         // Ticket is valid. Update account data in local database.
         $account = $remote_account->toAccount();
         entity_save('user', $account);
+
+        // Reload the user's account object to ensure a full user object is
+        // passed along to the various hooks.
+        $account = user_load($account->uid, TRUE);
 
         // Now login the user.
         $user = $account;

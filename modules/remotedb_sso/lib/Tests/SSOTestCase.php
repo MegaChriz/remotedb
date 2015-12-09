@@ -7,6 +7,7 @@
 
 namespace Drupal\remotedb_sso\Tests;
 
+use \stdClass;
 use Drupal\remotedb_sso\Util;
 
 /**
@@ -81,6 +82,31 @@ class SSOTestCase extends RemotedbSSOTestBase {
     // Copy over the account to the local database.
     $account = $remote_account->toAccount();
     entity_save('user', $account);
+
+    // Generate a ticket.
+    $ticket_service = Util::getTicketService();
+    $ticket = $ticket_service->getTicket($account);
+
+    // Generate the url to follow.
+    $url = $this->getAbsoluteUrl('sso/login/') . $ticket . '/user';
+
+    // Follow url and assert that the user got on his account page.
+    $this->drupalGet($url);
+    $this->assertText($remote_account->name);
+  }
+
+  /**
+   * Tests if an authenticated user gets logged in when following a SSO link
+   * even when he didn't had an account on the website yet.
+   */
+  public function testSSOLoginNewUser() {
+    // Create a remote user.
+    $remote_account = $this->remotedbCreateRemoteUser();
+    //$remote_account->timezone = NULL;
+
+    // Create fake account to generate ticket for.
+    $account = new stdClass();
+    $account->remotedb_uid = $remote_account->uid;
 
     // Generate a ticket.
     $ticket_service = Util::getTicketService();
