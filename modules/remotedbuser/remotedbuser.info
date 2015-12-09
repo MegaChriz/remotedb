@@ -3,5 +3,5 @@ description = "Enables registration and authentication via remote database."
 core = 7.x
 package = "Remote database"
 dependencies[] = remotedb
-version = "7.x-3.0-alpha1"
+version = "7.x-3.0-beta1"
 configure = admin/config/services/remotedb/user

@@ -4,4 +4,4 @@ package = "Remote database"
 core = 7.x
 dependencies[] = remotedbuser
 hidden = TRUE
-version = "7.x-3.0-prealpha001"
+version = "7.x-3.0-beta1"
