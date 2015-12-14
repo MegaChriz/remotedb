@@ -6,6 +6,7 @@
  */
 
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb_sso\Url;
 use Drupal\remotedb_sso\Util;
 
 /**
@@ -25,16 +26,25 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
   global $user;
 
   $target_path = remotedb_sso_target_path(func_get_args(), 3);
+  $options = array();
+
+  if (!empty($_GET)) {
+    $query = $_GET;
+    unset($query['q']);
+  }
+  if (!empty($query)) {
+    $options['query'] = $query;
+  }
 
   if ($user->uid) {
-    // A user is already logged in, so ignore the attempt and go to the target
+    // An user is already logged in, so ignore the attempt and go to the target
     // url.
-    drupal_goto($target_path);
+    drupal_goto($target_path, $options);
   }
 
   if (!$remotedb_uid) {
     // The user anonymous, so ignore the attempt and go to the target url.
-    drupal_goto($target_path);
+    drupal_goto($target_path, $options);
   }
 
   try {
@@ -60,7 +70,7 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
     // Log any remote database exceptions.
     $e->logError(WATCHDOG_WARNING);
   }
-  drupal_goto($target_path);
+  drupal_goto($target_path, $options);
 }
 
 /**
@@ -72,17 +82,26 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
  * @return void
  * @todo Implement as action?
  */
-function remotedb_sso_goto($website) {
+function remotedb_sso_goto() {
   global $user;
+
+  $get = $_GET;
+
   try {
     // Request a ticket from the central database.
     $ticket_service = Util::getTicketService();
     if ($ticket_service) {
+      $site = $_GET['site'];
+      $path = '';
+      if (!empty($_GET['path'])) {
+        $path = '/' . $_GET['path'];
+      }
       $ticket = $ticket_service->getTicket($user);
       // Generate target path.
       $target_path = remotedb_sso_target_path(func_get_args());
       // Redirect.
-      drupal_goto('http://' . $website . '/sso/login/' . $ticket . '/' . $target_path);
+      $url = 'http://' . $site . '/sso/login/' . $ticket . $path;
+      drupal_goto($url);
     }
   }
   catch (RemotedbException $e) {

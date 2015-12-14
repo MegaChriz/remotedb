@@ -8,6 +8,7 @@
 namespace Drupal\remotedb_sso\Tests;
 
 use \stdClass;
+use Drupal\remotedb_sso\Url;
 use Drupal\remotedb_sso\Util;
 
 /**
@@ -38,11 +39,8 @@ class SSOTestCase extends RemotedbSSOTestBase {
 
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
-    // Remove http://.
-    $ext_url = str_replace('http://', '', $ext_url);
-
-    // Create SSO url.
-    $url = $this->getAbsoluteUrl('sso/goto/') . $ext_url;
+    $site = preg_replace('/^http\:\/\/([^\/]+)\/.*/', '\\1', $ext_url);
+    $url = Url::createSSOGotoUrl($site, $ext_url);
 
     // Follow url and assert that the user got on his account page.
     $this->drupalGet($url);
@@ -60,11 +58,8 @@ class SSOTestCase extends RemotedbSSOTestBase {
 
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
-    // Remove http://.
-    $ext_url = str_replace('http://', '', $ext_url);
-
-    // Create SSO url.
-    $url = $this->getAbsoluteUrl('sso/goto/') . $ext_url;
+    $site = preg_replace('/^http\:\/\/([^\/]+)\/.*/', '\\1', $ext_url);
+    $url = Url::createSSOGotoUrl($site, $ext_url);
 
     // Follow url.
     $this->drupalGet($url);
@@ -102,7 +97,6 @@ class SSOTestCase extends RemotedbSSOTestBase {
   public function testSSOLoginNewUser() {
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();
-    //$remote_account->timezone = NULL;
 
     // Create fake account to generate ticket for.
     $account = new stdClass();

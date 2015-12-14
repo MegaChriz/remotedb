@@ -26,7 +26,7 @@ function remotedb_sso_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'remotedb_sso.pages.inc',
   );
-  $items['sso/goto/%'] = array(
+  $items['sso/goto'] = array(
     'title' => 'SSO Redirect',
     'page callback' => 'remotedb_sso_goto',
     'page arguments' => array(2),

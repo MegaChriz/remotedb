@@ -9,6 +9,7 @@ namespace Drupal\remotedb_sso\Filter;
 
 use stdClass;
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb_sso\Url;
 use Drupal\remotedb_sso\Util;
 
 /**
@@ -79,6 +80,11 @@ class SSO {
    *   The filtered text.
    */
   public function process($text) {
+    if (user_is_anonymous()) {
+      // Do not rewrite links if the user is not logged in.
+      return $text;
+    }
+
     try {
       // Check if the ticket service is available.
       $ticket_service = Util::getTicketService();
@@ -99,12 +105,7 @@ class SSO {
       $sso_url = url('sso/goto/', array('absolute' => TRUE));
 
       foreach ($sites as $site) {
-        // Remove whitespace.
-        $site = trim($site);
-        // Make $site regex safe first.
-        $site = preg_quote($site, '/');
-        // Now replace the URLS.
-        $text = preg_replace('/http:\/\/(' . $site . '.*?)\"\>/i', $sso_url . '\\1">', $text);
+        $text = Url::createSSOGotoUrl($site, $text);
       }
     }
     catch (RemotedbException $e) {

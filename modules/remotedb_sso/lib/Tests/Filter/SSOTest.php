@@ -39,14 +39,16 @@ class SSOTest extends RemotedbSSOTestBase {
       'You need to be at <a href="http://www.example.com">.',
       'There is a place at <a href="http://www.example2.com/subsite/place">.',
       'Dolors are at <a href="http://www.example2.com/subsite">.',
+      '<a href="http://www.example2.com/subsite/subpath?path=Amen">Amen.</a>',
     );
     $base = $this->getAbsoluteUrl('sso/goto');
     $expected = array(
       'A text with no link at all.',
-      'Go to <a href="' . $base . '/www.example.com/lorem"> for Lorem Ipsum.',
-      'You need to be at <a href="' . $base . '/www.example.com">.',
-      'There is a place at <a href="' . $base . '/www.example2.com/subsite/place">.',
-      'Dolors are at <a href="' . $base . '/www.example2.com/subsite">.',
+      'Go to <a href="' . $base . '?site=www.example.com&path=lorem"> for Lorem Ipsum.',
+      'You need to be at <a href="' . $base . '?site=www.example.com">.',
+      'There is a place at <a href="' . $base . '?site=www.example2.com/subsite&path=place">.',
+      'Dolors are at <a href="' . $base . '?site=www.example2.com/subsite">.',
+      '<a href="' . $base . '?site=www.example2.com/subsite&path=subpath%3Fpath%3DAmen">Amen.</a>',
     );
 
     foreach ($texts as $i => $text) {
@@ -66,7 +68,7 @@ class SSOTest extends RemotedbSSOTestBase {
     // Create dummy filter.
     $filter = new stdClass();
     $filter->settings['websites'] = implode("\n", array(
-      'www.example2.com',
+      'www.example2.com/subsite',
     ));
     $sso_filter = new SSO($filter);
 
@@ -82,8 +84,8 @@ class SSOTest extends RemotedbSSOTestBase {
       'A text with no link at all.',
       'Go to <a href="http://www.example.com/lorem"> for Lorem Ipsum.',
       'You need to be at <a href="http://www.example.com">.',
-      'There is a place at <a href="' . $base . '/www.example2.com/subsite/place">.',
-      'Dolors are at <a href="' . $base . '/www.example2.com/subsite">.',
+      'There is a place at <a href="' . $base . '?site=www.example2.com/subsite&path=place">.',
+      'Dolors are at <a href="' . $base . '?site=www.example2.com/subsite">.',
     );
 
     foreach ($texts as $i => $text) {
