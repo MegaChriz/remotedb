@@ -8,6 +8,8 @@
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 
+const REMOTEDB_USER_BATCH_MINIMUM = 3;
+
 /**
  * Callback for: admin/settings/remotedb/user.
  *
@@ -116,7 +118,73 @@ function remotedbuser_get_remote_user_form($form, $form_state) {
  */
 function remotedbuser_get_remote_user_form_submit($form, $form_state) {
   $user_ids = explode("\n", $form_state['values']['user']);
-  remotedbuser_get_remote_users_batch($user_ids);
+  if (count($user_ids) >= REMOTEDB_USER_BATCH_MINIMUM) {
+    // Use batch.
+    remotedbuser_get_remote_users_batch($user_ids);
+  }
+  else {
+    foreach ($user_ids as $user_id) {
+      // Execute immediately.
+      remotedbuser_get_remote_user($user_id);
+    }
+  }
+}
+
+/**
+ * Get a single remote user.
+ *
+ * @param mixed $user_id
+ *   The user to import from the remote database.
+ * @param RemotedbUserController $rd_controller
+ *   (optional) The controller to use to retrieve remote users.
+ */
+function remotedbuser_get_remote_user($user_id, RemotedbUserController $rd_controller = NULL) {
+  if (empty($rd_controller)) {
+    $rd_controller = entity_get_controller('remotedb_user');
+  }
+
+  try {
+    // Remove extra spaces.
+    $user_id = trim($user_id);
+
+    if (empty($user_id)) {
+      // Skip "empty" users.
+      return;
+    }
+
+    // Try to load by email.
+    $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
+    if (!$remote_account) {
+      // No success, try to load by name.
+      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_NAME);
+    }
+    if (!$remote_account) {
+      // Still no success, try to load by ID.
+      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_ID);
+    }
+
+    if (isset($remote_account->uid)) {
+      // Copy over account data.
+      $account = $remote_account->toAccount();
+      entity_save('user', $account);
+      $uri = entity_uri('user', $account);
+      drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
+        '@url' => url($uri['path'], $uri['options']),
+        '%name' => $account->name,
+      )));
+    }
+    else {
+      drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));
+    }
+  }
+  catch (RemotedbException $e) {
+    $e->logError();
+    $e->printMessage();
+  }
+  catch (Exception $e) {
+    watchdog_exception('remotedb', $e);
+    drupal_set_message($e->getMessage(), 'error');
+  }
 }
 
 /**
@@ -177,53 +245,9 @@ function remotedbuser_get_remote_users_batch_operation(array $user_ids, $limit_p
   $i = 0;
   foreach ($group as $user_id) {
     $i++;
-    // Set flag whether or not to try to fetch the user from the remote database.
-    $try = TRUE;
 
-    try {
-      // Remove extra spaces.
-      $user_id = trim($user_id);
-
-      if (empty($user_id)) {
-        // Skip "empty" users.
-        $try = FALSE;
-      }
-
-      if ($try) {
-        // Try to load by email.
-        $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
-        if (!$remote_account) {
-          // No success, try to load by name.
-          $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_NAME);
-        }
-        if (!$remote_account) {
-          // Still no success, try to load by ID.
-          $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_ID);
-        }
-
-        if (isset($remote_account->uid)) {
-          // Copy over account data.
-          $account = $remote_account->toAccount();
-          entity_save('user', $account);
-          $uri = entity_uri('user', $account);
-          drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
-            '@url' => url($uri['path'], $uri['options']),
-            '%name' => $account->name,
-          )));
-        }
-        else {
-          drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));
-        }
-      }
-    }
-    catch (RemotedbException $e) {
-      $e->logError();
-      $e->printMessage();
-    }
-    catch (Exception $e) {
-      watchdog_exception('remotedb', $e);
-      drupal_set_message($e->getMessage(), 'error');
-    }
+    // Get remote user and save it locally.
+    remotedbuser_get_remote_user($user_id, $rd_controller);
 
     $context['sandbox']['progress']++;
     $context['message'] = t('Imported @current users out of @total.', array(
