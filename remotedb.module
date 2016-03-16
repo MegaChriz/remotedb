@@ -102,6 +102,14 @@ function remotedb_entity_info() {
       'access callback' => 'remotedb_access',
     ),
   );
+
+  // Entity Operations API.
+  if (module_exists('entity_operations')) {
+    $return['remotedb']['operations ui'] = array(
+      'path' => 'admin/config/services/remotedb/manage',
+    );
+  }
+
   return $return;
 }
 
