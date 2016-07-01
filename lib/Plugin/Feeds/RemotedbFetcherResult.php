@@ -9,7 +9,7 @@ namespace Drupal\remotedb\Plugin\Feeds;
 
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
-use Drupal\remotedb\Component\String;
+use Drupal\remotedb\Component\StringLib;
 use \FeedsFetcherResult;
 
 /**
@@ -42,7 +42,7 @@ class RemotedbFetcherResult extends FeedsFetcherResult {
    * Overrides FeedsFetcherResult::getRaw();
    */
   public function getRaw() {
-    $string = new String();
+    $string = new StringLib();
     $params = $string->textToArray($this->config['params']);
     try {
       $result = $this->remotedb->sendRequest($this->config['method'], $params);

@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Contains \Drupal\remotedb\Component\String.
+ * Contains \Drupal\remotedb\Component\StringLib.
  */
 
 namespace Drupal\remotedb\Component;
 
-class String {
+class StringLib {
   /**
    * Converts text to array.
    *

@@ -5,7 +5,7 @@
  * Administrative page callbacks.
  */
 
-use Drupal\remotedb\Component\String;
+use Drupal\remotedb\Component\StringLib;
 use Drupal\remotedb\Exception\RemotedbException;
 
 // ---------------------------------------------------------------------------
@@ -249,7 +249,7 @@ function remotedb_test_form($form, $form_state) {
  */
 function remotedb_test_form_submit($form, &$form_state) {
   $method = $form_state['values']['method'];
-  $string = new String();
+  $string = new StringLib();
   $params = $string->textToArray($form_state['values']['params']);
   $remotedb = entity_load_single('remotedb', $form_state['values']['remotedb']);
   if ($remotedb) {
