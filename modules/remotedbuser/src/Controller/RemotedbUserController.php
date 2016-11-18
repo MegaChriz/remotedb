@@ -309,6 +309,9 @@ class RemotedbUserController extends EntityAPIController {
     $entity->account = $account;
     $account->remotedb_user = $entity;
 
+    // Set flag that account should *not* be send back to the remote database again.
+    $account->from_remotedb = TRUE;
+
     return $account;
   }
 

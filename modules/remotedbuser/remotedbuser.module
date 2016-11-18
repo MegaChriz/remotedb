@@ -132,8 +132,8 @@ function remotedbuser_user_insert(&$edit, $account) {
  * Implements hook_user_update().
  */
 function remotedbuser_user_update(&$edit, $account) {
-  // Check if a remote user is already assigned.
-  if (isset($account->remotedb_user)) {
+  // Check if a remote user was coming from the remote database.
+  if (!empty($account->from_remotedb)) {
     // We assume that the local account was updated with information from the
     // remote account. So there is no need to update the remote account.
     return;
