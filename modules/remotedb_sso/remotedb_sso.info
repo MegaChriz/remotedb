@@ -3,5 +3,5 @@ description = "Provides Single Sign-on functionality for remote users."
 dependencies[] = remotedbuser
 package = "Remote database"
 core = 7.x
-version = "7.x-3.0-beta1"
+version = "7.x-3.0-beta2"
 configure = admin/config/services/remotedb/sso
