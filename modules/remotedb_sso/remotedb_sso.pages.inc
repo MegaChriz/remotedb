@@ -85,7 +85,9 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
 function remotedb_sso_goto() {
   global $user;
 
-  $get = $_GET;
+  if (empty($_GET['site'])) {
+    return MENU_NOT_FOUND;
+  }
 
   try {
     // Request a ticket from the central database.

@@ -113,4 +113,12 @@ class SSOTestCase extends RemotedbSSOTestBase {
     $this->drupalGet($url);
     $this->assertText($remote_account->name);
   }
+
+  /**
+   * Tests if the user is redirected to a 404 page in case of a invalid SSO url.
+   */
+  public function testInvalidSSO() {
+    $this->drupalGet('sso/goto/www.example.com');
+    $this->assertResponse(404);
+  }
 }
