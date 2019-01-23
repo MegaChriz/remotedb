@@ -137,26 +137,54 @@ class Webhook {
    * Processes webhook data.
    */
   public static function process($type, $data) {
-    if ($type == 'user__update') {
-      // First ensure that this user already exists locally.
-      $users = user_load_multiple(array(), array('remotedb_uid' => $data));
-      if (empty($users)) {
-        return;
-      }
+    list($entity_type, $hook) = explode('__', $type);
 
-      $rd_controller = entity_get_controller('remotedb_user');
-      $remote_account = $rd_controller->loadBy($data, RemotedbUserController::BY_ID);
-      if (isset($remote_account->uid)) {
-        // Copy over account data.
-        $account = $remote_account->toAccount();
-        entity_save('user', $account);
-        $uri = entity_uri('user', $account);
-        $vars = array(
-          '@url' => url($uri['path'], $uri['options']),
-          '%name' => $account->name,
-        );
-        watchdog('remotedb', 'User account <a href="@url">%name</a> copied over from the remote database.', $vars, WATCHDOG_INFO);
+    if ($entity_type == 'user') {
+      switch ($hook) {
+        case 'update':
+          // First ensure that this user already exists locally.
+          $users = user_load_multiple(array(), array('remotedb_uid' => $data));
+          if (empty($users)) {
+            return;
+          }
+
+          $this->createAccount($data);
+          break;
+
+        case 'welcome_email':
+          // The user should receive a welcome mail.
+          // First ensure that this user already exists locally.
+          $account = static::createAccount($data);
+          if ($account) {
+            _user_mail_notify('register_admin_created', $account);
+          }
+          break;
       }
     }
   }
+
+  /**
+   * Creates an account if one doesn't exist.
+   *
+   * @param int $remotedb_uid
+   *   The ID of the user in the remote database.
+   */
+  protected function createAccount($remotedb_uid) {
+    $rd_controller = entity_get_controller('remotedb_user');
+    $remote_account = $rd_controller->loadBy($remotedb_uid, RemotedbUserController::BY_ID);
+    if (isset($remote_account->uid)) {
+      // Copy over account data.
+      $account = $remote_account->toAccount();
+      entity_save('user', $account);
+      $uri = entity_uri('user', $account);
+      $vars = array(
+        '@url' => url($uri['path'], $uri['options']),
+        '%name' => $account->name,
+      );
+      watchdog('remotedb', 'User account <a href="@url">%name</a> copied over from the remote database.', $vars, WATCHDOG_INFO);
+
+      return $account;
+    }
+  }
+
 }
