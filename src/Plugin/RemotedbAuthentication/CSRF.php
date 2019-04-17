@@ -8,13 +8,14 @@ use Drupal\remotedb\Plugin\AuthenticationBase;
  * Authenticates by requesting a CSRF token.
  */
 class CSRF extends AuthenticationBase {
+
   /**
    * Implements AuthenticationInterface::authenticate().
    */
   public function authenticate() {
-    $params = array(
-      'user.token' => array(),
-    );
+    $params = [
+      'user.token' => [],
+    ];
     $this->remotedb->setHeader('X-CSRF-Token', NULL);
     $token = xmlrpc($this->remotedb->getUrl(), $params, $this->remotedb->getOptions());
     if (!empty($token) && isset($token['token'])) {
@@ -23,4 +24,5 @@ class CSRF extends AuthenticationBase {
     }
     return FALSE;
   }
+
 }

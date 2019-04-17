@@ -10,24 +10,6 @@
 // ---------------------------------------------------------------------------
 
 /**
- * Implements hook_menu().
- */
-function remotedb_menu() {
-  $items = array();
-
-  $items['admin/config/services/remotedb/test'] = array(
-    'title' => 'Test',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedb_test_form'),
-    'access arguments' => array('remotedb.administer'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'remotedb.admin.inc',
-  );
-
-  return $items;
-}
-
-/**
  * Implements hook_hook_info().
  *
  * Declares available hooks invoked by this module.
@@ -36,14 +18,14 @@ function remotedb_menu() {
  *   A list of hooks.
  */
 function remotedb_hook_info() {
-  $hooks = array(
+  $hooks = [
     'remotedb_authentication',
-  );
-  $return = array();
+  ];
+  $return = [];
   foreach ($hooks as $hook) {
-    $return[$hook] = array(
+    $return[$hook] = [
       'group' => 'remotedb',
-    );
+    ];
   }
   return $return;
 }
@@ -52,11 +34,11 @@ function remotedb_hook_info() {
  * Implements hook_permission().
  */
 function remotedb_permission() {
-  return array(
-    'remotedb.administer' => array(
+  return [
+    'remotedb.administer' => [
       'title' => t('Administer remote databases'),
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -80,34 +62,34 @@ function remotedb_load($id) {
  * Implements hook_entity_info().
  */
 function remotedb_entity_info() {
-  $return = array(
-    'remotedb' => array(
+  $return = [
+    'remotedb' => [
       'label' => t('Remote database'),
       'entity class' => 'Drupal\\remotedb\\Entity\\Remotedb',
       'controller class' => 'Drupal\\remotedb\\Controller\\RemotedbController',
       'base table' => 'remotedb',
       'fieldable' => FALSE,
-      'entity keys' => array(
+      'entity keys' => [
         'id' => 'name',
         'label' => 'label',
-      ),
+      ],
       'exportable' => TRUE,
-      'admin ui' => array(
+      'admin ui' => [
         'path' => 'admin/config/services/remotedb',
         'file' => 'remotedb.admin.inc',
         'controller class' => 'EntityDefaultUIController',
-      ),
+      ],
       'uri callback' => 'entity_class_uri',
       'module' => 'remotedb',
       'access callback' => 'remotedb_access',
-    ),
-  );
+    ],
+  ];
 
   // Entity Operations API.
   if (\Drupal::moduleHandler()->moduleExists('entity_operations')) {
-    $return['remotedb']['operations ui'] = array(
+    $return['remotedb']['operations ui'] = [
       'path' => 'admin/config/services/remotedb/manage',
-    );
+    ];
   }
 
   return $return;
@@ -127,12 +109,12 @@ function remotedb_entity_info() {
  */
 function remotedb_ctools_plugin_api($owner, $api) {
   if ($owner == 'feeds' && $api == 'plugins') {
-    return array('version' => 1);
+    return ['version' => 1];
   }
   if ($owner == 'remotedb' && $api == 'authentication') {
-    return array(
+    return [
       'version' => 3,
-    );
+    ];
   }
 }
 
@@ -140,11 +122,11 @@ function remotedb_ctools_plugin_api($owner, $api) {
  * Implements hook_ctools_plugin_type().
  */
 function remotedb_ctools_plugin_type() {
-  return array(
-    'authentication' => array(
+  return [
+    'authentication' => [
       'use hooks' => TRUE,
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -152,11 +134,10 @@ function remotedb_ctools_plugin_type() {
  */
 function remotedb_discover_plugins() {
   // @FIXME
-// Most CTools APIs have been moved into core.
-// 
-// @see https://www.drupal.org/node/2164623
-// ctools_include('plugins');
-
+  // Most CTools APIs have been moved into core.
+  //
+  // @see https://www.drupal.org/node/2164623
+  // ctools_include('plugins');
   ctools_plugin_api_include('remotedb', 'authentication', 3, 3);
   $plugins = \Drupal::service('plugin.manager.remotedb.authentication')->getDefinitions();
   \Drupal::moduleHandler()->alter('authentication', $plugins);
@@ -171,17 +152,17 @@ function remotedb_discover_plugins() {
  * Implements hook_feeds_plugins().
  */
 function remotedb_feeds_plugins() {
-  $info = array();
-  $info['RemotedbFetcher'] = array(
+  $info = [];
+  $info['RemotedbFetcher'] = [
     'name' => 'Remote database fetcher',
     'description' => 'Fetches data from the remote database via XML-RPC.',
-    'handler' => array(
+    'handler' => [
       'parent' => 'FeedsFetcher',
       'class' => 'Drupal\\remotedb\\Plugin\\Feeds\\RemotedbFetcher',
       'file' => 'RemotedbFetcher.php',
       'path' => drupal_get_path('module', 'remotedb') . '/lib/Plugin/Feeds',
-    ),
-  );
+    ],
+  ];
   return $info;
 }
 
@@ -204,10 +185,10 @@ function remotedb_access($op, $entity, $account) {
  * Implements hook_theme().
  */
 function remotedb_theme() {
-  return array(
-    'authentication_methods_order' => array(
+  return [
+    'authentication_methods_order' => [
       'render element' => 'element',
       'file' => 'remotedb.admin.inc',
-    ),
-  );
+    ],
+  ];
 }

@@ -2,13 +2,14 @@
 
 namespace Drupal\remotedb\Controller;
 
-use \EntityAPIController;
-use \EntityFieldQuery;
+use EntityAPIController;
+use EntityFieldQuery;
 
 /**
  * Remotedb entity controller class.
  */
 class RemotedbController extends EntityAPIController {
+
   /**
    * Get all remote databases.
    */
@@ -16,8 +17,8 @@ class RemotedbController extends EntityAPIController {
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $this->entityType);
     $results = $query->execute();
-    $ids = isset($results[$this->entityType]) ? array_keys($results[$this->entityType]) : array();
-    $entities = $ids ? \Drupal::entityManager()->getStorage($this->entityType) : array();
+    $ids = isset($results[$this->entityType]) ? array_keys($results[$this->entityType]) : [];
+    $entities = $ids ? \Drupal::entityManager()->getStorage($this->entityType) : [];
     return $entities;
   }
 
@@ -35,7 +36,7 @@ class RemotedbController extends EntityAPIController {
     if (is_null($entities)) {
       $entities = $this->loadAll();
     }
-    $options = array();
+    $options = [];
     foreach ($entities as $entity_id => $entity) {
       $options[$entity_id] = $entity->label();
     }
@@ -45,12 +46,12 @@ class RemotedbController extends EntityAPIController {
   /**
    * Implements EntityAPIController::export().
    */
-  function export($entity, $prefix = '') {
-    $vars = array(
+  public function export($entity, $prefix = '') {
+    $vars = [
       'name' => $entity->id(),
       'label' => $entity->label(),
       'url' => $entity->getUrl(),
-    );
+    ];
     $methods = $entity->getAuthenticationMethods();
     foreach ($methods as $key => $method) {
       $vars['authentication_methods'][$key] = $method->getConfiguration();
@@ -59,4 +60,5 @@ class RemotedbController extends EntityAPIController {
     unset($vars['is_new']);
     return entity_var_json_export($vars, $prefix);
   }
+
 }

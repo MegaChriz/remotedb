@@ -6,6 +6,7 @@ namespace Drupal\remotedb\Plugin;
  * Interface for remote database authentication plugins.
  */
 interface AuthenticationInterface {
+
   /**
    * Returns the id for this authentication method.
    *
@@ -35,4 +36,5 @@ interface AuthenticationInterface {
    *   FALSE otherwise.
    */
   public function authenticate();
+
 }

@@ -11,18 +11,18 @@
 function remotedb_remotedb_authentication() {
   $namespace = 'Drupal\remotedb\Plugin\RemotedbAuthentication';
 
-  return array(
-    'login' => array(
+  return [
+    'login' => [
       'id' => 'login',
       'title' => t('Login'),
       'description' => t('Logs in an user on the remote database.'),
       'class' => $namespace . '\Login',
-    ),
-    'csrf' => array(
+    ],
+    'csrf' => [
       'id' => 'csrf',
       'title' => t('CSRF'),
       'description' => t('Authenticates by requesting a CSRF token.'),
       'class' => $namespace . '\CSRF',
-    ),
-  );
+    ],
+  ];
 }

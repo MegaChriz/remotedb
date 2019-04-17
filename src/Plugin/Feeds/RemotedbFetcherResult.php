@@ -5,7 +5,7 @@ namespace Drupal\remotedb\Plugin\Feeds;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedb\Component\StringLib;
-use \FeedsFetcherResult;
+use FeedsFetcherResult;
 
 /**
  * Result of FeedsHTTPFetcher::fetch().
@@ -34,7 +34,7 @@ class RemotedbFetcherResult extends FeedsFetcherResult {
   }
 
   /**
-   * Overrides FeedsFetcherResult::getRaw();
+   * Overrides FeedsFetcherResult::getRaw();.
    */
   public function getRaw() {
     $string = new StringLib();
@@ -43,12 +43,13 @@ class RemotedbFetcherResult extends FeedsFetcherResult {
       $result = $this->remotedb->sendRequest($this->config['method'], $params);
     }
     catch (RemotedbException $e) {
-      $variables = array(
+      $variables = [
         '@message' => $e->getMessage(),
         '@code' => $e->getCode(),
-      );
+      ];
       throw new RemotedbException(t('An error occured when fetching data from the remote database: @message (@code)', $variables));
     }
     return serialize($result);
   }
+
 }

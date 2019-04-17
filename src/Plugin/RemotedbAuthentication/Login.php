@@ -8,14 +8,15 @@ use Drupal\remotedb\Plugin\AuthenticationBase;
  * Logs in an user on the remote database.
  */
 class Login extends AuthenticationBase {
+
   /**
    * Implements AuthenticationBase::init().
    */
   protected function init() {
-    $this->settings += array(
+    $this->settings += [
       'username' => '',
       'password' => '',
-    );
+    ];
   }
 
   /**
@@ -31,17 +32,17 @@ class Login extends AuthenticationBase {
       return TRUE;
     }
 
-    $params = array(
-      'user.login' => array(
+    $params = [
+      'user.login' => [
         'username' => $username,
         'password' => $password,
-      ),
-    );
+      ],
+    ];
 
     $this->remotedb->setHeader('cookie', NULL);
     $session = xmlrpc($this->remotedb->getUrl(), $params, $this->remotedb->getOptions());
     if ($session === FALSE) {
-      //self::reportError(xmlrpc_error(), $this->url, 'user.login');
+      // self::reportError(xmlrpc_error(), $this->url, 'user.login');.
       return FALSE;
     }
     $this->remotedb->setHeader('cookie', $session['session_name'] . '=' . $session['sessid'] . ';');
@@ -52,18 +53,19 @@ class Login extends AuthenticationBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, array &$form_state) {
-    $form['username'] = array(
+    $form['username'] = [
       '#type' => 'textfield',
       '#title' => t('Username'),
       '#maxlength' => 255,
       '#default_value' => $this->settings['username'],
-    );
-    $form['password'] = array(
+    ];
+    $form['password'] = [
       '#type' => 'textfield',
       '#title' => t('Password'),
       '#maxlength' => 255,
       '#default_value' => $this->settings['password'],
-    );
+    ];
     return $form;
   }
+
 }

@@ -2,9 +2,13 @@
 
 namespace Drupal\remotedb\Exception;
 
-use \Exception;
+use Exception;
 
+/**
+ * Base class for remotedb exceptions.
+ */
 class RemotedbException extends Exception {
+
   /**
    * Prints error message on screen.
    */
@@ -16,6 +20,7 @@ class RemotedbException extends Exception {
    * Logs error in watchdog.
    */
   public function logError($severity = WATCHDOG_ERROR) {
-    watchdog_exception('remotedb', $this, NULL, array(), $severity);
+    watchdog_exception('remotedb', $this, NULL, [], $severity);
   }
+
 }

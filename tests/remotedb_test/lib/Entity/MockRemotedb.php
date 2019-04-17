@@ -1,26 +1,24 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_test\Entity\MockRemotedb.
- */
-
 namespace Drupal\remotedb_test\Entity;
 
 use Drupal\remotedb\Entity\RemotedbInterface;
 
+/**
+ *
+ */
 class MockRemotedb implements RemotedbInterface {
   /**
    * The callback to use for function calls.
    *
-   * @var callable $callback
+   * @var callable
    */
   protected $callback;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $values = array(), $entityType = NULL) { }
+  public function __construct(array $values = array(), $entityType = NULL) {}
 
   /**
    * {@inheritdoc}
@@ -60,12 +58,12 @@ class MockRemotedb implements RemotedbInterface {
   /**
    * {@inheritdoc}
    */
-  public function setHeader($header, $value) { }
+  public function setHeader($header, $value) {}
 
   /**
    * {@inheritdoc}
    */
-  public function save() { }
+  public function save() {}
 
   /**
    * Set the callback to use for method calls.
@@ -86,4 +84,5 @@ class MockRemotedb implements RemotedbInterface {
       return call_user_func_array($this->callback, $callback_args);
     }
   }
+
 }

@@ -9,50 +9,50 @@
  * Implements hook_schema().
  */
 function remotedb_schema() {
-  $schema['remotedb'] = array(
+  $schema['remotedb'] = [
     'description' => 'A list of remote databases.',
-    'fields' => array(
-      'name' => array(
+    'fields' => [
+      'name' => [
         'description' => 'Unique identifier.',
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
-      ),
-      'label' => array(
+      ],
+      'label' => [
         'description' => 'Administrative name of this remote database.',
         'type' => 'varchar',
         'length' => '255',
         'not null' => FALSE,
-      ),
-      'url' => array(
+      ],
+      'url' => [
         'description' => 'Url to the remote database.',
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
-      ),
-      'authentication_methods' => array(
+      ],
+      'authentication_methods' => [
         'description' => 'Enabled methods for this configuration.',
         'type' => 'blob',
         'size' => 'big',
         'serialize' => TRUE,
         'not null' => FALSE,
-      ),
-      'status' => array(
+      ],
+      'status' => [
         'type' => 'int',
         'size' => 'tiny',
         'default' => 0x01,
         'not null' => TRUE,
         'description' => 'The exportable status of the entity.',
-      ),
-      'module' => array(
+      ],
+      'module' => [
         'description' => 'The name of the providing module if the entity has been defined in code.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => FALSE,
-      ),
-    ),
-    'primary key' => array('name'),
-  );
+      ],
+    ],
+    'primary key' => ['name'],
+  ];
 
   return $schema;
 }

@@ -2,19 +2,23 @@
 
 namespace Drupal\remotedb\Component;
 
+/**
+ * String related helper functions.
+ */
 class StringLib {
+
   /**
    * Converts text to array.
    *
    * @param string $text
-   *  The string to convert.
+   *   The string to convert.
    *
    * @return array
    *   An array of parameters that can be used.
    */
   public function textToArray($text) {
     $explode = explode("\n", $text);
-    $array = array();
+    $array = [];
     // Trim all params.
     foreach ($explode as $index => $value) {
       $key = $index;
@@ -41,11 +45,12 @@ class StringLib {
     if (preg_match($regex, $value)) {
       $sValues = preg_replace($regex, '${1}', $value);
       $aValues = explode(',', $sValues);
-      $value = array();
+      $value = [];
       foreach ($aValues as $index => $sValuePart) {
         $this->textToArrayParse($index, $sValuePart);
         $value[$index] = $sValuePart;
       }
     }
   }
+
 }
