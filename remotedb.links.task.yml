@@ -1,3 +1,14 @@
+entity.remotedb.edit_form:
+  title: 'Edit'
+  route_name: entity.remotedb.edit_form
+  base_route: entity.remotedb.edit_form
+
+entity.remotedb.collection:
+  title: List
+  route_name: entity.remotedb.collection
+  base_route: entity.remotedb.collection
+
 remotedb.test_form:
-  route_name: remotedb.test_form
   title: Test
+  route_name: remotedb.test_form
+  base_route: entity.remotedb.collection

@@ -23,9 +23,9 @@ use Drupal\remotedb\Exception\RemotedbException;
  *   handlers = {
  *     "list_builder" = "Drupal\remotedb\RemoteDbListBuilder",
  *     "form" = {
- *       "add" = "Drupal\remotedb\Form\RemoteDbAddForm",
- *       "edit" = "Drupal\remotedb\Form\RemoteDbEditForm",
- *       "delete" = "Drupal\remotedb\Form\RemoteDbDeleteForm"
+ *       "add" = "Drupal\remotedb\Form\RemotedbAddForm",
+ *       "edit" = "Drupal\remotedb\Form\RemotedbEditForm",
+ *       "delete" = "Drupal\remotedb\Form\RemotedbDeleteForm"
  *     },
  *   },
  *   admin_permission = "remotedb.administer",
@@ -40,7 +40,7 @@ use Drupal\remotedb\Exception\RemotedbException;
  *   }
  * )
  */
-class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWithPluginCollectionInterface {
+class Remotedb extends ConfigEntityBase implements RemotedbInterface {
 
   // ---------------------------------------------------------------------------
   // PROPERTIES
@@ -119,6 +119,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
    * @todo replace with plugin collection.
    */
   public function getAuthenticationMethods() {
+    return [];
     $methods = array();
     $method_info = remotedb_discover_plugins();
     foreach ($method_info as $key => $method_definition) {

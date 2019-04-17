@@ -1,0 +1,5 @@
+entity.remotedb.collection:
+  title: 'Remote databases'
+  description: 'Manage connections with remote databases.'
+  parent: system.admin_config_services
+  route_name: entity.remotedb.collection

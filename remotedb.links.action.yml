@@ -1,0 +1,5 @@
+remotedb_add_action:
+  route_name: remotedb.add
+  title: 'Add remote database'
+  appears_on:
+    - entity.remotedb.collection

@@ -60,7 +60,7 @@ interface RemotedbInterface extends ConfigEntityInterface {
   // ---------------------------------------------------------------------------
 
   /**
-   * Send a request to the XML-RPC server.
+   * Sends a request to the XML-RPC server.
    *
    * @param string $method
    *   The method to call on the server.
