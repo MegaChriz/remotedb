@@ -2,21 +2,28 @@
 
 namespace Drupal\remotedb\Plugin\RemotedbAuthentication;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\remotedb\Plugin\AuthenticationBase;
 
 /**
  * Logs in an user on the remote database.
+ *
+ * @RemotedbAuthentication(
+ *   id = "login",
+ *   title = @Translation("Login"),
+ *   description = @Translation("Logs in an user on the remote database.")
+ * )
  */
 class Login extends AuthenticationBase {
 
   /**
-   * Implements AuthenticationBase::init().
+   * {@inheritdoc}
    */
-  protected function init() {
-    $this->settings += [
+  public function defaultConfiguration() {
+    return [
       'username' => '',
       'password' => '',
-    ];
+    ] + parent::defaultConfiguration();
   }
 
   /**
@@ -52,7 +59,7 @@ class Login extends AuthenticationBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, array &$form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state) {
     $form['username'] = [
       '#type' => 'textfield',
       '#title' => t('Username'),

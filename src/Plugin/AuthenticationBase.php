@@ -2,13 +2,16 @@
 
 namespace Drupal\remotedb\Plugin;
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\PluginBase;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Plugin\AuthenticationInterface;
 
 /**
  * Base class for remote database authentication plugins.
  */
-abstract class AuthenticationBase implements AuthenticationInterface {
+abstract class AuthenticationBase extends PluginBase implements AuthenticationInterface {
+
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------
@@ -21,9 +24,11 @@ abstract class AuthenticationBase implements AuthenticationInterface {
   protected $remotedb;
 
   /**
-   * Info about the authentication method.
+   * The name of the provider that owns this method.
+   *
+   * @var string
    */
-  protected $pluginDefinition;
+  public $provider;
 
   /**
    * A Boolean indicating whether this method is enabled.
@@ -44,7 +49,7 @@ abstract class AuthenticationBase implements AuthenticationInterface {
    *
    * @var array
    */
-  public $settings = array();
+  public $settings = [];
 
   // ---------------------------------------------------------------------------
   // CONSTRUCT
@@ -53,26 +58,22 @@ abstract class AuthenticationBase implements AuthenticationInterface {
   /**
    * Constructs a new AuthenticationBase instance.
    *
-   * @param array $info
-   *   The plugin info.
-   * @param RemotedbInterface $remotedb
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   A remote database object.
    */
-  public function __construct(array $configuration, array $info, RemotedbInterface $remotedb) {
-    $this->remotedb = $remotedb;
-    $this->pluginDefinition = $info;
-    $this->setConfiguration($configuration);
-    $this->init();
-  }
+  public function __construct(array $configuration, $plugin_id, $plugin_definition) { // , RemotedbInterface $remotedb
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-  /**
-   * Initializes plugin.
-   *
-   * Can be used by subclasses to do some initialization upon constructing.
-   *
-   * @return void
-   */
-  protected function init() { }
+    //$this->remotedb = $remotedb;
+    $this->provider = $this->pluginDefinition['provider'];
+    $this->setConfiguration($configuration);
+  }
 
   // ---------------------------------------------------------------------------
   // SETTERS
@@ -104,7 +105,7 @@ abstract class AuthenticationBase implements AuthenticationInterface {
   public function getConfiguration() {
     return array(
       'id' => $this->getPluginId(),
-      'provider' => $this->pluginDefinition['plugin module'],
+      'provider' => $this->pluginDefinition['provider'],
       'status' => $this->status,
       'weight' => $this->weight,
       'settings' => $this->settings,
@@ -114,8 +115,20 @@ abstract class AuthenticationBase implements AuthenticationInterface {
   /**
    * {@inheritdoc}
    */
-  public function getPluginId() {
-    return $this->pluginDefinition['id'];
+  public function defaultConfiguration() {
+    return [
+      'provider' => $this->pluginDefinition['provider'],
+      'status' => FALSE,
+      'weight' => $this->pluginDefinition['weight'] ?: 0,
+      'settings' => $this->pluginDefinition['settings'],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    return [];
   }
 
   /**
@@ -135,9 +148,9 @@ abstract class AuthenticationBase implements AuthenticationInterface {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, array &$form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state) {
     // Implementations should work with and return $form. Returning an empty
     // array here if there are no additional settings needed.
-    return array();
+    return [];
   }
 }

@@ -1,9 +1,4 @@
 services:
   plugin.manager.remotedb.authentication:
-    class: Drupal\Core\Plugin\DefaultPluginManager
-    arguments:
-      - Plugin/remotedb/authentication
-      - '@container.namespaces'
-      - '@module_handler'
-      - Drupal\Component\Plugin\PluginBase
-      - Drupal\Component\Annotation\Plugin
+    class: Drupal\remotedb\AuthenticationPluginManager
+    parent: default_plugin_manager

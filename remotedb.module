@@ -2,82 +2,8 @@
 
 /**
  * @file
- * Enables registration and authentication via remote database.
+ * Hook implementations.
  */
-
-// ---------------------------------------------------------------------------
-// DRUPAL HOOKS
-// ---------------------------------------------------------------------------
-
-/**
- * Implements hook_hook_info().
- *
- * Declares available hooks invoked by this module.
- *
- * @return array
- *   A list of hooks.
- */
-function remotedb_hook_info() {
-  $hooks = [
-    'remotedb_authentication',
-  ];
-  $return = [];
-  foreach ($hooks as $hook) {
-    $return[$hook] = [
-      'group' => 'remotedb',
-    ];
-  }
-  return $return;
-}
-
-// ---------------------------------------------------------------------------
-// CTOOLS HOOKS
-// + function for finding the plugins.
-// ---------------------------------------------------------------------------
-
-/**
- * Implements hook_ctools_plugin_api().
- *
- * Report that this module works with Feeds.
- *
- * @return array
- */
-function remotedb_ctools_plugin_api($owner, $api) {
-  if ($owner == 'feeds' && $api == 'plugins') {
-    return ['version' => 1];
-  }
-  if ($owner == 'remotedb' && $api == 'authentication') {
-    return [
-      'version' => 3,
-    ];
-  }
-}
-
-/**
- * Implements hook_ctools_plugin_type().
- */
-function remotedb_ctools_plugin_type() {
-  return [
-    'authentication' => [
-      'use hooks' => TRUE,
-    ],
-  ];
-}
-
-/**
- * Returns an array of plugins.
- */
-function remotedb_discover_plugins() {
-  // @FIXME
-  // Most CTools APIs have been moved into core.
-  //
-  // @see https://www.drupal.org/node/2164623
-  // ctools_include('plugins');
-  ctools_plugin_api_include('remotedb', 'authentication', 3, 3);
-  $plugins = \Drupal::service('plugin.manager.remotedb.authentication')->getDefinitions();
-  \Drupal::moduleHandler()->alter('authentication', $plugins);
-  return $plugins;
-}
 
 // ---------------------------------------------------------------------------
 // FEEDS HOOKS

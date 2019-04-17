@@ -6,6 +6,12 @@ use Drupal\remotedb\Plugin\AuthenticationBase;
 
 /**
  * Authenticates by requesting a CSRF token.
+ *
+ * @RemotedbAuthentication(
+ *   id = "csrf",
+ *   title = @Translation("CSRF"),
+ *   description = @Translation("Authenticates by requesting a CSRF token.")
+ * )
  */
 class CSRF extends AuthenticationBase {
 
