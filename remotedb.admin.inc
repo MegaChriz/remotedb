@@ -168,19 +168,35 @@ function theme_authentication_methods_order($variables) {
 
   // Order (tabledrag).
   $rows = array();
-  foreach (element_children($element, TRUE) as $name) {
+  foreach (\Drupal\Core\Render\Element::children($element, TRUE) as $name) {
     $element[$name]['weight']['#attributes']['class'][] = 'authentication-method-order-weight';
     $rows[] = array(
       'data' => array(
-        drupal_render($element[$name]['authentication-method']),
-        drupal_render($element[$name]['weight']),
+        \Drupal::service("renderer")->render($element[$name]['authentication-method']),
+        \Drupal::service("renderer")->render($element[$name]['weight']),
       ),
       'class' => array('draggable'),
     );
   }
   $output = drupal_render_children($element);
-  $output .= theme('table', array('rows' => $rows, 'attributes' => array('id' => 'authentication-method-order')));
-  drupal_add_tabledrag('authentication-method-order', 'order', 'sibling', 'authentication-method-order-weight', NULL, NULL, TRUE);
+  // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output .= theme('table', array('rows' => $rows, 'attributes' => array('id' => 'authentication-method-order')));
+
+  // @FIXME
+// TableDrag is now attached with the #tabledrag property of certain render
+// arrays. drupal_add_tabledrag() is now internal and should never be called directly.
+// 
+// 
+// @see https://www.drupal.org/node/2160571
+// drupal_add_tabledrag('authentication-method-order', 'order', 'sibling', 'authentication-method-order-weight', NULL, NULL, TRUE);
+
 
   return $output;
 }

@@ -104,7 +104,7 @@ function remotedb_entity_info() {
   );
 
   // Entity Operations API.
-  if (module_exists('entity_operations')) {
+  if (\Drupal::moduleHandler()->moduleExists('entity_operations')) {
     $return['remotedb']['operations ui'] = array(
       'path' => 'admin/config/services/remotedb/manage',
     );
@@ -151,10 +151,15 @@ function remotedb_ctools_plugin_type() {
  * Returns an array of plugins.
  */
 function remotedb_discover_plugins() {
-  ctools_include('plugins');
+  // @FIXME
+// Most CTools APIs have been moved into core.
+// 
+// @see https://www.drupal.org/node/2164623
+// ctools_include('plugins');
+
   ctools_plugin_api_include('remotedb', 'authentication', 3, 3);
-  $plugins = ctools_get_plugins('remotedb', 'authentication');
-  drupal_alter('authentication', $plugins);
+  $plugins = \Drupal::service('plugin.manager.remotedb.authentication')->getDefinitions();
+  \Drupal::moduleHandler()->alter('authentication', $plugins);
   return $plugins;
 }
 
@@ -188,7 +193,7 @@ function remotedb_feeds_plugins() {
  * Access callback for remotedb entity.
  */
 function remotedb_access($op, $entity, $account) {
-  return user_access('remotedb.administer', $account);
+  return $account->hasPermission('remotedb.administer');
 }
 
 // ---------------------------------------------------------------------------

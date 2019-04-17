@@ -1,0 +1,3 @@
+remotedb.test_form:
+  route_name: remotedb.test_form
+  title: Test

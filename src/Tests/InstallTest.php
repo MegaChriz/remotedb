@@ -31,7 +31,7 @@ class InstallTest extends RemotedbTestBase {
    * Tests if remotedb installation went well.
    */
   public function test() {
-    $remotedb = entity_create('remotedb', array());
+    $remotedb = \Drupal::entityManager()->getStorage('remotedb')->create(array());
     $this->assertTrue($remotedb instanceof RemotedbInterface, 'Remote database is instance of RemotedbInterface.');
     $this->assertTrue($remotedb instanceof MockRemotedb, 'Remote database is instance of MockRemotedb. Actual:' . get_class($remotedb));
 

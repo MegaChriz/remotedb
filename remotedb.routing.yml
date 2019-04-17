@@ -1,0 +1,7 @@
+remotedb.test_form:
+  path: /admin/config/services/remotedb/test
+  defaults:
+    _title: Test
+    _form: \Drupal\remotedb\Form\RemotedbTestForm
+  requirements:
+    _permission: remotedb.administer

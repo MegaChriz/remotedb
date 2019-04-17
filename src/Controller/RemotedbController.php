@@ -22,7 +22,7 @@ class RemotedbController extends EntityAPIController {
     $query->entityCondition('entity_type', $this->entityType);
     $results = $query->execute();
     $ids = isset($results[$this->entityType]) ? array_keys($results[$this->entityType]) : array();
-    $entities = $ids ? entity_load($this->entityType, $ids) : array();
+    $entities = $ids ? \Drupal::entityManager()->getStorage($this->entityType) : array();
     return $entities;
   }
 
@@ -42,7 +42,7 @@ class RemotedbController extends EntityAPIController {
     }
     $options = array();
     foreach ($entities as $entity_id => $entity) {
-      $options[$entity_id] = entity_label($this->entityType, $entity);
+      $options[$entity_id] = $entity->label();
     }
     return $options;
   }
