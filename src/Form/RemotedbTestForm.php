@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb\Form\RemotedbTestForm.
- */
-
 namespace Drupal\remotedb\Form;
 
 use Drupal\Core\Form\FormBase;

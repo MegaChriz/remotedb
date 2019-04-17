@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb\Plugin\Feeds\RemotedbFetcher.
- */
-
 namespace Drupal\remotedb\Plugin\Feeds;
 
 use Drupal\remotedb\Plugin\Feeds\RemotedbFetcherResult;

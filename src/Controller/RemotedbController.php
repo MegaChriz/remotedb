@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\remotedb\Controller\RemotedbController.
- */
-
 namespace Drupal\remotedb\Controller;
 
 use \EntityAPIController;

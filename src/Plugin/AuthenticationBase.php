@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb\Plugin\AuthenticationBase.
- */
-
 namespace Drupal\remotedb\Plugin;
 
 use Drupal\remotedb\Entity\RemotedbInterface;

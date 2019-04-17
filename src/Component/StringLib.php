@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb\Component\StringLib.
- */
-
 namespace Drupal\remotedb\Component;
 
 class StringLib {

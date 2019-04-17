@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb\Exception\RemotedbException.
- */
-
 namespace Drupal\remotedb\Exception;
 
 use \Exception;

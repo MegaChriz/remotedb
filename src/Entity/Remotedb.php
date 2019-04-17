@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Contains Drupal\remotedb\Entity\Remotedb.
- */
-
 namespace Drupal\remotedb\Entity;
 
 use \Entity;
