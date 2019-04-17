@@ -2,11 +2,46 @@
 
 namespace Drupal\remotedb\Entity;
 
-use \Entity;
+use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 
-class Remotedb extends Entity implements RemotedbInterface {
+/**
+ * Defines the remote database entity type.
+ *
+ * @ConfigEntityType(
+ *   id = "remotedb",
+ *   label = @Translation("Remote database"),
+ *   label_collection = @Translation("Remote databases"),
+ *   label_singular = @Translation("remote database"),
+ *   label_plural = @Translation("remote databases"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count remote database",
+ *     plural = "@count remote databases",
+ *   ),
+ *   handlers = {
+ *     "list_builder" = "Drupal\remotedb\RemoteDbListBuilder",
+ *     "form" = {
+ *       "add" = "Drupal\remotedb\Form\RemoteDbAddForm",
+ *       "edit" = "Drupal\remotedb\Form\RemoteDbEditForm",
+ *       "delete" = "Drupal\remotedb\Form\RemoteDbDeleteForm"
+ *     },
+ *   },
+ *   admin_permission = "remotedb.administer",
+ *   config_prefix = "remotedb",
+ *   entity_keys = {
+ *     "id" = "name",
+ *     "label" = "label"
+ *   },
+ *   links = {
+ *     "edit-form" = "/admin/config/services/remotedb/manage/{userprotect_rule}",
+ *     "delete-form" = "/admin/config/services/remotedb/manage/{userprotect_rule}/delete"
+ *   }
+ * )
+ */
+class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWithPluginCollectionInterface {
+
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------
@@ -15,119 +50,73 @@ class Remotedb extends Entity implements RemotedbInterface {
    * The URL of the remote database.
    *
    * @var string
-   * @access private
    */
-  private $url;
+  protected $url;
 
   /**
    * The unique identifier for this remote database.
    *
    * @var string
-   * @access private
    */
-  private $name;
+  protected $name;
 
   /**
    * The administrative name of this remote database.
    *
    * @var string
-   * @access private
    */
-  private $label;
+  protected $label;
 
   /**
    * Configured authentication methods for this remote database.
    *
    * @var array
    */
-  protected $authentication_methods = array();
+  protected $authentication_methods = [];
 
   /**
    * An array of option to send along with the HTTP Request.
    *
    * @var array
-   * @access private
    */
-  private $options;
+  protected $options = [];
 
   /**
    * Whether or not the authentication process has run.
    *
    * @var bool
-   * @access private
    */
-  private $authenticated;
-
-  // ---------------------------------------------------------------------------
-  // CONSTRUCT
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Remotedb object constructor.
-   *
-   * @return \Drupal\remotedb\Entity\RemoteDB.
-   */
-  public function __construct(array $values = array(), $entityType = NULL) {
-    if (is_null($entityType)) {
-      $entityType = 'remotedb';
-    }
-    $this->options = array();
-    $this->authenticated = FALSE;
-    parent::__construct($values, $entityType);
-  }
+  protected $authenticated = FALSE;
 
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
 
   /**
-   * Implements RemotedbInterface::id().
+   * {@inheritdoc}
    */
   public function id() {
-    return $this->identifier();
+    return $this->name;
   }
 
   /**
-   * Magic getter.
-   *
-   * @return mixed
-   *   Property or field values.
-   */
-  public function __get($property) {
-    if (isset($this->$property)) {
-      return $this->$property;
-    }
-  }
-
-  /**
-   * Magic method for giving back if property exists or not.
-   *
-   * @return bool
-   *   TRUE if the property exists.
-   *   FALSE otherwise.
-   */
-  public function __isset($property) {
-    return isset($this->$property);
-  }
-
-  /**
-   * Overrides \Entity::label().
-   */
-  public function label() {
-    return $this->label;
-  }
-
-  /**
-   * Implements RemotedbInterface::getUrl().
+   * {@inheritdoc}
    */
   public function getUrl() {
     return $this->url;
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getPluginCollections() {
+    return ['authentication_methods' => $this->getAuthenticationMethods()];
+  }
+
+  /**
    * Returns available authentication methods.
    *
-   * @todo Don't call a procedural function here.
+   * @todo replace with plugin collection.
    */
   public function getAuthenticationMethods() {
     $methods = array();
@@ -143,21 +132,14 @@ class Remotedb extends Entity implements RemotedbInterface {
   }
 
   /**
-   * Returns all options.
+   * {@inheritdoc}
    */
   public function getOptions() {
     return $this->options;
   }
 
   /**
-   * Gets a header.
-   *
-   * @param string $header
-   *   The header to get.
-   *
-   * @return mixed
-   *   The header's value if it exists.
-   *   NULL otherwise.
+   * {@inheritdoc}
    */
   public function getHeader($header) {
     if (isset($this->options['headers'][$header])) {
@@ -166,39 +148,12 @@ class Remotedb extends Entity implements RemotedbInterface {
     return NULL;
   }
 
-  /**
-   * Override this in order to implement a custom default URI and specify
-   * 'entity_class_uri' as 'uri callback' hook_entity_info().
-   */
-  protected function defaultUri() {
-    return array('path' => 'admin/config/services/remotedb/manage/' . $this->identifier());
-  }
-
   // ---------------------------------------------------------------------------
   // SETTERS
   // ---------------------------------------------------------------------------
 
   /**
-   * Magic setter.
-   *
-   * @return void
-   */
-  public function __set($property, $value) {
-    switch ($property) {
-      default:
-        $this->$property = $value;
-    }
-  }
-
-  /**
-   * Sets a header.
-   *
-   * @param string $header
-   *   The header to set.
-   * @param mixed $value
-   *   The header's value.
-   *
-   * @return void
+   * {@inheritdoc}
    */
   public function setHeader($header, $value) {
     if (!is_null($value)) {
@@ -233,6 +188,8 @@ class Remotedb extends Entity implements RemotedbInterface {
   /**
    * Send a request to the XML-RPC server.
    *
+   * @todo update for D8.
+   *
    * @param string $method
    *   The method to call on the server.
    * @param array $params
@@ -240,15 +197,15 @@ class Remotedb extends Entity implements RemotedbInterface {
    *
    * @return mixed
    *   The result of the request.
-   * @throws Drupal\remotedb\Exception\RemotedbException
+   * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case of errors during the request.
    */
-  public function sendRequest($method, array $params = array()) {
+  public function sendRequest($method, array $params = []) {
     if (!$this->authenticated) {
       $this->authenticate();
     }
 
-    $args = array($method => $params);
+    $args = [$method => $params];
     // Call XML-RPC.
     $result = xmlrpc($this->url, $args, $this->options);
     if ($result === FALSE) {
@@ -261,15 +218,4 @@ class Remotedb extends Entity implements RemotedbInterface {
     return $result;
   }
 
-  /**
-   * Sorts authentication plugins by weight.
-   */
-  public function pluginSort($a, $b) {
-    $a_weight = (isset($a->weight)) ? $a->weight : 0;
-    $b_weight = (isset($b->weight)) ? $b->weight : 0;
-    if ($a_weight == $b_weight) {
-      return 0;
-    }
-    return ($a_weight < $b_weight) ? -1 : 1;
-  }
 }

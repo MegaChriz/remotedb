@@ -1,0 +1,20 @@
+# Schema for configuration files of the Remote database module.
+
+remotedb.remotedb.*:
+  type: config_entity
+  label: 'Remote database'
+  mapping:
+    name:
+      type: string
+      label: 'Machine name'
+    label:
+      type: label
+      label: 'Label'
+    url:
+      type: uri
+      label: 'Url to the remote database.'
+    authentication_methods:
+      type: sequence
+      label: 'Enabled authentication methods'
+      sequence:
+        type: authentication_method

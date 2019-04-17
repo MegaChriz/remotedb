@@ -2,42 +2,16 @@
 
 namespace Drupal\remotedb\Entity;
 
-interface RemotedbInterface {
-  // ---------------------------------------------------------------------------
-  // GETTERS
-  // ---------------------------------------------------------------------------
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
-  /**
-   * Creates a new entity.
-   *
-   * @param array $values
-   *   An array of values to set, keyed by property name.
-   * @param string $entity_type
-   *   The type of the entity.
-   *
-   * @return Drupal\remotedb\Entity\RemotedbInterface.
-   */
-  public function __construct(array $values = array(), $entityType = NULL);
+/**
+ * Provides an interface for defining a remote database entity.
+ */
+interface RemotedbInterface extends ConfigEntityInterface {
 
   // ---------------------------------------------------------------------------
   // GETTERS
   // ---------------------------------------------------------------------------
-
-  /**
-   * Returns the ID of this remote database instance.
-   *
-   * @return string
-   *   The ID of this remote database.
-   */
-  public function id();
-
-  /**
-   * Returns label for this remote database.
-   *
-   * @return string
-   *   The label of this remote database.
-   */
-  public function label();
 
   /**
    * Returns the used url.
@@ -78,19 +52,8 @@ interface RemotedbInterface {
    *   The header to set.
    * @param mixed $value
    *   The header's value.
-   *
-   * @return void
    */
   public function setHeader($header, $value);
-
-  // ---------------------------------------------------------------------------
-  // LOADING/SAVING
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Saves the remote database settings.
-   */
-  public function save();
 
   // ---------------------------------------------------------------------------
   // ACTION
@@ -107,5 +70,6 @@ interface RemotedbInterface {
    * @return string
    *   The XML-RPC Result.
    */
-  public function sendRequest($method, array $params = array());
+  public function sendRequest($method, array $params = []);
+
 }
