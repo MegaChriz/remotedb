@@ -24,7 +24,7 @@ class RemotedbUserController extends OriginalRemotedbUserController {
     parent::__construct($entityType);
 
     // Set remotedb mock.
-    $remotedb = entity_create('remotedb', array());
+    $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create(array());
     $remotedb->setCallback(array($this, 'remotedbCallback'));
     $this->setRemotedb($remotedb);
   }
@@ -40,11 +40,13 @@ class RemotedbUserController extends OriginalRemotedbUserController {
    *   An array of accounts.
    */
   public function getRemoteAccounts() {
-    $result = db_select('variable')
-      ->fields('variable', array())
-      ->condition('name', 'remotedbuser_test_accounts')
-      ->execute()
-      ->fetch();
+    // @FIXME
+// $result = db_select('variable')
+//       ->fields('variable', array())
+//       ->condition('name', 'remotedbuser_test_accounts')
+//       ->execute()
+//       ->fetch();
+
     if (is_object($result) && !empty($result->value)) {
       return unserialize($result->value);
     }
@@ -60,7 +62,7 @@ class RemotedbUserController extends OriginalRemotedbUserController {
    * @return void
    */
   private function setRemoteAccounts(array $accounts) {
-    return variable_set('remotedbuser_test_accounts', $accounts);
+    return \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_test_accounts', $accounts)->save();
   }
 
   // ---------------------------------------------------------------------------
@@ -152,7 +154,12 @@ class RemotedbUserController extends OriginalRemotedbUserController {
    *   FALSE otherwise.
    */
   private function dbuserAuthenticate($name, $password) {
-    require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// require_once \Drupal::root() . '/' . variable_get('password_inc', 'includes/password.inc');
+
     $account = $this->dbuserRetrieve($name, 'name');
 
     // No account found? Return FALSE.

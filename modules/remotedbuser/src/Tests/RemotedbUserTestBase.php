@@ -60,7 +60,7 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
     }
 
     // Create the remotedbuser.
-    $account = entity_create('remotedb_user', $values);
+    $account = \Drupal::entityTypeManager()->getStorage('remotedb_user')->create($values);
     $account->save();
 
     // Check if this user can be retrieved by the controller.
@@ -102,7 +102,7 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
    *   The hashed password.
    */
   protected function hashPassword($pass) {
-    require_once DRUPAL_ROOT . '/includes/password.inc';
+    require_once \Drupal::root() . '/includes/password.inc';
     return user_hash_password($pass);
   }
 
@@ -117,7 +117,7 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
    */
   protected function assertLocalUser($remotedb_uid) {
     $account = NULL;
-    $users = user_load_multiple(array(), array('remotedb_uid' => $remotedb_uid));
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('remotedb_uid' => $remotedb_uid));
     if (!empty($users)) {
       $account = reset($users);
     }

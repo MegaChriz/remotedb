@@ -45,7 +45,7 @@ function remotedbuser_admin_settings_form($form, &$form_state) {
         continue;
 
       default:
-        $sync_properties_options[$key] = check_plain($property['label']);
+        $sync_properties_options[$key] = \Drupal\Component\Utility\Html::escape($property['label']);
         break;
     }
   }
@@ -75,7 +75,7 @@ function remotedbuser_admin_settings_form($form, &$form_state) {
  * @see remotedbuser_admin_settings_form()
  */
 function remotedbuser_sync_properties_disable(&$element) {
-  foreach (element_children($element) as $key) {
+  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
     switch ($key) {
       case 'name':
       case 'mail':
@@ -166,12 +166,15 @@ function remotedbuser_get_remote_user($user_id, RemotedbUserController $rd_contr
     if (isset($remote_account->uid)) {
       // Copy over account data.
       $account = $remote_account->toAccount();
-      entity_save('user', $account);
+      $account->save();
       $uri = entity_uri('user', $account);
-      drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
-        '@url' => url($uri['path'], $uri['options']),
-        '%name' => $account->name,
-      )));
+      // @FIXME
+// url() expects a route name or an external URI.
+// drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
+//         '@url' => url($uri['path'], $uri['options']),
+//         '%name' => $account->name,
+//       )));
+
     }
     else {
       drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));

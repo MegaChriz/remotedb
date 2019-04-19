@@ -83,7 +83,7 @@ class UserImportTestCase extends RemotedbUserTestBase {
       'status' => 1,
       'remotedb_uid' => 1200,
     );
-    drupal_write_record('users', $account_edit);
+    \Drupal::database()->insert('users')->fields($account_edit)->execute();
 
     // Try to import users using the admin form.
     $edit = array(

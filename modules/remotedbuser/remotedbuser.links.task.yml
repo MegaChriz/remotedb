@@ -1,0 +1,13 @@
+remotedbuser.admin_settings_form:
+  route_name: remotedbuser.admin_settings_form
+  title: User
+remotedbuser.admin_settings_form_0:
+  route_name: remotedbuser.admin_settings_form
+  title: Settings
+  weight: 0
+  parent_id: remotedbuser.admin_settings_form
+remotedbuser.get_remote_user_form:
+  route_name: remotedbuser.get_remote_user_form
+  title: 'Get remote user'
+  weight: 1
+  parent_id: remotedbuser.admin_settings_form

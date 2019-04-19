@@ -238,7 +238,7 @@ class RemotedbUserController extends EntityAPIController {
       'mail' => $entity->mail,
     );
     foreach ($search as $key => $value) {
-      $users = user_load_multiple(array(), array($key => $value));
+      $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array($key => $value));
       if (!empty($users)) {
         $account = reset($users);
         break;
@@ -263,7 +263,7 @@ class RemotedbUserController extends EntityAPIController {
         'mail' => $entity->mail,
       );
       foreach ($search as $key => $value) {
-        $users = user_load_multiple(array(), array($key => $value));
+        $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array($key => $value));
         if (!empty($users)) {
           $account2 = reset($users);
           if ($account->uid != $account2->uid) {
@@ -287,7 +287,7 @@ class RemotedbUserController extends EntityAPIController {
 
     if (empty($account)) {
       // No account found, create a new user.
-      $account = entity_create('user', $values);
+      $account = \Drupal::entityTypeManager()->getStorage('user')->create($values);
     }
     else {
       // Update user account.

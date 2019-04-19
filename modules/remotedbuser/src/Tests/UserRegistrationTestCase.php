@@ -23,10 +23,20 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
    */
   public function testRegistration() {
     // Don't require e-mail verification.
-    variable_set('user_email_verification', FALSE);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('user_email_verification', FALSE);
+
 
     // Allow registration by site visitors without administrator approval.
-    variable_set('user_register', USER_REGISTER_VISITORS);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('user_register', USER_REGISTER_VISITORS);
+
 
     // Register.
     $edit = array();
@@ -37,7 +47,7 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     // Assert the account exists local.
-    $accounts = user_load_multiple(array(), array('name' => $name, 'mail' => $mail));
+    $accounts = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertNotNull($new_user, 'The account was created succesfully.');
 
@@ -59,10 +69,20 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
    */
   public function testRegistrationNameDuplicates() {
     // Don't require e-mail verification.
-    variable_set('user_email_verification', FALSE);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('user_email_verification', FALSE);
+
 
     // Allow registration by site visitors without administrator approval.
-    variable_set('user_register', USER_REGISTER_VISITORS);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('user_register', USER_REGISTER_VISITORS);
+
 
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();
@@ -80,10 +100,20 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
    */
   public function testRegistrationEmailDuplicates() {
     // Don't require e-mail verification.
-    variable_set('user_email_verification', FALSE);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('user_email_verification', FALSE);
+
 
     // Allow registration by site visitors without administrator approval.
-    variable_set('user_register', USER_REGISTER_VISITORS);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('user_register', USER_REGISTER_VISITORS);
+
 
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();

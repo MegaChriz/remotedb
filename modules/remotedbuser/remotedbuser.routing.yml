@@ -1,0 +1,14 @@
+remotedbuser.admin_settings_form:
+  path: /admin/config/services/remotedb/user
+  defaults:
+    _title: User
+    _form: \Drupal\remotedbuser\Form\RemotedbuserAdminSettingsForm
+  requirements:
+    _permission: remotedb.administer
+remotedbuser.get_remote_user_form:
+  path: /admin/people/remotedbuser-get
+  defaults:
+    _title: 'Get remote user'
+    _form: \Drupal\remotedbuser\Form\RemotedbuserGetRemoteUserForm
+  requirements:
+    _custom_access: '\Drupal\remotedbuser\Form\RemotedbuserGetRemoteUserForm::remotedbuser_get_remote_user_access'

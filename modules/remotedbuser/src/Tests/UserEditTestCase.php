@@ -58,7 +58,7 @@ class UserEditTestCase extends RemotedbUserTestBase {
    */
   public function testRemoteNameChange() {
     // Set logging in via the remote database only.
-    variable_set('remotedbuser_login', REMOTEDB_REMOTEONLY);
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -83,7 +83,9 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($account);
 
     // Check if the user has a different username now.
-    $account = user_load($account->uid, TRUE);
+    $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
     $this->assertEqual($remote_account->name, $account->name, 'The user has a new username.');
   }
 
@@ -128,7 +130,7 @@ class UserEditTestCase extends RemotedbUserTestBase {
    */
   public function testRemoteMailChange() {
     // Set logging in via the remote database only.
-    variable_set('remotedbuser_login', REMOTEDB_REMOTEONLY);
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -144,7 +146,9 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($account);
 
     // Check if the user has a different mail address now.
-    $account = user_load($account->uid, TRUE);
+    $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
     $this->assertEqual($remote_account->mail, $account->mail, 'The user has a new mail address.');
   }
 
@@ -154,7 +158,7 @@ class UserEditTestCase extends RemotedbUserTestBase {
    */
   public function testLocalPasswordChange() {
     // Set logging in via the remote database only.
-    variable_set('remotedbuser_login', REMOTEDB_REMOTEONLY);
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
 
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);
@@ -177,7 +181,7 @@ class UserEditTestCase extends RemotedbUserTestBase {
    */
   public function testRemotePasswordChange() {
     // Set logging in via the remote database only.
-    variable_set('remotedbuser_login', REMOTEDB_REMOTEONLY);
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();

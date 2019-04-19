@@ -33,10 +33,12 @@ class UserExistingTestCase extends RemotedbUserTestBase {
       'mail' => $this->randomName() . '@example.com',
       'status' => 1,
     );
-    drupal_write_record('users', $account_edit);
+    \Drupal::database()->insert('users')->fields($account_edit)->execute();
 
     // Verify that this user is not linked to a remote account yet.
-    $account = user_load($account_edit['uid'], TRUE);
+    $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit['uid']);
     $this->assertEqual(0, $account->remotedb_uid, 'The account is not linked to a remote account yet.');
     // Verify that this user has still its local mail address.
     $this->assertNotEqual($remote_account->mail, $account->mail, 'The local users mail address does not equal the remote users mail address.');
@@ -47,7 +49,9 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $dummy_account->pass_raw = $remote_account->pass_raw;
     $this->drupalLogin($dummy_account);
     // Verify that the mail addresses are equal now.
-    $account = user_load($account_edit['uid'], TRUE);
+    $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit['uid']);
     $this->assertEqual($remote_account->mail, $account->mail, 'The local users mail address has changed.');
   }
 
@@ -66,10 +70,12 @@ class UserExistingTestCase extends RemotedbUserTestBase {
       'mail' => $remote_account->mail,
       'status' => 1,
     );
-    drupal_write_record('users', $account_edit);
+    \Drupal::database()->insert('users')->fields($account_edit)->execute();
 
     // Verify that this user is not linked to a remote account yet.
-    $account = user_load($account_edit['uid'], TRUE);
+    $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit['uid']);
     $this->assertEqual(0, $account->remotedb_uid, 'The account is not linked to a remote account yet.');
     // Verify that this user has still its local username.
     $this->assertNotEqual($remote_account->name, $account->name, 'The local username does not equal the remote username.');
@@ -81,7 +87,9 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($dummy_account);
     // Verify the username and mail address from the local user are equal to that of the
     // remote user.
-    $account = user_load($account_edit['uid'], TRUE);
+    $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit['uid']);
     $this->assertEqual($remote_account->name, $account->name, 'The local username has changed.');
     $this->assertEqual($remote_account->mail, $account->mail, 'The local users mail address still equals the remote users mail address.');
   }
@@ -103,14 +111,14 @@ class UserExistingTestCase extends RemotedbUserTestBase {
       'mail' => $this->randomName() . '@example.com',
       'status' => 1,
     );
-    drupal_write_record('users', $account_edit1);
+    \Drupal::database()->insert('users')->fields($account_edit1)->execute();
     $account_edit2 = array(
       'uid' => db_next_id(db_query('SELECT MAX(uid) FROM {users}')->fetchField()),
       'name' => $this->randomName(),
       'mail' => $remote_account->mail,
       'status' => 1,
     );
-    drupal_write_record('users', $account_edit2);
+    \Drupal::database()->insert('users')->fields($account_edit2)->execute();
 
     // Try to login as the first local user and ensure an error message appears.
     $edit = array(
@@ -121,8 +129,12 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $this->assertText(t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'));
 
     // Ensure the two local accounts don't have the same mail address.
-    $account1 = user_load($account_edit1['uid'], TRUE);
-    $account2 = user_load($account_edit2['uid'], TRUE);
+    $account1 = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit1['uid']);
+    $account2 = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit2['uid']);
     $this->assertNotEqual($account1->mail, $account2->mail, "The two local users don't have the same mail address.");
   }
 
@@ -147,7 +159,7 @@ class UserExistingTestCase extends RemotedbUserTestBase {
    */
   public function testExistingNameAndMailWithLocalUserFallback() {
     // Set logging in via remote database with local user fallback.
-    variable_set('remotedbuser_login', REMOTEDB_REMOTEFIRST);
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEFIRST)->save();
 
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();
@@ -161,7 +173,7 @@ class UserExistingTestCase extends RemotedbUserTestBase {
       'pass' => $this->hashPassword($local_pass),
       'status' => 1,
     );
-    drupal_write_record('users', $account_edit1);
+    \Drupal::database()->insert('users')->fields($account_edit1)->execute();
     $account_edit2 = array(
       'uid' => db_next_id(db_query('SELECT MAX(uid) FROM {users}')->fetchField()),
       'name' => $this->randomName(),
@@ -169,7 +181,7 @@ class UserExistingTestCase extends RemotedbUserTestBase {
       'pass' => $this->hashPassword($local_pass),
       'status' => 1,
     );
-    drupal_write_record('users', $account_edit2);
+    \Drupal::database()->insert('users')->fields($account_edit2)->execute();
 
     // Ensure the first user can login using its local password.
     $dummy_account = new \stdClass();
@@ -178,8 +190,12 @@ class UserExistingTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($dummy_account);
 
     // Ensure the two local accounts don't have the same mail address.
-    $account1 = user_load($account_edit1['uid'], TRUE);
-    $account2 = user_load($account_edit2['uid'], TRUE);
+    $account1 = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit1['uid']);
+    $account2 = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityTypeManager()->getStorage('user')->load($account_edit2['uid']);
     $this->assertNotEqual($account1->mail, $account2->mail, "The two local users don't have the same mail address.");
 
     // Now, try to edit the profile.

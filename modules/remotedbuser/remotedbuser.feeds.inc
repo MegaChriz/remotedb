@@ -38,11 +38,11 @@ function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $
 
   // First, search in local database.
   // Try to load by email.
-  $users = user_load_multiple(array(), array('mail' => $user_id));
+  $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('mail' => $user_id));
   $account = reset($users);
   if (!$account) {
     // No success, try to load by name.
-    $users = user_load_multiple(array(), array('name' => $user_id));
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('name' => $user_id));
     $account = reset($users);
   }
 
@@ -62,7 +62,7 @@ function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $
     if (isset($remote_account->uid)) {
       // Copy over account data.
       $account = $remote_account->toAccount();
-      entity_save('user', $account);
+      $account->save();
     }
   }
 

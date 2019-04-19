@@ -1,0 +1,7 @@
+name: 'Remote database User'
+description: 'Enables registration and authentication via remote database.'
+core: 8.x
+package: 'Remote database'
+dependencies:
+  remotedb: 'drupal:remotedb'
+type: module

@@ -38,6 +38,6 @@ function remotedbuser_uninstall() {
   db_drop_field('users', 'remotedb_uid');
 
   // Remove variables defined by this module.
-  variable_del('remotedbuser_remotedb');
-  variable_del('remotedbuser_login');
+  \Drupal::config('remotedbuser.settings')->clear('remotedbuser_remotedb')->save();
+  \Drupal::config('remotedbuser.settings')->clear('remotedbuser_login')->save();
 }
