@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedbuser\Entity\RemotedbUserInterface.
- */
-
 namespace Drupal\remotedbuser\Entity;
 
 interface RemotedbUserInterface {

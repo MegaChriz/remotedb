@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedbuser\Tests\UserImportTestCase.
- */
-
 namespace Drupal\remotedbuser\Tests;
 
 /**

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb\Tests\UserPasswordResetTestCase.
- */
-
 namespace Drupal\remotedbuser\Tests;
 
 use Drupal\remotedbuser\Tests\RemotedbUserTestBase;

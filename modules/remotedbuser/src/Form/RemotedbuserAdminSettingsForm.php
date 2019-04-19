@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedbuser\Form\RemotedbuserAdminSettingsForm.
- */
-
 namespace Drupal\remotedbuser\Form;
 
 use Drupal\Core\Form\ConfigFormBase;

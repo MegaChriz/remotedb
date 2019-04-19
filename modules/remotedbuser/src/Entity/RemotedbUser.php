@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedbuser\Entity\RemotedbUser.
- */
-
 namespace Drupal\remotedbuser\Entity;
 
 use \Entity;

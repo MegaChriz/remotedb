@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedbuser\Tests\RemotedbUserTestBase.
- */
-
 namespace Drupal\remotedbuser\Tests;
 
 use Drupal\remotedb\Tests\RemotedbTestBase;

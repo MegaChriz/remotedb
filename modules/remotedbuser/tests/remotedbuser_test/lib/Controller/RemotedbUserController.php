@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\remotedbuser_test\Controller\RemotedbUserController.
- */
-
 namespace Drupal\remotedbuser_test\Controller;
 
 use Drupal\remotedbuser\Controller\RemotedbUserController as OriginalRemotedbUserController;

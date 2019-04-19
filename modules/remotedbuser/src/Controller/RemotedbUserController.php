@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedbuser\Controller\RemotedbUserController.
- */
-
 namespace Drupal\remotedbuser\Controller;
 
 use Drupal\remotedb\Entity\RemotedbInterface;
