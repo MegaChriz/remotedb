@@ -2,15 +2,20 @@
 
 namespace Drupal\remotedbuser\Tests;
 
-use Drupal\remotedbuser\Tests\RemotedbUserTestBase;
-
+/**
+ *
+ */
 class UserRegistrationTestCase extends RemotedbUserTestBase {
+
+  /**
+   *
+   */
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'User: Registration',
       'description' => 'Test registration of users.',
       'group' => 'Remote database',
-    );
+    ];
   }
 
   /**
@@ -19,22 +24,18 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
   public function testRegistration() {
     // Don't require e-mail verification.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('user_email_verification', FALSE);
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('user_email_verification', FALSE);
     // Allow registration by site visitors without administrator approval.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('user_register', USER_REGISTER_VISITORS);
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('user_register', USER_REGISTER_VISITORS);
     // Register.
-    $edit = array();
+    $edit = [];
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
@@ -42,7 +43,7 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
     $this->drupalPost('user/register', $edit, t('Create new account'));
 
     // Assert the account exists local.
-    $accounts = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('name' => $name, 'mail' => $mail));
+    $accounts = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $name, 'mail' => $mail]);
     $new_user = reset($accounts);
     $this->assertNotNull($new_user, 'The account was created succesfully.');
 
@@ -65,29 +66,25 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
   public function testRegistrationNameDuplicates() {
     // Don't require e-mail verification.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('user_email_verification', FALSE);
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('user_email_verification', FALSE);
     // Allow registration by site visitors without administrator approval.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('user_register', USER_REGISTER_VISITORS);
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('user_register', USER_REGISTER_VISITORS);
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();
 
     // Register.
-    $edit = array();
+    $edit = [];
     $edit['name'] = $remote_account->name;
     $edit['mail'] = $this->randomName() . '@example.com';
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $this->assertRaw(t('The name %name is already taken.', array('%name' => $remote_account->name)));
+    $this->assertRaw(t('The name %name is already taken.', ['%name' => $remote_account->name]));
   }
 
   /**
@@ -96,35 +93,32 @@ class UserRegistrationTestCase extends RemotedbUserTestBase {
   public function testRegistrationEmailDuplicates() {
     // Don't require e-mail verification.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('user_email_verification', FALSE);
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('user_email_verification', FALSE);
     // Allow registration by site visitors without administrator approval.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('user_register', USER_REGISTER_VISITORS);
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('user_register', USER_REGISTER_VISITORS);
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();
 
-    $edit = array();
+    $edit = [];
     $edit['name'] = $this->randomName();
     $edit['mail'] = $remote_account->mail;
 
     // Attempt to create a new account using an existing e-mail address.
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $this->assertText(t('The e-mail address @email is already registered.', array('@email' => $remote_account->mail)), 'Supplying an exact duplicate email address displays an error message.');
+    $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying an exact duplicate email address displays an error message.');
 
     // Attempt to bypass duplicate email registration validation by adding spaces.
     $edit['mail'] = '   ' . $remote_account->mail . '   ';
 
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $this->assertText(t('The e-mail address @email is already registered.', array('@email' => $remote_account->mail)), 'Supplying a duplicate email address with added whitespace displays an error message.');
+    $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying a duplicate email address with added whitespace displays an error message.');
   }
+
 }

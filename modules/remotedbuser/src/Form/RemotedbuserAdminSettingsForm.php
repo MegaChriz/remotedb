@@ -2,10 +2,14 @@
 
 namespace Drupal\remotedbuser\Form;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ *
+ */
 class RemotedbuserAdminSettingsForm extends ConfigFormBase {
 
   /**
@@ -40,7 +44,10 @@ class RemotedbuserAdminSettingsForm extends ConfigFormBase {
     return ['remotedbuser.settings'];
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   *
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['remotedbuser_remotedb'] = [
       '#type' => 'select',
       '#options' => entity_get_controller('remotedb')->options(),
@@ -70,7 +77,7 @@ class RemotedbuserAdminSettingsForm extends ConfigFormBase {
           continue;
 
         default:
-          $sync_properties_options[$key] = \Drupal\Component\Utility\Html::escape($property['label']);
+          $sync_properties_options[$key] = Html::escape($property['label']);
           break;
       }
     }
@@ -93,4 +100,3 @@ class RemotedbuserAdminSettingsForm extends ConfigFormBase {
   }
 
 }
-?>

@@ -15,11 +15,11 @@ function remotedbuser_feeds_processor_targets_alter(&$targets, $entity_type, $bu
 
   foreach ($info['properties'] as $property_key => $property_info) {
     if (isset($property_info['type']) && $property_info['type'] == 'user') {
-      $targets[$property_key . ':remotedb_user'] = array(
-        'name' => t('@label: by remote user', array('@label' => $property_info['label'])),
+      $targets[$property_key . ':remotedb_user'] = [
+        'name' => t('@label: by remote user', ['@label' => $property_info['label']]),
         'description' => t('Get user via remote database.'),
         'callback' => 'remotedbuser_feeds_set_user',
-      );
+      ];
     }
   }
 }
@@ -38,11 +38,11 @@ function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $
 
   // First, search in local database.
   // Try to load by email.
-  $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('mail' => $user_id));
+  $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['mail' => $user_id]);
   $account = reset($users);
   if (!$account) {
     // No success, try to load by name.
-    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('name' => $user_id));
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $user_id]);
     $account = reset($users);
   }
 

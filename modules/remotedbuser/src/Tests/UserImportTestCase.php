@@ -6,22 +6,26 @@ namespace Drupal\remotedbuser\Tests;
  * Tests if users can be imported from the remote database.
  */
 class UserImportTestCase extends RemotedbUserTestBase {
+
+  /**
+   *
+   */
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'User: Import',
       'description' => 'Test if users can be imported from the remote database.',
       'group' => 'Remote database',
-    );
+    ];
   }
 
   /**
    * Overrides DrupalWebTestCase::setUp().
    */
-  protected function setUp(array $modules = array()) {
+  protected function setUp(array $modules = []) {
     parent::setUp($modules);
 
     // Create an admin user.
-    $admin = $this->drupalCreateUser(array('remotedb.administer'));
+    $admin = $this->drupalCreateUser(['remotedb.administer']);
     $this->drupalLogin($admin);
   }
 
@@ -34,21 +38,21 @@ class UserImportTestCase extends RemotedbUserTestBase {
     $remote_account2 = $this->remotedbCreateRemoteUser();
 
     // Try to import these users using the admin form.
-    $edit = array(
-      'user' => implode("\n", array(
+    $edit = [
+      'user' => implode("\n", [
         $remote_account1->mail,
         $remote_account2->mail,
-      )),
-    );
+      ]),
+    ];
     $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
 
     // Assert messages.
-    $this->assertText(format_string('User account @name copied over from the remote database.', array(
+    $this->assertText(format_string('User account @name copied over from the remote database.', [
       '@name' => $remote_account1->name,
-    )));
-    $this->assertText(format_string('User account @name copied over from the remote database.', array(
+    ]));
+    $this->assertText(format_string('User account @name copied over from the remote database.', [
       '@name' => $remote_account2->name,
-    )));
+    ]));
     $this->assertNoText('No remote user found');
     $this->assertNoText('Failed to synchronize the remote user');
 
@@ -70,35 +74,35 @@ class UserImportTestCase extends RemotedbUserTestBase {
     $remote_account2 = $this->remotedbCreateRemoteUser();
 
     // For the first remote account, create an user that points to a non-existing remote user.
-    $account_edit = array(
+    $account_edit = [
       'uid' => 18,
       'name' => $remote_account1->name,
       'mail' => $this->randomName() . '@example.com',
       'pass' => $this->hashPassword('abc'),
       'status' => 1,
       'remotedb_uid' => 1200,
-    );
+    ];
     \Drupal::database()->insert('users')->fields($account_edit)->execute();
 
     // Try to import users using the admin form.
-    $edit = array(
-      'user' => implode("\n", array(
+    $edit = [
+      'user' => implode("\n", [
         'non_existent@example.com',
         $remote_account1->mail,
         $remote_account2->mail,
-      )),
-    );
+      ]),
+    ];
     $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
 
     // Assert messages.
     $this->assertText('No remote user found for non_existent@example.com.');
-    $this->assertText(format_string('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', array(
+    $this->assertText(format_string('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', [
       '@remotedb_uid' => $remote_account1->uid,
       '@uid' => 18,
-    )));
-    $this->assertText(format_string('User account @name copied over from the remote database.', array(
+    ]));
+    $this->assertText(format_string('User account @name copied over from the remote database.', [
       '@name' => $remote_account2->name,
-    )));
+    ]));
 
     // Assert that account 2 exists in the local database.
     $account2 = user_load_by_name($remote_account2->name);
@@ -110,20 +114,21 @@ class UserImportTestCase extends RemotedbUserTestBase {
    * Tests that all users get through the import process (which is divided in multiple chunks).
    */
   public function testImportManyUsers() {
-    $mails = array();
+    $mails = [];
     for ($i = 0; $i < 25; $i++) {
       $mails[] = $this->randomName() . '@example.com';
     }
 
     // Try to import users using the admin form.
-    $edit = array(
+    $edit = [
       'user' => implode("\n", $mails),
-    );
+    ];
     $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
     foreach ($mails as $mail) {
-      $this->assertText(format_string('No remote user found for @user.', array(
+      $this->assertText(format_string('No remote user found for @user.', [
         '@user' => $mail,
-      )));
+      ]));
     }
   }
+
 }

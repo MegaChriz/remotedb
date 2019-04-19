@@ -2,17 +2,21 @@
 
 /**
  * @file
- * Enables registration and authentication via remote database..
+ * Enables registration and authentication via remote database.
  */
 
+use Drupal\Core\Url;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Component\Utility\Html;
+use Drupal\user\UserInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 
 // Modes.
-const REMOTEDB_REMOTEONLY =  0;
+const REMOTEDB_REMOTEONLY = 0;
 const REMOTEDB_REMOTEFIRST = 1;
-const REMOTEDB_LOCALFIRST =  2;
+const REMOTEDB_LOCALFIRST = 2;
 
 // ---------------------------------------------------------------------------
 // DRUPAL HOOKS
@@ -22,42 +26,42 @@ const REMOTEDB_LOCALFIRST =  2;
  * Implements hook_menu().
  */
 function remotedbuser_menu() {
-  $items = array();
+  $items = [];
 
-  $items['admin/config/services/remotedb/user'] = array(
+  $items['admin/config/services/remotedb/user'] = [
     'title' => 'User',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedbuser_admin_settings_form'),
-    'access arguments' => array('remotedb.administer'),
+    'page arguments' => ['remotedbuser_admin_settings_form'],
+    'access arguments' => ['remotedb.administer'],
     'type' => MENU_LOCAL_TASK,
     'file' => 'remotedbuser.admin.inc',
-  );
-  $items['admin/config/services/remotedb/user/settings'] = array(
+  ];
+  $items['admin/config/services/remotedb/user/settings'] = [
     'title' => 'Settings',
-    'access arguments' => array('remotedb.administer'),
+    'access arguments' => ['remotedb.administer'],
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
-  );
-  $items['admin/config/services/remotedb/user/get'] = array(
+  ];
+  $items['admin/config/services/remotedb/user/get'] = [
     'title' => 'Get remote user',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedbuser_get_remote_user_form'),
+    'page arguments' => ['remotedbuser_get_remote_user_form'],
     'access callback' => 'remotedbuser_get_remote_user_access',
-    'access arguments' => array(),
+    'access arguments' => [],
     'type' => MENU_LOCAL_TASK,
     'file' => 'remotedbuser.admin.inc',
     'weight' => 1,
-  );
+  ];
 
-  $items['admin/people/remotedbuser-get'] = array(
+  $items['admin/people/remotedbuser-get'] = [
     'title' => 'Get remote user',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedbuser_get_remote_user_form'),
+    'page arguments' => ['remotedbuser_get_remote_user_form'],
     'access callback' => 'remotedbuser_get_remote_user_access',
-    'access arguments' => array(),
+    'access arguments' => [],
     'type' => MENU_LOCAL_ACTION,
     'file' => 'remotedbuser.admin.inc',
-  );
+  ];
 
   return $items;
 }
@@ -71,17 +75,17 @@ function remotedbuser_menu() {
  *   A list of hooks.
  */
 function remotedbuser_hook_info() {
-  $hooks = array(
+  $hooks = [
     'remotedb_user_load',
     'remotedb_user_presave',
     'remotedb_user_insert',
     'remotedb_user_update',
-  );
-  $return = array();
+  ];
+  $return = [];
   foreach ($hooks as $hook) {
-    $return[$hook] = array(
+    $return[$hook] = [
       'group' => 'remotedb',
-    );
+    ];
   }
   return $return;
 }
@@ -90,16 +94,16 @@ function remotedbuser_hook_info() {
  * Implements hook_permission().
  */
 function remotedbuser_permission() {
-  return array(
-    'remotedbuser.create' => array(
+  return [
+    'remotedbuser.create' => [
       'title' => t('Overwrite remote accounts'),
       'description' => t('Allow users who can create accounts to create accounts that already exist in the remote database.'),
-    ),
-    'remotedbuser.getuser' => array(
+    ],
+    'remotedbuser.getuser' => [
       'title' => t('Get remote user'),
       'description' => t('Copy over an user from the remote database.'),
-    ),
-  );
+    ],
+  ];
 }
 
 // ---------------------------------------------------------------------------
@@ -129,8 +133,7 @@ function remotedbuser_get_remote_user_access($account = NULL) {
  * actually be passed to this hook. You'll need to modify this function and
  * remove every reference to them.
  */
-
-function remotedbuser_user_insert(\Drupal\user\UserInterface $account, $edit = NULL) {
+function remotedbuser_user_insert(UserInterface $account, $edit = NULL) {
   // Perform the same actions as when updating.
   return remotedbuser_user_update($edit, $account);
 }
@@ -144,8 +147,7 @@ function remotedbuser_user_insert(\Drupal\user\UserInterface $account, $edit = N
  * actually be passed to this hook. You'll need to modify this function and
  * remove every reference to them.
  */
-
-function remotedbuser_user_update(\Drupal\user\UserInterface $account, $edit = NULL) {
+function remotedbuser_user_update(UserInterface $account, $edit = NULL) {
   // Check if a remote user was coming from the remote database.
   if (!empty($account->from_remotedb)) {
     // We assume that the local account was updated with information from the
@@ -161,13 +163,13 @@ function remotedbuser_user_update(\Drupal\user\UserInterface $account, $edit = N
   $result = $remote_account->save();
   if (!$result) {
     drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.', 'error');
-    \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', array('%username' => $account->getUsername(), '%uid' => $account->id()));
+    \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', ['%username' => $account->getUsername(), '%uid' => $account->id()]);
   }
   elseif (empty($account->remotedb_uid) || $remote_account->uid != $account->remotedb_uid) {
     // Save remote account uid on local account.
     $account->remotedb_uid = $remote_account->uid;
     db_update('users')
-      ->fields(array('remotedb_uid' => $remote_account->uid))
+      ->fields(['remotedb_uid' => $remote_account->uid])
       ->condition('uid', $account->id())
       ->execute();
   }
@@ -178,20 +180,20 @@ function remotedbuser_user_update(\Drupal\user\UserInterface $account, $edit = N
  *
  * Shows remote database user ID.
  */
-function remotedbuser_user_view(array &$build, \Drupal\user\UserInterface $account) {
+function remotedbuser_user_view(array &$build, UserInterface $account) {
   // Add ID details (if available).
   if (!empty($account->remotedb_uid)) {
-    $account->content['remotedb'] = array(
+    $account->content['remotedb'] = [
       '#type' => 'user_profile_category',
       '#title' => t('Remote Database'),
       '#access' => \Drupal::currentUser()->hasPermission('administer users'),
-      'remotedb_uid' => array(
+      'remotedb_uid' => [
         '#type' => 'user_profile_item',
         '#title' => t('Remote database UID'),
-        '#markup' => \Drupal\Component\Utility\Html::escape($account->remotedb_uid),
-      ),
+        '#markup' => Html::escape($account->remotedb_uid),
+      ],
       '#weight' => 1,
-    );
+    ];
   }
 }
 
@@ -203,22 +205,22 @@ function remotedbuser_user_view(array &$build, \Drupal\user\UserInterface $accou
  * Implements hook_entity_info().
  */
 function remotedbuser_entity_info() {
-  $return = array(
-    'remotedb_user' => array(
+  $return = [
+    'remotedb_user' => [
       'label' => t('Remote database user'),
       'entity class' => 'Drupal\\remotedbuser\\Entity\\RemotedbUser',
       'controller class' => 'Drupal\\remotedbuser\\Controller\\RemotedbUserController',
       'base table' => NULL,
       'fieldable' => FALSE,
-      'entity keys' => array(
+      'entity keys' => [
         'id' => 'uid',
         'label' => 'name',
-      ),
+      ],
       'label callback' => 'entity_class_label',
       'uri callback' => 'entity_class_uri',
       'module' => 'remotedbuser',
-    ),
-  );
+    ],
+  ];
   return $return;
 }
 
@@ -229,12 +231,12 @@ function remotedbuser_entity_info() {
  */
 function remotedbuser_entity_property_info_alter(&$info) {
   $user_properties = &$info['user']['properties'];
-  $user_properties['remotedb_uid'] = array(
+  $user_properties['remotedb_uid'] = [
     'label' => t('Remote database UID'),
     'type' => 'integer',
     'description' => t('The ID of the user in the remote database.'),
     'schema field' => 'remotedb_uid',
-  );
+  ];
 }
 
 // ---------------------------------------------------------------------------
@@ -245,23 +247,23 @@ function remotedbuser_entity_property_info_alter(&$info) {
  * Implements hook_views_api().
  */
 function remotedbuser_views_api() {
-  return array(
+  return [
     'api' => 3,
-  );
+  ];
 }
 
-// ------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // FORM ALTERS
-// ------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 /**
  * Implements hook_form_alter().
  */
-function remotedbuser_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-  $replacements = array(
+function remotedbuser_form_alter(&$form, FormStateInterface $form_state) {
+  $replacements = [
     // Replace login validation handler. Login needs to be checked via the remote database.
     'user_login_authenticate_validate' => 'remotedbuser_login_authenticate_validate',
-  );
+  ];
 
   if (isset($form['#validate']) && is_array($form['#validate'])) {
     foreach ($replacements as $search => $replace) {
@@ -279,6 +281,7 @@ function remotedbuser_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $f
  * Authenticates users.
  *
  * @return void
+ *
  * @see remotedbuser_form_alter()
  */
 function remotedbuser_login_authenticate_validate($form, &$form_state) {
@@ -311,18 +314,18 @@ function remotedbuser_form_user_profile_form_alter(&$form, $form_state) {
     return;
   }
   // Add field for remote database user.
-  $form['remotedb'] = array(
+  $form['remotedb'] = [
     '#type' => 'fieldset',
     '#title' => t('Remote database'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#access' => \Drupal::currentUser()->hasPermission('remotedb.administer'),
-  );
-  $form['remotedb']['remotedb_uid'] = array(
+  ];
+  $form['remotedb']['remotedb_uid'] = [
     '#type' => 'textfield',
     '#title' => t('Remote database user ID'),
     '#default_value' => $form['#user']->remotedb_uid,
-  );
+  ];
 
   // Add validation functions for changing mail and username.
   $form['#validate'][] = 'remotedbuser_account_form_validate';
@@ -356,27 +359,25 @@ function remotedbuser_account_form_validate($form, &$form_state) {
         // remote account has an other username.
         if ($remote_account->name != $name) {
           if (!$rd_controller->validateName($name, $account)) {
-            form_set_error('name', t('The name %name is already taken.', array('%name' => $name)));
+            form_set_error('name', t('The name %name is already taken.', ['%name' => $name]));
           }
         }
       }
     }
     else {
       // The account is an existing account or the account is not created by an administrator.
-
       // Validate new or changing username.
       if ($name) {
         if (!$rd_controller->validateName($name, $account)) {
-          $message = t('The name %name is already taken.', array('%name' => $name));
+          $message = t('The name %name is already taken.', ['%name' => $name]);
           if (remotedbuser_get_remote_user_access()) {
             // @FIXME
-// url() expects a route name or an external URI.
-// $message = t('An user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', array(
-//               '%name' => $name,
-//               '@link' => url('admin/people/remotedbuser-get'),
-//               '@title' => t('Get remote user'),
-//             ));
-
+            // url() expects a route name or an external URI.
+            // $message = t('An user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', array(
+            //               '%name' => $name,
+            //               '@link' => url('admin/people/remotedbuser-get'),
+            //               '@title' => t('Get remote user'),
+            //             ));
           }
           form_set_error('name', $message);
         }
@@ -387,21 +388,20 @@ function remotedbuser_account_form_validate($form, &$form_state) {
         // The mail address is already taken.
         if (\Drupal::currentUser()->uid) {
           // An authenticated user is editing account data.
-          $message = t('The e-mail address %email is already taken.', array('%email' => $mail));
+          $message = t('The e-mail address %email is already taken.', ['%email' => $mail]);
           if (remotedbuser_get_remote_user_access()) {
             // @FIXME
-// url() expects a route name or an external URI.
-// $message = t('An user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', array(
-//               '%email' => $mail,
-//               '@link' => url('admin/people/remotedbuser-get'),
-//               '@title' => t('Get remote user'),
-//             ));
-
+            // url() expects a route name or an external URI.
+            // $message = t('An user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', array(
+            //               '%email' => $mail,
+            //               '@link' => url('admin/people/remotedbuser-get'),
+            //               '@title' => t('Get remote user'),
+            //             ));
           }
           form_set_error('mail', $message);
         }
         else {
-          form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', array('%email' => $mail, '@password' => \Drupal\Core\Url::fromRoute('user.pass'))));
+          form_set_error('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', ['%email' => $mail, '@password' => Url::fromRoute('user.pass')]));
         }
       }
     }
@@ -433,16 +433,16 @@ function remotedbuser_form_user_pass_validate($form, &$form_state) {
   // Search in the local database first.
   $name = trim($form_state['values']['name']);
   // Try to load by email.
-  $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('mail' => $name, 'status' => '1'));
+  $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['mail' => $name, 'status' => '1']);
   $account = reset($users);
   if (!$account) {
     // No success, try to load by name.
-    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('name' => $name, 'status' => '1'));
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $name, 'status' => '1']);
     $account = reset($users);
   }
   if (isset($account->uid)) {
     // Account found locally.
-    $form_state->setValueForElement(array('#parents' => array('account')), $account);
+    $form_state->setValueForElement(['#parents' => ['account']], $account);
   }
   else {
     // Account not found locally. Search in the remote database.
@@ -513,6 +513,7 @@ function remotedbuser_authenticate($name, $password) {
  *
  * @return int|false
  *   The user's uid on success, or FALSE on failure to authenticate.
+ *
  * @todo Deal with conflicts.
  */
 function remotedbuser_remote_authenticate($name, $password) {
@@ -569,11 +570,10 @@ function remotedbuser_get_remotedb() {
  */
 function remotedbuser_variable_get($name) {
   // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $value = variable_get('remotedbuser_' . $name, NULL);
-
+  // // @FIXME
+  // // The correct configuration object could not be determined. You'll need to
+  // // rewrite this call manually.
+  // $value = variable_get('remotedbuser_' . $name, NULL);
   if (is_null($value)) {
     switch ($name) {
       case 'remotedb':
@@ -588,7 +588,7 @@ function remotedbuser_variable_get($name) {
         return REMOTEDB_LOCALFIRST;
 
       case 'sync_properties':
-        $properties = array(
+        $properties = [
           'name',
           'mail',
           'pass',
@@ -597,7 +597,7 @@ function remotedbuser_variable_get($name) {
           'status',
           'created',
           'language',
-        );
+        ];
         return array_combine($properties, $properties);
     }
   }

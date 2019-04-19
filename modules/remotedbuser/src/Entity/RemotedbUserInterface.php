@@ -2,7 +2,11 @@
 
 namespace Drupal\remotedbuser\Entity;
 
+/**
+ *
+ */
 interface RemotedbUserInterface {
+
   /**
    * Saves the entity.
    */
@@ -23,4 +27,5 @@ interface RemotedbUserInterface {
    *   The unsaved account, filled with values from the remote user.
    */
   public function toAccount();
+
 }

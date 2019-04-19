@@ -2,15 +2,20 @@
 
 namespace Drupal\remotedbuser\Tests;
 
-use Drupal\remotedbuser\Tests\RemotedbUserTestBase;
-
+/**
+ *
+ */
 class UserEditTestCase extends RemotedbUserTestBase {
+
+  /**
+   *
+   */
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'User: Edit',
       'description' => 'Test if user can edit his username, mail or password.',
       'group' => 'Remote database',
-    );
+    ];
   }
 
   /**
@@ -20,24 +25,24 @@ class UserEditTestCase extends RemotedbUserTestBase {
     // Create a remote user.
     $remote_account = $this->remotedbCreateRemoteUser();
 
-    $account = $this->drupalCreateUser(array('change own username'));
+    $account = $this->drupalCreateUser(['change own username']);
     $this->drupalLogin($account);
 
     // Test that error message appears when attempting to use a non-unique user name.
-    $edit = array();
+    $edit = [];
     $edit['name'] = $remote_account->name;
     $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
-    $this->assertRaw(t('The name %name is already taken.', array('%name' => $edit['name'])));
+    $this->assertRaw(t('The name %name is already taken.', ['%name' => $edit['name']]));
   }
 
   /**
    * Tests if an user can change its username.
    */
   public function testLocalNameChange() {
-    $account = $this->drupalCreateUser(array('change own username'));
+    $account = $this->drupalCreateUser(['change own username']);
     $this->drupalLogin($account);
 
-    $edit = array();
+    $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['name'] = $this->randomName();
     $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
@@ -66,10 +71,10 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $remote_account->save();
 
     // Verify the user can not log in using its old username.
-    $edit = array(
+    $edit = [
       'name' => $account->name,
-      'pass' => $account->pass_raw
-    );
+      'pass' => $account->pass_raw,
+    ];
     $this->drupalPost('user', $edit, t('Log in'));
     $this->assertText(t('Sorry, unrecognized username or password. Have you forgotten your password?'));
 
@@ -78,9 +83,10 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($account);
 
     // Check if the user has a different username now.
-    $account = // @FIXME
-// To reset the user cache, use EntityStorageInterface::resetCache().
-\Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
+    // @FIXME
+    $account =
+    // To reset the user cache, use EntityStorageInterface::resetCache().
+    \Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
     $this->assertEqual($remote_account->name, $account->name, 'The user has a new username.');
   }
 
@@ -95,11 +101,11 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($account);
 
     // Test that error message appears when attempting to use a non-unique mail address.
-    $edit = array();
+    $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['mail'] = $remote_account->mail;
     $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
-    $this->assertRaw(t('The e-mail address %email is already taken.', array('%email' => $remote_account->mail)));
+    $this->assertRaw(t('The e-mail address %email is already taken.', ['%email' => $remote_account->mail]));
   }
 
   /**
@@ -109,7 +115,7 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);
 
-    $edit = array();
+    $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['mail'] = $this->randomName() . '@example.com';
     $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
@@ -141,9 +147,10 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($account);
 
     // Check if the user has a different mail address now.
-    $account = // @FIXME
-// To reset the user cache, use EntityStorageInterface::resetCache().
-\Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
+    // @FIXME
+    $account =
+    // To reset the user cache, use EntityStorageInterface::resetCache().
+    \Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
     $this->assertEqual($remote_account->mail, $account->mail, 'The user has a new mail address.');
   }
 
@@ -159,7 +166,7 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $this->drupalLogin($account);
 
     // Change password.
-    $edit = array();
+    $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
     $edit['pass[pass2]'] = $new_pass;
@@ -191,10 +198,10 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $remote_account->save();
 
     // Verify the user can not log in using its old password.
-    $edit = array(
+    $edit = [
       'name' => $account->name,
-      'pass' => $account->pass_raw
-    );
+      'pass' => $account->pass_raw,
+    ];
     $this->drupalPost('user', $edit, t('Log in'));
     $this->assertText(t('Sorry, unrecognized username or password. Have you forgotten your password?'));
 
@@ -202,4 +209,5 @@ class UserEditTestCase extends RemotedbUserTestBase {
     $account->pass_raw = $new_pass;
     $this->drupalLogin($account);
   }
+
 }

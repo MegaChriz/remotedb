@@ -2,10 +2,12 @@
 
 namespace Drupal\remotedbuser\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormBase;
 
+/**
+ *
+ */
 class RemotedbuserGetRemoteUserForm extends FormBase {
 
   /**
@@ -15,10 +17,13 @@ class RemotedbuserGetRemoteUserForm extends FormBase {
     return 'remotedbuser_get_remote_user_form';
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   *
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['help'] = [
-      '#markup' => '<p>' . t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>'
-      ];
+      '#markup' => '<p>' . t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
+    ];
     $form['user'] = [
       '#type' => 'textarea',
       '#title' => t('Remote users (ID, username or mail address)'),
@@ -33,7 +38,10 @@ class RemotedbuserGetRemoteUserForm extends FormBase {
     return $form;
   }
 
-  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   *
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
     $user_ids = explode("\n", $form_state->getValue(['user']));
     if (count($user_ids) >= REMOTEDB_USER_BATCH_MINIMUM) {
       // Use batch.
@@ -48,4 +56,3 @@ class RemotedbuserGetRemoteUserForm extends FormBase {
   }
 
 }
-?>

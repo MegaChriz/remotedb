@@ -4,19 +4,22 @@ namespace Drupal\remotedbuser\Tests;
 
 use Drupal\remotedb\Tests\RemotedbTestBase;
 
+/**
+ *
+ */
 abstract class RemotedbUserTestBase extends RemotedbTestBase {
   /**
    * The controller for the remotedb_user entity.
    *
-   * @var \Drupal\remotedbuser\Controller\RemotedbUserController.
+   * @var \Drupal\remotedbuser\Controller\RemotedbUserController
    */
   protected $controller;
 
   /**
    * Overrides DrupalWebTestCase::setUp().
    */
-  protected function setUp(array $modules = array()) {
-    $modules = array_merge($modules, array('remotedbuser', 'remotedbuser_test'));
+  protected function setUp(array $modules = []) {
+    $modules = array_merge($modules, ['remotedbuser', 'remotedbuser_test']);
     parent::setUp($modules);
 
     // Create controller.
@@ -32,7 +35,7 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
    * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface
    *   A remote user object.
    */
-  protected function remotedbCreateRemoteUser(array $values = array()) {
+  protected function remotedbCreateRemoteUser(array $values = []) {
     static $uid = 2;
 
     // Generate uid.
@@ -42,11 +45,11 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
       $values['name'] = $this->randomName();
     }
     // Fill in other default values.
-    $values += array(
+    $values += [
       'mail' => $values['name'] . '@example.com',
       'status' => 1,
       'pass' => user_password(),
-    );
+    ];
 
     // Hash password.
     if ($values['pass']) {
@@ -73,7 +76,7 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
    *
    * Checks also if a remote account was created for this user.
    */
-  protected function drupalCreateUser(array $permissions = array()) {
+  protected function drupalCreateUser(array $permissions = []) {
     $account = parent::drupalCreateUser($permissions);
 
     // Make sure a remote account exists.
@@ -112,10 +115,11 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
    */
   protected function assertLocalUser($remotedb_uid) {
     $account = NULL;
-    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(array('remotedb_uid' => $remotedb_uid));
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['remotedb_uid' => $remotedb_uid]);
     if (!empty($users)) {
       $account = reset($users);
     }
     return $this->assertNotNull($account, 'The remote user exists on the local database.');
   }
+
 }

@@ -5,6 +5,8 @@
  * Administrative page callbacks.
  */
 
+use Drupal\Core\Render\Element;
+use Drupal\Component\Utility\Html;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 
@@ -16,26 +18,26 @@ const REMOTEDB_USER_BATCH_MINIMUM = 3;
  * System settings form for Remote database user.
  */
 function remotedbuser_admin_settings_form($form, &$form_state) {
-  $form['remotedbuser_remotedb'] = array(
+  $form['remotedbuser_remotedb'] = [
     '#type' => 'select',
     '#options' => entity_get_controller('remotedb')->options(),
     '#title' => t('Database'),
     '#required' => TRUE,
     '#description' => t('The remote database.'),
     '#default_value' => remotedbuser_variable_get('remotedb'),
-  );
-  $form['remotedbuser_login'] = array(
+  ];
+  $form['remotedbuser_login'] = [
     '#type' => 'radios',
     '#title' => t('Login settings'),
-    '#options' => array(
+    '#options' => [
       REMOTEDB_REMOTEONLY => t('Use remote service only.'),
       REMOTEDB_REMOTEFIRST => t('Use remote service first, local user database is fallback.'),
       REMOTEDB_LOCALFIRST => t('Use local user database first, remote is fallback.'),
-    ),
+    ],
     '#default_value' => remotedbuser_variable_get('login'),
-  );
+  ];
 
-  $sync_properties_options = array();
+  $sync_properties_options = [];
   $property_info = entity_get_property_info('user');
   foreach ($property_info['properties'] as $key => $property) {
     switch ($key) {
@@ -45,23 +47,23 @@ function remotedbuser_admin_settings_form($form, &$form_state) {
         continue;
 
       default:
-        $sync_properties_options[$key] = \Drupal\Component\Utility\Html::escape($property['label']);
+        $sync_properties_options[$key] = Html::escape($property['label']);
         break;
     }
   }
   // Add password as option as well.
   $sync_properties_options['pass'] = t('Password');
-  $form['remotedbuser_sync_properties'] = array(
+  $form['remotedbuser_sync_properties'] = [
     '#type' => 'checkboxes',
     '#title' => t('Synchronize properties'),
     '#description' => t('Select which properties to sync.'),
     '#options' => $sync_properties_options,
     '#default_value' => remotedbuser_variable_get('sync_properties'),
-    '#process' => array(
+    '#process' => [
       'form_process_checkboxes',
       'remotedbuser_sync_properties_disable',
-    ),
-  );
+    ],
+  ];
 
   $form = system_settings_form($form);
   return $form;
@@ -75,7 +77,7 @@ function remotedbuser_admin_settings_form($form, &$form_state) {
  * @see remotedbuser_admin_settings_form()
  */
 function remotedbuser_sync_properties_disable(&$element) {
-  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
+  foreach (Element::children($element) as $key) {
     switch ($key) {
       case 'name':
       case 'mail':
@@ -87,26 +89,26 @@ function remotedbuser_sync_properties_disable(&$element) {
 }
 
 /**
- * Form callback for admin/config/services/remotedb/user/get
+ * Form callback for admin/config/services/remotedb/user/get.
  *
  * Copy over an user from the remote database.
  *
  * @see remotedbuser_get_remote_user_form_submit()
  */
 function remotedbuser_get_remote_user_form($form, $form_state) {
-  $form['help'] = array(
+  $form['help'] = [
     '#markup' => '<p>' . t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
-  );
-  $form['user'] = array(
+  ];
+  $form['user'] = [
     '#type' => 'textarea',
     '#title' => t('Remote users (ID, username or mail address)'),
     '#description' => t('Put in the user IDs, usernames or mail addresses of the users to copy over from the remote database. Put one on each line.'),
     '#required' => TRUE,
-  );
-  $form['submit'] = array(
+  ];
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => t('Get'),
-  );
+  ];
 
   return $form;
 }
@@ -135,7 +137,7 @@ function remotedbuser_get_remote_user_form_submit($form, $form_state) {
  *
  * @param mixed $user_id
  *   The user to import from the remote database.
- * @param RemotedbUserController $rd_controller
+ * @param \Drupal\remotedbuser\Controller\RemotedbUserController $rd_controller
  *   (optional) The controller to use to retrieve remote users.
  */
 function remotedbuser_get_remote_user($user_id, RemotedbUserController $rd_controller = NULL) {
@@ -169,15 +171,14 @@ function remotedbuser_get_remote_user($user_id, RemotedbUserController $rd_contr
       $account->save();
       $uri = entity_uri('user', $account);
       // @FIXME
-// url() expects a route name or an external URI.
-// drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
-//         '@url' => url($uri['path'], $uri['options']),
-//         '%name' => $account->name,
-//       )));
-
+      // url() expects a route name or an external URI.
+      // drupal_set_message(t('User account <a href="@url">%name</a> copied over from the remote database.', array(
+      //         '@url' => url($uri['path'], $uri['options']),
+      //         '%name' => $account->name,
+      //       )));
     }
     else {
-      drupal_set_message(t('No remote user found for %user.', array('%user' => $user_id)));
+      drupal_set_message(t('No remote user found for %user.', ['%user' => $user_id]));
     }
   }
   catch (RemotedbException $e) {
@@ -203,21 +204,21 @@ function remotedbuser_get_remote_user($user_id, RemotedbUserController $rd_contr
  * @return void
  */
 function remotedbuser_get_remote_users_batch(array $user_ids, $limit_per_batch = 10) {
-  $operations = array();
-  $operations[] = array(
+  $operations = [];
+  $operations[] = [
     'remotedbuser_get_remote_users_batch_operation',
-    array(
+    [
       $user_ids,
       $limit_per_batch,
-    ),
-  );
+    ],
+  ];
 
-  $batch = array(
+  $batch = [
     'title' => t('Importing users from the remote database...'),
     'operations' => $operations,
     'progress_message' => '',
     'file' => drupal_get_path('module', 'remotedbuser') . '/remotedbuser.admin.inc',
-  );
+  ];
   batch_set($batch);
 }
 
@@ -234,7 +235,7 @@ function remotedbuser_get_remote_users_batch(array $user_ids, $limit_per_batch =
  */
 function remotedbuser_get_remote_users_batch_operation(array $user_ids, $limit_per_batch = 10, &$context) {
   if (empty($context['sandbox'])) {
-    $context['sandbox'] = array();
+    $context['sandbox'] = [];
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['max'] = count($user_ids);
     $context['sandbox']['user_ids'] = $user_ids;
@@ -253,10 +254,10 @@ function remotedbuser_get_remote_users_batch_operation(array $user_ids, $limit_p
     remotedbuser_get_remote_user($user_id, $rd_controller);
 
     $context['sandbox']['progress']++;
-    $context['message'] = t('Imported @current users out of @total.', array(
+    $context['message'] = t('Imported @current users out of @total.', [
       '@current' => $context['sandbox']['progress'],
       '@total' => $context['sandbox']['max'],
-    ));
+    ]);
 
     if ($i >= $limit_per_batch) {
       // Stop.
