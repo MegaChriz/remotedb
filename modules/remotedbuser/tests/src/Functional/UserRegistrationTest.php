@@ -1,22 +1,13 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
+ * Test registration of users.
  *
+ * @group remotedbuser
  */
-class UserRegistrationTestCase extends RemotedbUserTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'User: Registration',
-      'description' => 'Test registration of users.',
-      'group' => 'Remote database',
-    ];
-  }
+class UserRegistrationTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests if user is saved to remote database on a succesful register.

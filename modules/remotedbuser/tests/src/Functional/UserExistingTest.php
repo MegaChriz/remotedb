@@ -1,22 +1,13 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
+ * Tests how the system deals with name collisions between local and remote users.
  *
+ * @group remotedbuser
  */
-class UserExistingTestCase extends RemotedbUserTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'User: Existing user conflicts',
-      'description' => 'Test how the system deals with name collisions between local and remote users.',
-      'group' => 'Remote database',
-    ];
-  }
+class UserExistingTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests if a local user gets linked to the expected remote user if the name equals,

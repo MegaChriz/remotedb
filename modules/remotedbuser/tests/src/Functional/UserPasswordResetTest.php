@@ -1,22 +1,13 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
+ * Ensure that users that only exists on the remote database can request a new password.
  *
+ * @group remotedbuser
  */
-class UserPasswordResetTestCase extends RemotedbUserTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'User: Reset password',
-      'description' => 'Ensure that users that only exists on the remote database can request a new password.',
-      'group' => 'Remote database',
-    ];
-  }
+class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests password reset using username.

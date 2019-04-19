@@ -1,7 +1,0 @@
-name = "Remote database User test"
-description = "Test module for Remote database User."
-package = "Remote database"
-core = 7.x
-dependencies[] = remotedbuser
-hidden = TRUE
-version = "7.x-3.0-beta1"

@@ -1,22 +1,13 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
  * Tests if users can be imported from the remote database.
+ *
+ * @group remotedbuser
  */
-class UserImportTestCase extends RemotedbUserTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'User: Import',
-      'description' => 'Test if users can be imported from the remote database.',
-      'group' => 'Remote database',
-    ];
-  }
+class UserImportTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Overrides DrupalWebTestCase::setUp().

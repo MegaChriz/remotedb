@@ -1,13 +1,24 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
-use Drupal\remotedb\Tests\RemotedbTestBase;
+use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
 
 /**
- *
+ * Provides a base class for Remote database User functional tests.
  */
-abstract class RemotedbUserTestBase extends RemotedbTestBase {
+abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = [
+    'remotedb',
+    'remotedb_test',
+    'remotedbuser',
+    'remotedbuser_test',
+  ];
+
   /**
    * The controller for the remotedb_user entity.
    *
@@ -16,11 +27,10 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
   protected $controller;
 
   /**
-   * Overrides DrupalWebTestCase::setUp().
+   * {@inheritdoc}
    */
-  protected function setUp(array $modules = []) {
-    $modules = array_merge($modules, ['remotedbuser', 'remotedbuser_test']);
-    parent::setUp($modules);
+  protected function setUp() {
+    parent::setUp();
 
     // Create controller.
     $this->controller = entity_get_controller('remotedb_user');
@@ -76,8 +86,8 @@ abstract class RemotedbUserTestBase extends RemotedbTestBase {
    *
    * Checks also if a remote account was created for this user.
    */
-  protected function drupalCreateUser(array $permissions = []) {
-    $account = parent::drupalCreateUser($permissions);
+  protected function drupalCreateUser(array $permissions = [], $name = NULL, $admin = FALSE, array $values = []) {
+    $account = parent::drupalCreateUser($permissions, $name, $admin, $values);
 
     // Make sure a remote account exists.
     $this->assertTrue($account->remotedb_uid, 'The account is linked to a remote account.');

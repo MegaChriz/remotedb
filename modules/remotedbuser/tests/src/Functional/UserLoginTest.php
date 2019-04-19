@@ -1,22 +1,13 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
+ * Ensure that users that only exist on the remote database can login.
  *
+ * @group remotedbuser
  */
-class UserLoginTestCase extends RemotedbUserTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'User: Login',
-      'description' => 'Ensure that users that only exists on the remote database can login.',
-      'group' => 'Remote database',
-    ];
-  }
+class UserLoginTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests an user login.

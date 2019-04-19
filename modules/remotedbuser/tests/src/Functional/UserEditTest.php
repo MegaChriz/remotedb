@@ -1,22 +1,13 @@
 <?php
 
-namespace Drupal\remotedbuser\Tests;
+namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
+ * Tests for editing username, mail or password.
  *
+ * @group remotedbuser
  */
-class UserEditTestCase extends RemotedbUserTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'User: Edit',
-      'description' => 'Test if user can edit his username, mail or password.',
-      'group' => 'Remote database',
-    ];
-  }
+class UserEditTestCase extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests if an user can not change its username to one that already exists remotely.

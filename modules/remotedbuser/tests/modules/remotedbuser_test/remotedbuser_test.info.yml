@@ -1,0 +1,7 @@
+name: 'Remote database User test'
+type: module
+description: 'Test module for Remote database User.'
+package: Testing
+core: 8.x
+dependencies:
+  - remotedbuser
