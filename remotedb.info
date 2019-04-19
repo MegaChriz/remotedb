@@ -1,9 +1,0 @@
-name = "Remote database Base"
-description = "Base module for connection with remote database."
-package = "Remote database"
-core = 7.x
-dependencies[] = entity
-dependencies[] = psr0
-version = "7.x-3.0-beta2"
-
-configure = admin/config/system/remotedb
