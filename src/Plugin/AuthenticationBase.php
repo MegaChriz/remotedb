@@ -67,10 +67,10 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   A remote database object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) { // , RemotedbInterface $remotedb
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RemotedbInterface $remotedb) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    //$this->remotedb = $remotedb;
+    $this->remotedb = $remotedb;
     $this->provider = $this->pluginDefinition['provider'];
     $this->setConfiguration($configuration);
   }

@@ -2,8 +2,10 @@
 
 namespace Drupal\remotedb;
 
+use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Plugin\DefaultLazyPluginCollection;
+use Drupal\remotedb\Entity\RemotedbInterface;
 
 /**
  * A collection of authentications.
@@ -18,6 +20,28 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   protected $definitions;
 
   /**
+   * The remote database.
+   *
+   * @var \Drupal\remotedb\Entity\RemotedbInterface
+   */
+  protected $remotedb;
+
+  /**
+   * Constructs a AuthenticationPluginCollection.
+   *
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $manager
+   *   The manager to be used for instantiating plugins.
+   * @param array $configuration
+   *   An array of configuration.
+   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
+   *   The remote database this plugin belongs to.
+   */
+  public function __construct(PluginManagerInterface $manager, array $configuration, RemotedbInterface $remotedb) {
+    $this->remotedb = $remotedb;
+    parent::__construct($manager, $configuration);
+  }
+
+  /**
    * {@inheritdoc}
    *
    * @return \Drupal\authentication\Plugin\authenticationInterface
@@ -27,28 +51,18 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   }
 
   /**
-   * Retrieves authentication definitions and creates an instance for each authentication.
-   *
-   * This is exclusively used for the text format administration page, on which
-   * all available authentication plugins are exposed, regardless of whether the current
-   * text format has an active instance.
-   *
-   * @todo Refactor text format administration to actually construct/create and
-   *   destruct/remove actual authentication plugin instances, using a library approach
-   *   à la blocks.
+   * Retrieves authentication method definitions and creates an instance for each one.
    */
   public function getAll() {
     // Retrieve all available authentication plugin definitions.
     if (!$this->definitions) {
       $this->definitions = $this->manager->getDefinitions();
-      // Do not allow the null authentication to be used directly, only as a fallback.
-      unset($this->definitions['authentication_null']);
     }
 
-    // Ensure that there is an instance of all available authentications.
+    // Ensure that there is an instance of all available authentication methods.
     // Note that getDefinitions() are keyed by $plugin_id. $instance_id is the
     // $plugin_id for authentications, since a single authentication plugin can only exist once
-    // in a format.
+    // in a remote database.
     foreach ($this->definitions as $plugin_id => $definition) {
       if (!isset($this->pluginInstances[$plugin_id])) {
         $this->initializePlugin($plugin_id);
@@ -61,17 +75,17 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
    * {@inheritdoc}
    */
   protected function initializePlugin($instance_id) {
-    // authentications have a 1:1 relationship to text formats and can be added and
+    // Authentications have a 1:1 relationship to remote databases and can be added and
     // instantiated at any time.
-    // @todo $configuration is the whole authentication plugin instance configuration,
-    //   as contained in the text format configuration. The default
-    //   configuration is the authentication plugin definition. Configuration should not
-    //   be contained in definitions. Move into a authenticationBase::init() method.
     $configuration = $this->manager->getDefinition($instance_id);
     // Merge the actual configuration into the default configuration.
     if (isset($this->configurations[$instance_id])) {
       $configuration = NestedArray::mergeDeep($configuration, $this->configurations[$instance_id]);
     }
+
+    // Add remotedb reference.
+    $configuration['remotedb'] = $this->remotedb;
+
     $this->configurations[$instance_id] = $configuration;
     parent::initializePlugin($instance_id);
   }

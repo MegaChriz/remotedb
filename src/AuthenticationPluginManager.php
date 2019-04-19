@@ -5,6 +5,7 @@ namespace Drupal\remotedb;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
+use Drupal\remotedb\Plugin\Factory\RemotedbPluginFactory;
 
 /**
  * Manages authentication methods for the remote database.
@@ -26,6 +27,7 @@ class AuthenticationPluginManager extends DefaultPluginManager {
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
     parent::__construct('Plugin/RemotedbAuthentication', $namespaces, $module_handler, 'Drupal\remotedb\Plugin\AuthenticationInterface', 'Drupal\remotedb\Annotation\RemotedbAuthentication');
+    $this->factory = new RemotedbPluginFactory($this, 'Drupal\remotedb\Plugin\AuthenticationInterface');
     $this->alterInfo('remotedb_authentication_info');
     $this->setCacheBackend($cache_backend, 'remotedb_authentication_plugins');
   }
