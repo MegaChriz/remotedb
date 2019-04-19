@@ -23,6 +23,7 @@ use Drupal\remotedb\Exception\RemotedbException;
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\remotedb\RemoteDbListBuilder",
+ *     "storage" = "Drupal\remotedb\Entity\RemotedbStorage",
  *     "form" = {
  *       "add" = "Drupal\remotedb\Form\RemotedbAddForm",
  *       "edit" = "Drupal\remotedb\Form\RemotedbEditForm",
@@ -76,11 +77,11 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
   protected $authentication_methods = [];
 
   /**
-   * An array of option to send along with the HTTP Request.
+   * An array of headers to send along with the HTTP Request.
    *
    * @var array
    */
-  protected $options = [];
+  protected $headers = [];
 
   /**
    * Whether or not the authentication process has run.
@@ -131,18 +132,18 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
   /**
    * {@inheritdoc}
    */
-  public function getOptions() {
-    return $this->options;
+  public function getHeader($header) {
+    if (isset($this->headers[$header])) {
+      return $this->headers[$header];
+    }
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHeader($header) {
-    if (isset($this->options['headers'][$header])) {
-      return $this->options['headers'][$header];
-    }
-    return NULL;
+  public function getHeaders() {
+    return $this->headers;
   }
 
   // ---------------------------------------------------------------------------
@@ -154,10 +155,10 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
    */
   public function setHeader($header, $value) {
     if (!is_null($value)) {
-      $this->options['headers'][$header] = $value;
+      $this->headers[$header] = $value;
     }
     else {
-      unset($this->options['headers'][$header]);
+      unset($this->headers[$header]);
     }
   }
 
@@ -183,9 +184,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
   }
 
   /**
-   * Send a request to the XML-RPC server.
-   *
-   * @todo update for D8.
+   * Sends a request to the XML-RPC server.
    *
    * @param string $method
    *   The method to call on the server.
@@ -204,7 +203,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
 
     $args = [$method => $params];
     // Call XML-RPC.
-    $result = xmlrpc($this->url, $args, $this->options);
+    $result = xmlrpc($this->url, $args, $this->headers);
     if ($result === FALSE) {
       $error = xmlrpc_error();
       // Throw exception in case of errors.

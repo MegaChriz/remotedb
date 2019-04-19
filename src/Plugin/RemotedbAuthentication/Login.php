@@ -41,7 +41,7 @@ class Login extends AuthenticationBase {
     ];
 
     $this->remotedb->setHeader('cookie', NULL);
-    $session = xmlrpc($this->remotedb->getUrl(), $params, $this->remotedb->getOptions());
+    $session = xmlrpc($this->remotedb->getUrl(), $params, $this->remotedb->getHeaders());
     if ($session === FALSE) {
       return FALSE;
     }

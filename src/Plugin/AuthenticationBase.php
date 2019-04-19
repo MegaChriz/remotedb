@@ -19,7 +19,7 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
   /**
    * A remote database.
    *
-   * @var RemoteDBInterface
+   * @var \Drupal\remotedb\Entity\RemotedbInterface
    */
   protected $remotedb;
 
@@ -31,7 +31,7 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
   public $provider;
 
   /**
-   * A Boolean indicating whether this method is enabled.
+   * A boolean indicating whether this method is enabled.
    *
    * @var bool
    */

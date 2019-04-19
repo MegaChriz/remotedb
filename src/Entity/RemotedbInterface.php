@@ -22,14 +22,6 @@ interface RemotedbInterface extends ConfigEntityInterface {
   public function getUrl();
 
   /**
-   * Returns all options.
-   *
-   * @return array
-   *   An array of set options.
-   */
-  public function getOptions();
-
-  /**
    * Gets a header.
    *
    * @param string $header
@@ -40,6 +32,14 @@ interface RemotedbInterface extends ConfigEntityInterface {
    *   NULL otherwise.
    */
   public function getHeader($header);
+
+  /**
+   * Returns all headers.
+   *
+   * @return array
+   *   An array of set headers.
+   */
+  public function getHeaders();
 
   // ---------------------------------------------------------------------------
   // SETTERS

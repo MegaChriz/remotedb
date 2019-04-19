@@ -4,3 +4,5 @@ package: 'Remote database'
 core: 8.x
 type: module
 configure: somepath
+dependencies:
+  - xmlrpc:xmlrpc
