@@ -2,23 +2,21 @@
 
 namespace Drupal\remotedb_test\Entity;
 
-use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Entity\Remotedb;
 
 /**
+ * A mocked remote database.
  *
+ * @todo determine if this class is still needed.
  */
-class MockRemotedb implements RemotedbInterface {
+class MockRemotedb extends Remotedb {
+
   /**
    * The callback to use for function calls.
    *
    * @var callable
    */
   protected $callback;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $values = array(), $entityType = NULL) {}
 
   /**
    * {@inheritdoc}
@@ -44,15 +42,15 @@ class MockRemotedb implements RemotedbInterface {
   /**
    * {@inheritdoc}
    */
-  public function getOptions() {
-    return array();
+  public function getHeader($header) {
+    return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getHeader($header) {
-    return NULL;
+  public function getHeaders() {
+    return [];
   }
 
   /**
@@ -78,9 +76,9 @@ class MockRemotedb implements RemotedbInterface {
   /**
    * {@inheritdoc}
    */
-  public function sendRequest($method, array $params = array()) {
+  public function sendRequest($method, array $params = []) {
     if (isset($this->callback)) {
-      $callback_args = array($method, $params);
+      $callback_args = [$method, $params];
       return call_user_func_array($this->callback, $callback_args);
     }
   }

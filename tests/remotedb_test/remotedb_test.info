@@ -1,7 +1,0 @@
-name = "Remote database Mock"
-description = "Provides a mock remotedb mock class."
-package = "Remote database"
-core = 7.x
-dependencies[] = remotedb
-hidden = TRUE
-version = "7.x-3.0-beta1"

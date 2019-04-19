@@ -37,19 +37,3 @@ function remotedb_feeds_plugins() {
 function remotedb_access($op, $entity, $account) {
   return $account->hasPermission('remotedb.administer');
 }
-
-// ---------------------------------------------------------------------------
-// THEMING
-// ---------------------------------------------------------------------------
-
-/**
- * Implements hook_theme().
- */
-function remotedb_theme() {
-  return [
-    'authentication_methods_order' => [
-      'render element' => 'element',
-      'file' => 'remotedb.admin.inc',
-    ],
-  ];
-}

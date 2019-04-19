@@ -36,4 +36,4 @@ remotedb.test_form:
     _form: '\Drupal\remotedb\Form\RemotedbTestForm'
     _title: 'Test'
   requirements:
-    _permission: remotedb.administer
+    _permission: 'remotedb.administer'

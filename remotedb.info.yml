@@ -3,6 +3,6 @@ description: 'Base module for connection with remote database.'
 package: 'Remote database'
 core: 8.x
 type: module
-configure: somepath
+configure: entity.remotedb.collection
 dependencies:
   - xmlrpc:xmlrpc
