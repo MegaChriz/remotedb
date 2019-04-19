@@ -4,6 +4,7 @@ namespace Drupal\remotedb\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
+use Drupal\remotedb\AuthenticationPluginCollection;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 
@@ -125,25 +126,6 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
       return $this->authenticationCollection->get($instance_id);
     }
     return $this->authenticationCollection;
-  }
-
-  /**
-   * Returns available authentication methods.
-   *
-   * @todo replace with plugin collection.
-   */
-  public function _getAuthenticationMethods() {
-    return [];
-    $methods = array();
-    $method_info = remotedb_discover_plugins();
-    foreach ($method_info as $key => $method_definition) {
-      $class = $method_definition['class'];
-      $config = isset($this->authentication_methods[$key]) ? $this->authentication_methods[$key] : array();
-      $method = new $class($config, $method_definition, $this);
-      $methods[$method->getPluginId()] = $method;
-      uasort($methods, array($this, 'pluginSort'));
-    }
-    return $methods;
   }
 
   /**

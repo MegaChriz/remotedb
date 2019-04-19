@@ -1,44 +1,43 @@
-(function ($) {
+(function ($, Drupal) {
+  Drupal.behaviors.authenticationMethodStatus = {
+    attach: function attach(context, settings) {
+      var $context = $(context);
+      $context.find('#authentication-methods-status-wrapper input.form-checkbox').once('authentication-method-status').each(function () {
+        var $checkbox = $(this);
 
-Drupal.behaviors.authenticationMethodStatus = {
-  attach: function (context, settings) {
-    $('#authentication-methods-status-wrapper input.form-checkbox', context).once('authentication-method-status', function () {
-      var $checkbox = $(this);
-      // Retrieve the tabledrag row belonging to this authentication-method.
-      var $row = $('#' + $checkbox.attr('id').replace(/-status$/, '-weight'), context).closest('tr');
-      // Retrieve the vertical tab belonging to this authentication-method.
-      var tab = $('#' + $checkbox.attr('id').replace(/-status$/, '-settings'), context).data('verticalTab');
+        var $row = $context.find('#' + $checkbox.attr('id').replace(/-status$/, '-weight')).closest('tr');
 
-      // Bind click handler to this checkbox to conditionally show and hide the
-      // authentication-method's tableDrag row and vertical tab pane.
-      $checkbox.bind('click.authenticationMethodUpdate', function () {
-        if ($checkbox.is(':checked')) {
-          $row.show();
-          if (tab) {
-            tab.tabShow().updateSummary();
+        var $authenticationMethodSettings = $context.find('#' + $checkbox.attr('id').replace(/-status$/, '-settings'));
+        var authenticationMethodSettingsTab = $authenticationMethodSettings.data('verticalTab');
+
+        $checkbox.on('click.authenticationMethodUpdate', function () {
+          if ($checkbox.is(':checked')) {
+            $row.show();
+            if (authenticationMethodSettingsTab) {
+              authenticationMethodSettingsTab.tabShow().updateSummary();
+            } else {
+              $authenticationMethodSettings.show();
+            }
+          } else {
+            $row.hide();
+            if (authenticationMethodSettingsTab) {
+              authenticationMethodSettingsTab.tabHide().updateSummary();
+            } else {
+              $authenticationMethodSettings.hide();
+            }
           }
-        }
-        else {
-          $row.hide();
-          if (tab) {
-            tab.tabHide().updateSummary();
-          }
-        }
-        // Restripe table after toggling visibility of table row.
-        Drupal.tableDrag['authentication-method-order'].restripeTable();
-      });
 
-      // Attach summary for configurable authentication-methods (only for screen-readers).
-      if (tab) {
-        tab.fieldset.drupalSetSummary(function (tabContext) {
-          return $checkbox.is(':checked') ? Drupal.t('Enabled') : Drupal.t('Disabled');
+          Drupal.tableDrag['authentication-method-order'].restripeTable();
         });
-      }
 
-      // Trigger our bound click handler to update elements to initial state.
-      $checkbox.triggerHandler('click.authenticationMethodUpdate');
-    });
-  }
-};
+        if (authenticationMethodSettingsTab) {
+          authenticationMethodSettingsTab.details.drupalSetSummary(function () {
+            return $checkbox.is(':checked') ? Drupal.t('Enabled') : Drupal.t('Disabled');
+          });
+        }
 
-})(jQuery);
+        $checkbox.triggerHandler('click.authenticationMethodUpdate');
+      });
+    }
+  };
+})(jQuery, Drupal);
