@@ -19,6 +19,16 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
   const BY_MAIL = 'mail';
 
   /**
+   * Loads a single entity by a certain property.
+   *
+   * @param int|string $id
+   *   A remote user's identifier.
+   * @param string $load_by
+   *   The key to load the remote user by.
+   */
+  public function loadBy($id, $load_by);
+
+  /**
    * {@inheritdoc}
    */
   public function fromAccount($account);

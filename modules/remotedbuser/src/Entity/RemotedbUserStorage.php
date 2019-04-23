@@ -114,6 +114,30 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
+  public function loadByProperties(array $values = []) {
+    foreach ($values as $key => $value) {
+      switch ($key) {
+        case static::BY_ID:
+        case static::BY_NAME:
+        case static::BY_MAIL:
+          return $this->getFromStorage([$value], $key);
+      }
+    }
+
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadBy($id, $load_by) {
+    $entities = $this->getFromStorage([$id], $load_by);
+    return reset($entities);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function doLoadMultiple(array $ids = NULL) {
     // Attempt to load entities from the persistent cache. This will remove IDs
     // that were loaded from $ids.
@@ -134,16 +158,28 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @param array|null $ids
    *   If not empty, return entities that match these IDs. Return all entities
    *   when NULL.
+   * @param string $load_by
+   *   The key to load remote users by.
    *
    * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface[]
    *   Array of entities from the storage.
    */
-  protected function getFromStorage(array $ids = NULL) {
+  protected function getFromStorage(array $ids = NULL, $load_by = NULL) {
     $entities = [];
+
+    switch ($load_by) {
+      case static::BY_ID:
+      case static::BY_NAME:
+      case static::BY_MAIL:
+        break;
+
+      default:
+        $load_by = self::BY_ID;
+    }
 
     foreach ($ids as $id) {
       // The remote database only supports loading one remote user at a time.
-      $data = $this->sendRequest('dbuser.retrieve', [$id, static::BY_ID]);
+      $data = $this->sendRequest('dbuser.retrieve', [$id, $load_by]);
       if ($data) {
         $data['is_new'] = FALSE;
         $entity = $this->create($data);
@@ -170,29 +206,6 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   public function countFieldData($storage_definition, $as_bool = FALSE) {}
-
-  /**
-   * Loads a single entity by a certain property.
-   */
-  public function _loadBy($id, $load_by = NULL) {
-    $entities = $this->loadMultipleBy(array($id), $load_by);
-    return reset($entities);
-  }
-
-  /**
-   * Loads a list of entities by a certain property.
-   */
-  public function _loadMultipleBy($ids = array(), $load_by = NULL) {
-    switch ($load_by) {
-      case self::BY_ID:
-      case self::BY_NAME:
-      case self::BY_MAIL:
-        break;
-      default:
-        $load_by = self::BY_ID;
-    }
-    return $this->load($ids, array('load_by' => $load_by));
-  }
 
   /**
    * Overrides EntityAPIController::save().
