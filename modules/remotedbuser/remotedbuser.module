@@ -19,113 +19,11 @@ const REMOTEDB_REMOTEFIRST = 1;
 const REMOTEDB_LOCALFIRST = 2;
 
 // ---------------------------------------------------------------------------
-// DRUPAL HOOKS
-// ---------------------------------------------------------------------------
-
-/**
- * Implements hook_menu().
- */
-function remotedbuser_menu() {
-  $items = [];
-
-  $items['admin/config/services/remotedb/user'] = [
-    'title' => 'User',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => ['remotedbuser_admin_settings_form'],
-    'access arguments' => ['remotedb.administer'],
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'remotedbuser.admin.inc',
-  ];
-  $items['admin/config/services/remotedb/user/settings'] = [
-    'title' => 'Settings',
-    'access arguments' => ['remotedb.administer'],
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => 0,
-  ];
-  $items['admin/config/services/remotedb/user/get'] = [
-    'title' => 'Get remote user',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => ['remotedbuser_get_remote_user_form'],
-    'access callback' => 'remotedbuser_get_remote_user_access',
-    'access arguments' => [],
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'remotedbuser.admin.inc',
-    'weight' => 1,
-  ];
-
-  $items['admin/people/remotedbuser-get'] = [
-    'title' => 'Get remote user',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => ['remotedbuser_get_remote_user_form'],
-    'access callback' => 'remotedbuser_get_remote_user_access',
-    'access arguments' => [],
-    'type' => MENU_LOCAL_ACTION,
-    'file' => 'remotedbuser.admin.inc',
-  ];
-
-  return $items;
-}
-
-/**
- * Implements hook_hook_info().
- *
- * Declares available hooks invoked by this module.
- *
- * @return array
- *   A list of hooks.
- */
-function remotedbuser_hook_info() {
-  $hooks = [
-    'remotedb_user_load',
-    'remotedb_user_presave',
-    'remotedb_user_insert',
-    'remotedb_user_update',
-  ];
-  $return = [];
-  foreach ($hooks as $hook) {
-    $return[$hook] = [
-      'group' => 'remotedb',
-    ];
-  }
-  return $return;
-}
-
-/**
- * Implements hook_permission().
- */
-function remotedbuser_permission() {
-  return [
-    'remotedbuser.create' => [
-      'title' => t('Overwrite remote accounts'),
-      'description' => t('Allow users who can create accounts to create accounts that already exist in the remote database.'),
-    ],
-    'remotedbuser.getuser' => [
-      'title' => t('Get remote user'),
-      'description' => t('Copy over an user from the remote database.'),
-    ],
-  ];
-}
-
-// ---------------------------------------------------------------------------
-// ACCESS CALLBACKS
-// ---------------------------------------------------------------------------
-
-/**
- * Access callback for admin/config/services/remotedb/user/get.
- *
- * @param object $account
- *   (optional) The account to check access for.
- */
-function remotedbuser_get_remote_user_access($account = NULL) {
-  return $account->hasPermission('remotedb.administer') || $account->hasPermission('remotedbuser.getuser');
-}
-
-// ---------------------------------------------------------------------------
 // USER HOOKS
 // ---------------------------------------------------------------------------
 
 /**
- * Implements hook_user_update().
+ * Implements hook_user_insert().
  *
  * @FIXME
  * The $edit and $category parameters are gone in Drupal 8. They have been left
@@ -200,29 +98,6 @@ function remotedbuser_user_view(array &$build, UserInterface $account) {
 // ---------------------------------------------------------------------------
 // ENTITY API HOOKS
 // ---------------------------------------------------------------------------
-
-/**
- * Implements hook_entity_info().
- */
-function remotedbuser_entity_info() {
-  $return = [
-    'remotedb_user' => [
-      'label' => t('Remote database user'),
-      'entity class' => 'Drupal\\remotedbuser\\Entity\\RemotedbUser',
-      'controller class' => 'Drupal\\remotedbuser\\Controller\\RemotedbUserController',
-      'base table' => NULL,
-      'fieldable' => FALSE,
-      'entity keys' => [
-        'id' => 'uid',
-        'label' => 'name',
-      ],
-      'label callback' => 'entity_class_label',
-      'uri callback' => 'entity_class_uri',
-      'module' => 'remotedbuser',
-    ],
-  ];
-  return $return;
-}
 
 /**
  * Implements hook_entity_property_info_alter().

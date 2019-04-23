@@ -1,6 +1,7 @@
 remotedbuser.admin_settings_form:
   route_name: remotedbuser.admin_settings_form
   title: User
+  base_route: entity.remotedb.collection
 remotedbuser.admin_settings_form_0:
   route_name: remotedbuser.admin_settings_form
   title: Settings

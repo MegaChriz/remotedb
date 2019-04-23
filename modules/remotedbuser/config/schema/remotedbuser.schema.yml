@@ -1,0 +1,15 @@
+remotedbuser.settings:
+  type: config_object
+  label: 'Remote database user settings'
+  mapping:
+    remotedb:
+      type: string
+      label: 'Remote database'
+    login:
+      type: integer
+      label: 'Login method'
+    sync_properties:
+      type: sequence
+      label: 'Synchronize properties'
+      sequence:
+        type: string
