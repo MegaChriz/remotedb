@@ -6,9 +6,16 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
 
 /**
- *
+ * Provides a form to copy an user from the remote database.
  */
-class RemotedbuserGetRemoteUserForm extends FormBase {
+class GetRemoteUserForm extends FormBase {
+
+  /**
+   * The minimum number of users to copy over to use a batch for.
+   *
+   * @var int
+   */
+  const REMOTEDB_USER_BATCH_MINIMUM = 3;
 
   /**
    * {@inheritdoc}
@@ -18,32 +25,32 @@ class RemotedbuserGetRemoteUserForm extends FormBase {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['help'] = [
-      '#markup' => '<p>' . t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
+      '#markup' => '<p>' . $this->t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
     ];
     $form['user'] = [
       '#type' => 'textarea',
-      '#title' => t('Remote users (ID, username or mail address)'),
+      '#title' => $this->t('Remote users (ID, username or mail address)'),
       '#description' => t('Put in the user IDs, usernames or mail addresses of the users to copy over from the remote database. Put one on each line.'),
       '#required' => TRUE,
     ];
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => t('Get'),
+      '#value' => $this->t('Get'),
     ];
 
     return $form;
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $user_ids = explode("\n", $form_state->getValue(['user']));
-    if (count($user_ids) >= REMOTEDB_USER_BATCH_MINIMUM) {
+    if (count($user_ids) >= static::REMOTEDB_USER_BATCH_MINIMUM) {
       // Use batch.
       remotedbuser_get_remote_users_batch($user_ids);
     }

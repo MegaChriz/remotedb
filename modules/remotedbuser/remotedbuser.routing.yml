@@ -9,6 +9,6 @@ remotedbuser.get_remote_user_form:
   path: /admin/people/remotedbuser-get
   defaults:
     _title: 'Get remote user'
-    _form: \Drupal\remotedbuser\Form\RemotedbuserGetRemoteUserForm
+    _form: \Drupal\remotedbuser\Form\GetRemoteUserForm
   requirements:
-    _custom_access: '\Drupal\remotedbuser\Form\RemotedbuserGetRemoteUserForm::remotedbuser_get_remote_user_access'
+    _permission: 'remotedb.administer,remotedbuser.getuser'

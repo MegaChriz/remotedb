@@ -10,52 +10,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Controller\RemotedbUserController;
 
-const REMOTEDB_USER_BATCH_MINIMUM = 3;
-
-/**
- * Form callback for admin/config/services/remotedb/user/get.
- *
- * Copy over an user from the remote database.
- *
- * @see remotedbuser_get_remote_user_form_submit()
- */
-function remotedbuser_get_remote_user_form($form, $form_state) {
-  $form['help'] = [
-    '#markup' => '<p>' . t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
-  ];
-  $form['user'] = [
-    '#type' => 'textarea',
-    '#title' => t('Remote users (ID, username or mail address)'),
-    '#description' => t('Put in the user IDs, usernames or mail addresses of the users to copy over from the remote database. Put one on each line.'),
-    '#required' => TRUE,
-  ];
-  $form['submit'] = [
-    '#type' => 'submit',
-    '#value' => t('Get'),
-  ];
-
-  return $form;
-}
-
-/**
- * Submit handler for remotedbuser_get_remote_user_form().
- *
- * @see remotedbuser_get_remote_user_form()
- */
-function remotedbuser_get_remote_user_form_submit($form, $form_state) {
-  $user_ids = explode("\n", $form_state['values']['user']);
-  if (count($user_ids) >= REMOTEDB_USER_BATCH_MINIMUM) {
-    // Use batch.
-    remotedbuser_get_remote_users_batch($user_ids);
-  }
-  else {
-    foreach ($user_ids as $user_id) {
-      // Execute immediately.
-      remotedbuser_get_remote_user($user_id);
-    }
-  }
-}
-
 /**
  * Get a single remote user.
  *
