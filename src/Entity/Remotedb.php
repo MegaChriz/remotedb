@@ -39,6 +39,12 @@ use Drupal\remotedb\Exception\RemotedbException;
  *   links = {
  *     "edit-form" = "/admin/config/services/remotedb/manage/{userprotect_rule}",
  *     "delete-form" = "/admin/config/services/remotedb/manage/{userprotect_rule}/delete"
+ *   },
+ *   config_export = {
+ *     "name",
+ *     "label",
+ *     "url",
+ *     "authentication_methods",
  *   }
  * )
  */
@@ -47,13 +53,6 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------
-
-  /**
-   * The URL of the remote database.
-   *
-   * @var string
-   */
-  protected $url;
 
   /**
    * The unique identifier for this remote database.
@@ -68,6 +67,13 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface {
    * @var string
    */
   protected $label;
+
+  /**
+   * The URL of the remote database.
+   *
+   * @var string
+   */
+  protected $url;
 
   /**
    * Configured authentication methods for this remote database.
