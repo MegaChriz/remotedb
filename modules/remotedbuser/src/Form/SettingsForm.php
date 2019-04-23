@@ -8,6 +8,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
+use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -89,9 +90,9 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Login settings'),
       '#required' => TRUE,
       '#options' => [
-        REMOTEDB_REMOTEONLY => $this->t('Use remote service only.'),
-        REMOTEDB_REMOTEFIRST => $this->t('Use remote service first, local user database is fallback.'),
-        REMOTEDB_LOCALFIRST => $this->t('Use local user database first, remote is fallback.'),
+        RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY => $this->t('Use remote service only.'),
+        RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEFIRST => $this->t('Use remote service first, local user database is fallback.'),
+        RemotedbUserAuthenticationInterface::REMOTEDB_LOCALFIRST => $this->t('Use local user database first, remote is fallback.'),
       ],
       '#default_value' => $config->get('login'),
     ];

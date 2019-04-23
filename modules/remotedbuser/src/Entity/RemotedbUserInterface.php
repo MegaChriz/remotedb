@@ -2,23 +2,12 @@
 
 namespace Drupal\remotedbuser\Entity;
 
+use Drupal\Core\Entity\ContentEntityInterface;
+
 /**
- *
+ * Provides an interface for defining a remote user.
  */
-interface RemotedbUserInterface {
-
-  /**
-   * Saves the entity.
-   */
-  public function save();
-
-  /**
-   * Translates remote user object to an array.
-   *
-   * @return array
-   *   An array of values, representing the remote user.
-   */
-  public function toArray();
+interface RemotedbUserInterface extends ContentEntityInterface {
 
   /**
    * Sets data from a remote account to the local account.

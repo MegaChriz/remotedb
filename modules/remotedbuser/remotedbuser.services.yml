@@ -1,0 +1,6 @@
+services:
+  remotedbuser.configuration:
+    class: Drupal\remotedbuser\RemotedbUserConfiguration
+    arguments: ['@config.factory', '@entity_type.manager']
+  remotedbuser.authentication:
+    class: Drupal\remotedbuser\RemotedbUserAuthentication

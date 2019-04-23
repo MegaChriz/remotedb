@@ -1,29 +1,24 @@
 <?php
 
-namespace Drupal\remotedbuser\Controller;
+namespace Drupal\remotedbuser\Entity;
 
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityStorageBase;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
-use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
-use \EntityAPIController;
 
 /**
- * Remotedb entity controller class.
+ * Class for remote user storage.
  */
-class RemotedbUserController extends EntityAPIController {
-  // ---------------------------------------------------------------------------
-  // CONSTANTS
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Methods to load an user by in the remote database.
-   *
-   * @var string
-   */
-  const BY_ID = 'uid';
-  const BY_NAME = 'name';
-  const BY_MAIL = 'mail';
+class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUserStorageInterface {
 
   // ---------------------------------------------------------------------------
   // PROPERTIES
@@ -34,36 +29,38 @@ class RemotedbUserController extends EntityAPIController {
    *
    * @var \Drupal\remotedb\Entity\RemotedbInterface
    */
-  private $remotedb;
+  protected $remotedb;
 
   // ---------------------------------------------------------------------------
   // CONSTRUCT
   // ---------------------------------------------------------------------------
 
   /**
-   * Overridden.
-   */
-  public function __construct($entityType) {
-    parent::__construct($entityType);
-    // Set default remote database (if defined).
-    $remotedb = remotedbuser_get_remotedb();
-    if ($remotedb instanceof RemotedbInterface) {
-      $this->setRemotedb($remotedb);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // SETTERS
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Sets remote database to use.
+   * Constructs a RemotedbUserStorage instance.
    *
-   * @param RemotedbInterface $remotedb
-   *   A remote database object.
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   *   The cache backend to be used.
+   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
+   *   The memory cache backend.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
+   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
+   *   The remote database in which the remote users are stored.
    */
-  public function setRemotedb(RemotedbInterface $remotedb) {
-    $this->remotedb = $remotedb;
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, RemotedbInterface $remotedb = NULL) {
+    parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
+
+    if (is_null($remotedb)) {
+      // Get default remote database (if defined).
+      $this->remotedb = \Drupal::service('remotedbuser.configuration')->getDefault();
+    }
+    else {
+      $this->remotedb = $remotedb;
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -71,9 +68,9 @@ class RemotedbUserController extends EntityAPIController {
   // ---------------------------------------------------------------------------
 
   /**
-   * Returns remote database that is used.
+   * Returns the remote database that is used.
    *
-   * @return RemotedbInterface $remotedb
+   * @return \Drupal\remotedb\Entity\RemotedbInterface|null
    *   A remote database object.
    */
   public function getRemotedb() {
@@ -85,17 +82,68 @@ class RemotedbUserController extends EntityAPIController {
   // ---------------------------------------------------------------------------
 
   /**
-   * Overrides EntityAPIController::load().
+   * {@inheritdoc}
    */
-  public function load($ids = array(), $conditions = array()) {
-    $entities = array();
-    $conditions += array(
-      'load_by' => self::BY_ID,
-    );
+  protected function readFieldItemsToPurge(FieldDefinitionInterface $field_definition, $batch_size) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doLoadRevisionFieldItems($revision_id) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doDeleteFieldItems($entities) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function purgeFieldItems(ContentEntityInterface $entity, FieldDefinitionInterface $field_definition) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doDeleteRevisionFieldItems(ContentEntityInterface $revision) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doLoadMultiple(array $ids = NULL) {
+    // Attempt to load entities from the persistent cache. This will remove IDs
+    // that were loaded from $ids.
+    $entities_from_cache = $this->getFromPersistentCache($ids);
+
+    // Load any remaining entities from the database.
+    if ($entities_from_storage = $this->getFromStorage($ids)) {
+      $this->invokeStorageLoadHook($entities_from_storage);
+      $this->setPersistentCache($entities_from_storage);
+    }
+
+    return $entities_from_cache + $entities_from_storage;
+  }
+
+  /**
+   * Gets entities from the storage.
+   *
+   * @param array|null $ids
+   *   If not empty, return entities that match these IDs. Return all entities
+   *   when NULL.
+   *
+   * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface[]
+   *   Array of entities from the storage.
+   */
+  protected function getFromStorage(array $ids = NULL) {
+    $entities = [];
 
     foreach ($ids as $id) {
       // The remote database only supports loading one remote user at a time.
-      $data = $this->sendRequest('dbuser.retrieve', array($id, $conditions['load_by']));
+      $data = $this->sendRequest('dbuser.retrieve', [$id, static::BY_ID]);
       if ($data) {
         $data['is_new'] = FALSE;
         $entity = $this->create($data);
@@ -103,20 +151,30 @@ class RemotedbUserController extends EntityAPIController {
       }
     }
 
-    // Pass all entities loaded from the database through $this->attachLoad(),
-    // which attaches fields (if supported by the entity type) and calls the
-    // entity type specific load callback, for example hook_node_load().
-    if (!empty($entities)) {
-      $this->attachLoad($entities, FALSE);
-    }
-
     return $entities;
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function has($id, EntityInterface $entity) {
+    return !$entity->isNew();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getQueryServiceName() {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function countFieldData($storage_definition, $as_bool = FALSE) {}
+
+  /**
    * Loads a single entity by a certain property.
    */
-  public function loadBy($id, $load_by = NULL) {
+  public function _loadBy($id, $load_by = NULL) {
     $entities = $this->loadMultipleBy(array($id), $load_by);
     return reset($entities);
   }
@@ -124,7 +182,7 @@ class RemotedbUserController extends EntityAPIController {
   /**
    * Loads a list of entities by a certain property.
    */
-  public function loadMultipleBy($ids = array(), $load_by = NULL) {
+  public function _loadMultipleBy($ids = array(), $load_by = NULL) {
     switch ($load_by) {
       case self::BY_ID:
       case self::BY_NAME:
@@ -143,7 +201,7 @@ class RemotedbUserController extends EntityAPIController {
    *   TRUE if saving succeeded.
    *   FALSE otherwise.
    */
-  public function save($entity) {
+  public function _save($entity) {
     // Invoke presave hook.
     $entity->is_new = !empty($entity->is_new) || empty($entity->{$this->idKey});
     $this->invoke('presave', $entity);
@@ -168,15 +226,7 @@ class RemotedbUserController extends EntityAPIController {
   }
 
   /**
-   * Constructs a RemotedbUser from a user account object.
-   *
-   * @param object $account
-   *   The local user account.
-   *
-   * @return \Drupal\remotedb\Entity\RemotedbUserInterface
-   *   A remotedb user object.
-   * @throws RemotedbException
-   *   If the passed in account does not have a mail address.
+   * {@inheritdoc}
    */
   public function fromAccount($account) {
     if (empty($account->mail)) {
@@ -216,13 +266,7 @@ class RemotedbUserController extends EntityAPIController {
   }
 
   /**
-   * Sets data from a remote account to the local account.
-   *
-   * @param \Drupal\remotedb\Entity\RemotedbUserInterface $entity
-   *   The Remote user.
-   *
-   * @return object
-   *   The unsaved account, filled with values from the remote user.
+   * {@inheritdoc}
    */
   public function toAccount(RemotedbUserInterface $entity) {
     // First, get account from local database, if it exists.
@@ -315,32 +359,14 @@ class RemotedbUserController extends EntityAPIController {
   // ---------------------------------------------------------------------------
 
   /**
-   * Authenticates an user via the remote database.
-   *
-   * @param string $name
-   *   User name to authenticate.
-   * @param string $password
-   *   A plain-text password.
-   *
-   * @return int|bool
-   *   The remotedb user's uid on success, or FALSE on failure to authenticate.
+   * {@inheritdoc}
    */
   public function authenticate($name, $pass) {
     return $this->sendRequest('dbuser.authenticate', array($name, $pass));
   }
 
   /**
-   * Validates name.
-   *
-   * @param string $name
-   *   The name to check for existence.
-   * @param object $account
-   *   The user's account.
-   *
-   * @return bool
-   *   TRUE if validation passes.
-   *   FALSE otherwise.
-   * @todo Remotedb_uid should probably be send along instead.
+   * {@inheritdoc}
    */
   public function validateName($name, $account) {
     if (!empty($account->name) && $account->name == $name) {
@@ -370,16 +396,7 @@ class RemotedbUserController extends EntityAPIController {
   }
 
   /**
-   * Validates mail address.
-   *
-   * @param string $mail
-   *   The mail address to check for existence.
-   * @param object $account
-   *   The user's account.
-   *
-   * @return bool
-   *   TRUE if validation passes.
-   *   FALSE otherwise.
+   * {@inheritdoc}
    */
   public function validateMail($mail, $account) {
     if (!empty($account->mail) && $account->mail == $mail) {
@@ -433,4 +450,5 @@ class RemotedbUserController extends EntityAPIController {
       return FALSE;
     }
   }
+
 }
