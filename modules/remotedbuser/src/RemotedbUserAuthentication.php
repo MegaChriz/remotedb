@@ -4,8 +4,8 @@ namespace Drupal\remotedbuser;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Messenger\MessengerTrait;
-use Drupal\user\UserAuthInterface;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
+use Drupal\user\UserAuthInterface;
 
 /**
  * Default implementation of the remotedbuser.authentication service.
@@ -91,6 +91,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
         }
         break;
     }
+
     return FALSE;
   }
 

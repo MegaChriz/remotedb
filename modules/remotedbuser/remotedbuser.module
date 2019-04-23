@@ -5,13 +5,12 @@
  * Enables registration and authentication via remote database.
  */
 
-use Drupal\Core\Url;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\user\UserInterface;
-use Drupal\remotedb\Entity\RemotedbInterface;
-use Drupal\remotedbuser\Controller\RemotedbUserController;
-use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 
 // ---------------------------------------------------------------------------
 // USER HOOKS
@@ -95,18 +94,15 @@ function remotedbuser_user_view(array &$build, UserInterface $account) {
 // ---------------------------------------------------------------------------
 
 /**
- * Implements hook_entity_property_info_alter().
- *
- * Describe remotedb_uid field.
+ * Implements hook_entity_base_field_info_alter().
  */
-function remotedbuser_entity_property_info_alter(&$info) {
-  $user_properties = &$info['user']['properties'];
-  $user_properties['remotedb_uid'] = [
-    'label' => t('Remote database UID'),
-    'type' => 'integer',
-    'description' => t('The ID of the user in the remote database.'),
-    'schema field' => 'remotedb_uid',
-  ];
+function remotedbuser_entity_base_field_info_alter(array &$fields, EntityTypeInterface $entity_type) {
+  if ($entity_type->id() == 'user') {
+    $fields['remotedb_uid'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Remote database UID'))
+      ->setDescription(t('The ID of the user in the remote database.'))
+      ->setDefaultValue(0);
+  }
 }
 
 // ---------------------------------------------------------------------------
