@@ -28,7 +28,7 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
    * {@inheritdoc}
    */
   public function toArray() {
-    $values = parent::toArray();
+    $values = $this->values;
 
     // Don't send attached account along.
     unset($values['account']);

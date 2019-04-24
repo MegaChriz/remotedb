@@ -2,26 +2,46 @@
 
 namespace Drupal\remotedbuser_test\Controller;
 
-use Drupal\remotedbuser\Controller\RemotedbUserController as OriginalRemotedbUserController;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorage as OriginalRemotedbUserStorage;
 
 /**
- * Remotedb entity controller class.
+ * Overrides default storage class for remotedb_user entity type.
  */
-class RemotedbUserController extends OriginalRemotedbUserController {
+class RemotedbUserStorage extends OriginalRemotedbUserStorage {
+
   // ---------------------------------------------------------------------------
   // CONSTRUCT
   // ---------------------------------------------------------------------------
 
   /**
-   * Overridden.
+   * Constructs a RemotedbUserStorage instance.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   *   The cache backend to be used.
+   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
+   *   The memory cache backend.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
+   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
+   *   The remote database in which the remote users are stored.
    */
-  public function __construct($entityType) {
-    parent::__construct($entityType);
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, RemotedbInterface $remotedb = NULL) {
 
     // Set remotedb mock.
-    $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create(array());
-    $remotedb->setCallback(array($this, 'remotedbCallback'));
-    $this->setRemotedb($remotedb);
+    $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create([]));
+    $remotedb->setCallback([$this, 'remotedbCallback']);
+
+    parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info, $remotedb);
   }
 
   // ---------------------------------------------------------------------------
@@ -77,6 +97,7 @@ class RemotedbUserController extends OriginalRemotedbUserController {
    */
   public function remotedbCallback($method, $params) {
     $accounts = $this->getRemoteAccounts();
+
     switch ($method) {
       case 'dbuser.retrieve':
         $id = $params[0];

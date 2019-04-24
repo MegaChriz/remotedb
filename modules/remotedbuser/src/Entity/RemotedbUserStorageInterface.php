@@ -3,6 +3,7 @@
 namespace Drupal\remotedbuser\Entity;
 
 use Drupal\Core\Entity\ContentEntityStorageInterface;
+use Drupal\user\UserInterface;
 
 /**
  * A storage that supports remote user entity types.
@@ -29,15 +30,23 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
   public function loadBy($id, $load_by);
 
   /**
-   * {@inheritdoc}
+   * Creates a remote user from a user account object.
+   *
+   * @param \Drupal\user\UserInterface $account
+   *   The local user account.
+   *
+   * @return \Drupal\remotedb\Entity\RemotedbUserInterface
+   *   A remote user object.
+   * @throws \Drupal\remotedb\Exception\RemotedbException
+   *   If the passed in account does not have a mail address.
    */
-  public function fromAccount($account);
+  public function fromAccount(UserInterface $account);
 
   /**
    * Sets data from a remote account to the local account.
    *
    * @param \Drupal\remotedb\Entity\RemotedbUserInterface $entity
-   *   The Remote user.
+   *   The remote user.
    *
    * @return object
    *   The unsaved account, filled with values from the remote user.

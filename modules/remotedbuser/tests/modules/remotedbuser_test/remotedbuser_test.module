@@ -2,12 +2,16 @@
 
 /**
  * @file
- * Dummy module providing a mock class for remotedb entity.
+ * Dummy module providing a mock class for remotedb_user entity.
  */
 
+use Drupal\remotedbuser_test\Entity\RemotedbUserStorage;
+
 /**
- * Implements hook_entity_info_alter().
+ * Implements hook_entity_type_build().
  */
-function remotedbuser_test_entity_info_alter(&$entiy_info) {
-  $entiy_info['remotedb_user']['controller class'] = 'Drupal\\remotedbuser_test\\Controller\\RemotedbUserController';
+function remotedbuser_test_entity_type_build(&$entity_types) {
+  if (isset($entity_types['remotedb_user'])) {
+    $entity_types['remotedb_user']->setStorageClass(RemotedbUserStorage::class);
+  }
 }

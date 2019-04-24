@@ -4,3 +4,5 @@ services:
     arguments: ['@config.factory', '@entity_type.manager']
   remotedbuser.authentication:
     class: Drupal\remotedbuser\RemotedbUserAuthentication
+  remotedbuser.entity.query:
+    class: Drupal\remotedbuser\Entity\Query\QueryFactory
