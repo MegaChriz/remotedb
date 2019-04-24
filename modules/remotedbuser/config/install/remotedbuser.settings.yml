@@ -1,0 +1,20 @@
+remotedb: ''
+login: 0
+sync_properties:
+  langcode: langcode
+  pass: pass
+  status: status
+  created: created
+  access: access
+  login: login
+  name: name
+  mail: mail
+  uuid: '0'
+  preferred_langcode: '0'
+  preferred_admin_langcode: '0'
+  timezone: '0'
+  changed: '0'
+  init: '0'
+  roles: '0'
+  default_langcode: '0'
+  user_picture: '0'

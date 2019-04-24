@@ -304,7 +304,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
 
     // Check if this account is already linked to a remote account. If so, we should not
     // suddenly link it to an other account.
-    if (!empty($account->remotedb_uid) && $account->remotedb_uid != $entity->uid) {
+    if (!empty($account->remotedb_uid->value) && $account->remotedb_uid->value != $entity->uid) {
       $vars = array(
         '@uid' => $account->id(),
         '@remotedb_uid' => $entity->uid,
@@ -348,7 +348,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     }
     else {
       // Update user account.
-      $update_props = remotedbuser_variable_get('sync_properties');
+      $update_props = \Drupal::service('config.factory')->get('remotedbuser.settings')->get('sync_properties');
       foreach ($update_props as $key) {
         if (empty($key)) {
           continue;

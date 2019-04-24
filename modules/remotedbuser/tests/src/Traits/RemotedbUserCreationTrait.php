@@ -24,7 +24,9 @@ trait RemotedbUserCreationTrait {
     $uid = &drupal_static(__METHOD__, 2);
 
     // Generate uid.
-    $values['uid'] = ++$uid;
+    if (!isset($values['uid'])) {
+      $values['uid'] = ++$uid;
+    }
     // Make sure that the user gets a name.
     if (empty($values['name'])) {
       $values['name'] = $this->randomMachineName();
