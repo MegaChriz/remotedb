@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Install and update functions.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Implements hook_install().
+ */
+function remotedbuser_install() {
+  $storage_definition = BaseFieldDefinition::create('integer')
+    ->setLabel(t('Remote database UID'))
+    ->setDescription(t('The ID of the user in the remote database.'))
+    ->setDefaultValue(0);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('remotedb_uid', 'user', 'remotedbuser', $storage_definition);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function remotedbuser_uninstall() {
+  // @todo test if base field gets removed.
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = $update_manager->getFieldStorageDefinition('remotedb_uid', 'user');
+  if ($definition) {
+    $update_manager->uninstallFieldStorageDefinition($definition);
+  }
+}
