@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Kernel\Entity;
 
+use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use Drupal\Tests\remotedbuser\Kernel\RemotedbUserKernelTestBase;
 
@@ -32,7 +33,63 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    * @covers ::fromAccount
    */
   public function testFromAccount() {
-    $this->markTestIncomplete();
+    // Create a local account.
+    $account = $this->createUser([
+      'name' => 'lorem',
+    ]);
+
+    // Convert to a remote account.
+    $remote_user = $this->remotedb_user_storage->fromAccount($account);
+
+    // Assert expected values.
+    $expected_values = [
+      'name' => 'lorem',
+      'mail' => 'lorem@example.com',
+      'status' => 1,
+    ];
+    foreach ($expected_values as $key => $expected_value) {
+      $this->assertEquals($expected_value, $remote_user->{$key});
+    }
+
+    // Assert non-existing values.
+    $this->assertNull($remote_user->uid);
+    $this->assertNull($remote_user->is_new);
+  }
+
+  /**
+   * @covers ::fromAccount
+   */
+  public function testFromAccountWithExistingRemoteUser() {
+    // Create a local account.
+    $account = $this->createUser([
+      'remotedb_uid' => 101,
+    ]);
+
+    // Convert to a remote account.
+    $remote_user = $this->remotedb_user_storage->fromAccount($account);
+
+    // Assert that the remote user now has an ID set.
+    $this->assertEquals(101, $remote_user->uid);
+    $this->assertFalse($remote_user->is_new);
+
+    // Assert non-existing values.
+    $this->assertNull($remote_user->remotedb_uid);
+  }
+
+  /**
+   * Tests that a local user without mail address cannot be converted.
+   *
+   * @covers ::fromAccount
+   */
+  public function testFailWithoutMail() {
+    // Create a local account without mail address.
+    $account = $this->createUser([
+      'mail' => NULL,
+    ]);
+
+    // Attempt to convert to a remote account.
+    $this->setExpectedException(RemotedbException::class, "The account cannot be saved in the remote database, because it doesn't have a mail address.");
+    $remote_user = $this->remotedb_user_storage->fromAccount($account);
   }
 
   /**

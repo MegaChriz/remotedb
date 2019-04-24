@@ -246,32 +246,26 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    */
   public function fromAccount(UserInterface $account) {
     if (!$account->getEmail()) {
-      throw new RemotedbException(t("The account can not be saved in the remote database, because it doesn't have a mail address."));
+      throw new RemotedbException(t("The account cannot be saved in the remote database, because it doesn't have a mail address."));
     }
 
     $values = array(
-      'name' => $account->name,
-      'mail' => $account->mail,
-      'status' => $account->status,
-      'created' => $account->created,
-      'timezone' => !empty($account->timezone) ? $account->timezone : NULL,
-      'language' => !empty($account->language) ? $account->language : NULL,
-      'init' => $account->init,
+      'name' => $account->getAccountName(),
+      'mail' => $account->getEmail(),
+      'pass' => $account->getPassword(),
+      'status' => $account->isActive(),
+      'created' => $account->getCreatedTime(),
+      'timezone' => !empty($account->timezone->value) ? $account->timezone->value : NULL,
+      'language' => !empty($account->language->value) ? $account->language->value : NULL,
+      'init' => $account->getInitialEmail(),
     );
 
-    if (!empty($account->remotedb_uid)) {
-      $values['uid'] = $account->remotedb_uid;
+    if (!empty($account->remotedb_uid->value)) {
+      $values['uid'] = $account->remotedb_uid->value;
       $values['is_new'] = FALSE;
     }
 
-    // Load password from database.
-    $values['pass'] = db_select('users')
-      ->fields('users', array('pass'))
-      ->condition('uid', $account->id())
-      ->execute()
-      ->fetchField();
-
-    // Instantiate a RemotedbUserInterface object.
+    // Instantiate a remote user.
     $entity = $this->create($values);
 
     // Cross reference.
