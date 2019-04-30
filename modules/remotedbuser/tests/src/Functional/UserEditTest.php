@@ -22,7 +22,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     // Test that error message appears when attempting to use a non-unique user name.
     $edit = [];
     $edit['name'] = $remote_account->name;
-    $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
     $this->assertRaw(t('The name %name is already taken.', ['%name' => $edit['name']]));
   }
 
@@ -36,7 +36,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['name'] = $this->randomName();
-    $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("The changes have been saved."));
 
     // Assert that the change is reflected in the remote database.
@@ -66,7 +66,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
       'name' => $account->name,
       'pass' => $account->pass_raw,
     ];
-    $this->drupalPost('user', $edit, t('Log in'));
+    $this->drupalPostForm('user', $edit, t('Log in'));
     $this->assertText(t('Sorry, unrecognized username or password. Have you forgotten your password?'));
 
     // Test if the user can login using the new username.
@@ -95,7 +95,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['mail'] = $remote_account->mail;
-    $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
     $this->assertRaw(t('The e-mail address %email is already taken.', ['%email' => $remote_account->mail]));
   }
 
@@ -109,7 +109,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['current_pass'] = $account->pass_raw;
     $edit['mail'] = $this->randomName() . '@example.com';
-    $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("The changes have been saved."));
 
     // Assert that the change is reflected in the remote database.
@@ -161,7 +161,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $edit['current_pass'] = $account->pass_raw;
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
     $edit['pass[pass2]'] = $new_pass;
-    $this->drupalPost("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
 
     // Make sure the user can log in with its new password.
     $this->drupalLogout();
@@ -193,7 +193,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
       'name' => $account->name,
       'pass' => $account->pass_raw,
     ];
-    $this->drupalPost('user', $edit, t('Log in'));
+    $this->drupalPostForm('user', $edit, t('Log in'));
     $this->assertText(t('Sorry, unrecognized username or password. Have you forgotten your password?'));
 
     // Test if the user can login using the new password.

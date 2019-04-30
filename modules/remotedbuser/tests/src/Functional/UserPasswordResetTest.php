@@ -17,7 +17,7 @@ class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
 
     // Attempt to reset password.
     $edit = ['name' => $remote_account->name];
-    $this->drupalPost('user/password', $edit, t('E-mail new password'));
+    $this->drupalPostForm('user/password', $edit, t('E-mail new password'));
     // Confirm the password reset.
     $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
 
@@ -33,7 +33,7 @@ class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
 
     // Attempt to reset password.
     $edit = ['name' => $remote_account->mail];
-    $this->drupalPost('user/password', $edit, t('E-mail new password'));
+    $this->drupalPostForm('user/password', $edit, t('E-mail new password'));
     // Confirm the password reset.
     $this->assertText(t('Further instructions have been sent to your e-mail address.'), 'Password reset instructions mailed message displayed.');
 

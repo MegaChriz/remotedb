@@ -120,7 +120,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
       'name' => $remote_account->name,
       'pass' => $remote_account->pass_raw,
     ];
-    $this->drupalPost('user', $edit, t('Log in'));
+    $this->drupalPostForm('user', $edit, t('Log in'));
     $this->assertText(t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'));
 
     // Ensure the two local accounts don't have the same mail address.
@@ -199,7 +199,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
 
     // Now, try to edit the profile.
     $edit = [];
-    $this->drupalPost("user/$account1->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account1->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("The changes have been saved."));
 
     // Login with the second user now.
@@ -210,7 +210,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
 
     // Try to edit the profile of this user too.
     $edit = [];
-    $this->drupalPost("user/$account2->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm("user/$account2->uid/edit", $edit, t('Save'));
     $this->assertRaw(t("The changes have been saved."));
 
     // Check that there are remote accounts for each local user now.

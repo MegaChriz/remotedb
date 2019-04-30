@@ -31,7 +31,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
     $edit['pass[pass2]'] = $new_pass;
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
 
     // Assert the account exists local.
     $accounts = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $name, 'mail' => $mail]);
@@ -74,7 +74,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['name'] = $remote_account->name;
     $edit['mail'] = $this->randomName() . '@example.com';
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
     $this->assertRaw(t('The name %name is already taken.', ['%name' => $remote_account->name]));
   }
 
@@ -102,13 +102,13 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit['mail'] = $remote_account->mail;
 
     // Attempt to create a new account using an existing e-mail address.
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
     $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying an exact duplicate email address displays an error message.');
 
     // Attempt to bypass duplicate email registration validation by adding spaces.
     $edit['mail'] = '   ' . $remote_account->mail . '   ';
 
-    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->drupalPostForm('user/register', $edit, t('Create new account'));
     $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying a duplicate email address with added whitespace displays an error message.');
   }
 

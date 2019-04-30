@@ -14,7 +14,6 @@ class UserLoginTest extends RemotedbUserBrowserTestBase {
    */
   public function testUserLogin() {
     $remote_account = $this->createRemoteUser();
-    $remote_account->save();
 
     // Login using information from remote account.
     $edit = [

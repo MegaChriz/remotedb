@@ -10,10 +10,10 @@ namespace Drupal\Tests\remotedbuser\Functional;
 class UserImportTest extends RemotedbUserBrowserTestBase {
 
   /**
-   * Overrides DrupalWebTestCase::setUp().
+   * {@inheritdoc}
    */
-  protected function setUp(array $modules = []) {
-    parent::setUp($modules);
+  public function setUp() {
+    parent::setUp();
 
     // Create an admin user.
     $admin = $this->drupalCreateUser(['remotedb.administer']);
@@ -35,7 +35,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
         $remote_account2->mail,
       ]),
     ];
-    $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
+    $this->drupalPostForm('admin/config/services/remotedb/user/get', $edit, 'Get');
 
     // Assert messages.
     $this->assertText(format_string('User account @name copied over from the remote database.', [
@@ -83,7 +83,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
         $remote_account2->mail,
       ]),
     ];
-    $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
+    $this->drupalPostForm('admin/config/services/remotedb/user/get', $edit, 'Get');
 
     // Assert messages.
     $this->assertText('No remote user found for non_existent@example.com.');
@@ -114,7 +114,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
     $edit = [
       'user' => implode("\n", $mails),
     ];
-    $this->drupalPost('admin/config/services/remotedb/user/get', $edit, 'Get');
+    $this->drupalPostForm('admin/config/services/remotedb/user/get', $edit, 'Get');
     foreach ($mails as $mail) {
       $this->assertText(format_string('No remote user found for @user.', [
         '@user' => $mail,
