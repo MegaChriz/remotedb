@@ -4,6 +4,8 @@ namespace Drupal\remotedbuser\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
+use Drupal\remotedbuser\Exception\RemotedbException;
+use Exception;
 
 /**
  * Provides a form to copy an user from the remote database.
@@ -29,12 +31,12 @@ class GetRemoteUserForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['help'] = [
-      '#markup' => '<p>' . $this->t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and eventually other data will be updated.') . '</p>',
+      '#markup' => '<p>' . $this->t('On this page you can copy over users from the remote database. If a specified user already exists on this website, its user name and mail address and possibly other data will be updated.') . '</p>',
     ];
     $form['user'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Remote users (ID, username or mail address)'),
-      '#description' => t('Put in the user IDs, usernames or mail addresses of the users to copy over from the remote database. Put one on each line.'),
+      '#description' => $this->t('Put in the user IDs, usernames or mail addresses of the users to copy over from the remote database. Put one on each line.'),
       '#required' => TRUE,
     ];
     $form['submit'] = [
@@ -123,7 +125,6 @@ class GetRemoteUserForm extends FormBase {
       'title' => t('Importing users from the remote database...'),
       'operations' => $operations,
       'progress_message' => '',
-      'file' => drupal_get_path('module', 'remotedbuser') . '/remotedbuser.admin.inc',
     ];
     batch_set($batch);
   }
@@ -150,14 +151,12 @@ class GetRemoteUserForm extends FormBase {
     $group = array_slice($context['sandbox']['user_ids'], 0, $limit_per_batch);
     $context['sandbox']['user_ids'] = array_slice($context['sandbox']['user_ids'], $limit_per_batch);
 
-    $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
-
     $i = 0;
     foreach ($group as $user_id) {
       $i++;
 
       // Get remote user and save it locally.
-      remotedbuser_get_remote_user($user_id, $rd_controller);
+      $this->getRemoteUser($user_id);
 
       $context['sandbox']['progress']++;
       $context['message'] = t('Imported @current users out of @total.', [
