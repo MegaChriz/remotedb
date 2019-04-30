@@ -20,7 +20,7 @@ use Drupal\remotedbuser\Controller\RemotedbUserController;
  */
 function remotedbuser_get_remote_user($user_id, RemotedbUserController $rd_controller = NULL) {
   if (empty($rd_controller)) {
-    $rd_controller = entity_get_controller('remotedb_user');
+    $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
   }
 
   try {
@@ -122,7 +122,7 @@ function remotedbuser_get_remote_users_batch_operation(array $user_ids, $limit_p
   $group = array_slice($context['sandbox']['user_ids'], 0, $limit_per_batch);
   $context['sandbox']['user_ids'] = array_slice($context['sandbox']['user_ids'], $limit_per_batch);
 
-  $rd_controller = entity_get_controller('remotedb_user');
+  $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
 
   $i = 0;
   foreach ($group as $user_id) {

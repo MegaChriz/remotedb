@@ -170,7 +170,7 @@ class Webhook {
    *   The ID of the user in the remote database.
    */
   protected function createAccount($remotedb_uid) {
-    $rd_controller = entity_get_controller('remotedb_user');
+    $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
     $remote_account = $rd_controller->loadBy($remotedb_uid, RemotedbUserController::BY_ID);
     if (isset($remote_account->uid)) {
       // Copy over account data.

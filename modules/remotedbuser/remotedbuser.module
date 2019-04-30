@@ -18,28 +18,16 @@ use Drupal\user\UserInterface;
 
 /**
  * Implements hook_user_insert().
- *
- * @FIXME
- * The $edit and $category parameters are gone in Drupal 8. They have been left
- * here in order to prevent 'undefined variable' errors, but they will never
- * actually be passed to this hook. You'll need to modify this function and
- * remove every reference to them.
  */
-function _remotedbuser_user_insert(UserInterface $account, $edit = NULL) {
+function _remotedbuser_user_insert(UserInterface $account) {
   // Perform the same actions as when updating.
-  return remotedbuser_user_update($edit, $account);
+  return remotedbuser_user_update($account);
 }
 
 /**
  * Implements hook_user_update().
- *
- * @FIXME
- * The $edit and $category parameters are gone in Drupal 8. They have been left
- * here in order to prevent 'undefined variable' errors, but they will never
- * actually be passed to this hook. You'll need to modify this function and
- * remove every reference to them.
  */
-function _remotedbuser_user_update(UserInterface $account, $edit = NULL) {
+function _remotedbuser_user_update(UserInterface $account) {
   // Check if a remote user was coming from the remote database.
   if (!empty($account->from_remotedb)) {
     // We assume that the local account was updated with information from the
@@ -48,13 +36,12 @@ function _remotedbuser_user_update(UserInterface $account, $edit = NULL) {
   }
 
   // Create remote account based on the local account.
-  $controller = entity_get_controller('remotedb_user');
-  $remote_account = $controller->fromAccount($account);
+  $remote_account = \Drupal::entityTypeManager()->getStorage('remotedb_user')->fromAccount($account);
 
   // Save remote account.
   $result = $remote_account->save();
   if (!$result) {
-    drupal_set_message('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.', 'error');
+    \Drupal::messenger()->addError('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.');
     \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', ['%username' => $account->getUsername(), '%uid' => $account->id()]);
   }
   elseif (empty($account->remotedb_uid) || $remote_account->uid != $account->remotedb_uid) {
@@ -172,7 +159,7 @@ function _remotedbuser_form_user_profile_form_alter(&$form, $form_state) {
  * @see user_account_form()
  */
 function _remotedbuser_account_form_validate($form, &$form_state) {
-  $rd_controller = entity_get_controller('remotedb_user');
+  $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
   if ($form['#user_category'] == 'account' || $form['#user_category'] == 'register') {
     $account = $form['#user'];
     $is_new = empty($account->uid);
@@ -281,7 +268,7 @@ function _remotedbuser_form_user_pass_validate($form, &$form_state) {
   }
   else {
     // Account not found locally. Search in the remote database.
-    $rd_controller = entity_get_controller('remotedb_user');
+    $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
     // Try to load by email.
     $remote_account = $rd_controller->loadBy($name, RemotedbUserController::BY_MAIL);
     if (!$remote_account) {

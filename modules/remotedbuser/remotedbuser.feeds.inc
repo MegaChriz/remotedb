@@ -48,7 +48,7 @@ function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $
 
   if (!isset($account->uid)) {
     // Search in remote database.
-    $rd_controller = entity_get_controller('remotedb_user');
+    $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
     // Try to load by email.
     $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
     if (!$remote_account) {

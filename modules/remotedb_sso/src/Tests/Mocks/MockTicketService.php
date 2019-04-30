@@ -25,7 +25,7 @@ class MockTicketService implements TicketServiceInterface {
    * Implements TicketInterface::validateTicket().
    */
   public function validateTicket($remotedb_uid, $timestamp, $hash) {
-    $controller = entity_get_controller('remotedb_user');
+    $controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
 
     // Get account details from the remote database.
     return $controller->loadBy($remotedb_uid);
