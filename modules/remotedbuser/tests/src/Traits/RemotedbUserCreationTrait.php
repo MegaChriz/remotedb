@@ -45,7 +45,7 @@ trait RemotedbUserCreationTrait {
     }
 
     $remote_user = RemotedbUser::create($values);
-    //$remote_user->save();
+    $remote_user->save();
 
     return $remote_user;
   }

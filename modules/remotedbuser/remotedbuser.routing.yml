@@ -11,4 +11,4 @@ remotedbuser.get_remote_user_form:
     _title: 'Get remote user'
     _form: \Drupal\remotedbuser\Form\GetRemoteUserForm
   requirements:
-    _permission: 'remotedb.administer,remotedbuser.getuser'
+    _permission: 'remotedb.administer+remotedbuser.getuser'

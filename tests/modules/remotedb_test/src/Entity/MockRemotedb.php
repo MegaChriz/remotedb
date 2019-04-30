@@ -21,20 +21,6 @@ class MockRemotedb extends Remotedb {
   /**
    * {@inheritdoc}
    */
-  public function id() {
-    return 'mock';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function label() {
-    return 'Mock';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getUrl() {
     return 'http://www.example.com';
   }

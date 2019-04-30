@@ -15,7 +15,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    */
   public function testExistingName() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Create a local user directly into the database to avoid user hooks being run.
     $account_edit = [
@@ -54,7 +54,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    */
   public function testExistingMail() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Create a local user directly into the database to avoid user hooks being run.
     $account_edit = [
@@ -97,7 +97,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    */
   public function testExistingNameAndMail() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Create two local users. One with the remote user's name and one with the remote user's mail.
     $account_edit1 = [
@@ -159,7 +159,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
     \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEFIRST)->save();
 
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Create two local users. One with the remote user's name and one with the remote user's mail.
     $local_pass = $this->randomName();

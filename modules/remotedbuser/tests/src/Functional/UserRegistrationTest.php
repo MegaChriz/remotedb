@@ -68,7 +68,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     // // to ensure that it uses the correct configuration object.
     // variable_set('user_register', USER_REGISTER_VISITORS);
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Register.
     $edit = [];
@@ -95,7 +95,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     // // to ensure that it uses the correct configuration object.
     // variable_set('user_register', USER_REGISTER_VISITORS);
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     $edit = [];
     $edit['name'] = $this->randomName();

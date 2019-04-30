@@ -145,6 +145,31 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
+  public function loadByAny($id) {
+    // Remove extra spaces.
+    $id = trim($id);
+
+    if (empty($id)) {
+      // Skip "empty" users.
+      return;
+    }
+
+    $load_by_methods = [
+      static::BY_MAIL,
+      static::BY_NAME,
+      static::BY_ID,
+    ];
+    foreach ($load_by_methods as $load_by) {
+      $remote_account = $this->loadBy($id, $load_by);
+      if ($remote_account) {
+        return $remote_account;
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function doLoadMultiple(array $ids = NULL) {
     // Attempt to load entities from the persistent cache. This will remove IDs
     // that were loaded from $ids.

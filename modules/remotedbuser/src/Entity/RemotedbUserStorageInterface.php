@@ -30,6 +30,16 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
   public function loadBy($id, $load_by);
 
   /**
+   * Tries to load an entity based on any unique property.
+   *
+   * Loading is tried in the following order:
+   * 1. By mail address;
+   * 2. By name;
+   * 3. By remote user ID.
+   */
+  public function loadByAny($id);
+
+  /**
    * Creates a remote user from a user account object.
    *
    * @param \Drupal\user\UserInterface $account

@@ -14,7 +14,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testNameDuplicates() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     $account = $this->drupalCreateUser(['change own username']);
     $this->drupalLogin($account);
@@ -86,7 +86,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testMailDuplicates() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);

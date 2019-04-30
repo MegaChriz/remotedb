@@ -49,12 +49,12 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   protected function drupalCreateUser(array $permissions = [], $name = NULL, $admin = FALSE, array $values = []) {
     $account = parent::drupalCreateUser($permissions, $name, $admin, $values);
 
-    // Make sure a remote account exists.
-    $this->assertTrue($account->remotedb_uid, 'The account is linked to a remote account.');
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid);
+    // Make sure that a remote account exists.
+    $this->assertTrue($account->remotedb_uid->value, 'The account is linked to a remote account.');
+    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
     $this->assertNotNull($remote_account, 'The remote account was created.');
     if (!is_null($remote_account)) {
-      $this->assertTrue($account->remotedb_uid === $remote_account->uid, 'The account belongs to the expected remote account.');
+      $this->assertTrue($account->remotedb_uid->value === $remote_account->uid, 'The account belongs to the expected remote account.');
     }
 
     return $account;

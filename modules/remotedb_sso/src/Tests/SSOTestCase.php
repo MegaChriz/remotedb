@@ -28,7 +28,7 @@ class SSOTestCase extends RemotedbSSOTestBase {
    */
   public function testAuthenticatedRedirect() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Login using information from remote account.
     $edit = array(
@@ -72,7 +72,7 @@ class SSOTestCase extends RemotedbSSOTestBase {
    */
   public function testSSOLogin() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Copy over the account to the local database.
     $account = $remote_account->toAccount();
@@ -96,7 +96,7 @@ class SSOTestCase extends RemotedbSSOTestBase {
    */
   public function testSSOLoginNewUser() {
     // Create a remote user.
-    $remote_account = $this->remotedbCreateRemoteUser();
+    $remote_account = $this->createRemoteUser();
 
     // Create fake account to generate ticket for.
     $account = new stdClass();

@@ -19,7 +19,7 @@ use Drupal\user\UserInterface;
 /**
  * Implements hook_user_insert().
  */
-function _remotedbuser_user_insert(UserInterface $account) {
+function remotedbuser_user_insert(UserInterface $account) {
   // Perform the same actions as when updating.
   return remotedbuser_user_update($account);
 }
@@ -27,7 +27,15 @@ function _remotedbuser_user_insert(UserInterface $account) {
 /**
  * Implements hook_user_update().
  */
-function _remotedbuser_user_update(UserInterface $account) {
+function remotedbuser_user_update(UserInterface $account) {
+  // Check if the account was getting updated by this hook.
+  if (!empty($account->remotedbuser_updating)) {
+    // Account is assumed to already exist in the remote database and be current.
+    // Abort.
+    $account->remotedbuser_updating = FALSE;
+    return;
+  }
+
   // Check if a remote user was coming from the remote database.
   if (!empty($account->from_remotedb)) {
     // We assume that the local account was updated with information from the
@@ -44,13 +52,11 @@ function _remotedbuser_user_update(UserInterface $account) {
     \Drupal::messenger()->addError('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.');
     \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', ['%username' => $account->getUsername(), '%uid' => $account->id()]);
   }
-  elseif (empty($account->remotedb_uid) || $remote_account->uid != $account->remotedb_uid) {
+  elseif (empty($account->remotedb_uid->value) || $remote_account->uid != $account->remotedb_uid) {
     // Save remote account uid on local account.
-    $account->remotedb_uid = $remote_account->uid;
-    db_update('users')
-      ->fields(['remotedb_uid' => $remote_account->uid])
-      ->condition('uid', $account->id())
-      ->execute();
+    $account->remotedb_uid->value = $remote_account->uid;
+    $account->remotedbuser_updating = TRUE;
+    $account->save();
   }
 }
 
@@ -69,7 +75,7 @@ function _remotedbuser_user_view(array &$build, UserInterface $account) {
       'remotedb_uid' => [
         '#type' => 'user_profile_item',
         '#title' => t('Remote database UID'),
-        '#markup' => Html::escape($account->remotedb_uid),
+        '#markup' => Html::escape($account->remotedb_uid->value),
       ],
       '#weight' => 1,
     ];

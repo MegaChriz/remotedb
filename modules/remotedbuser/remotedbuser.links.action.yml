@@ -2,4 +2,4 @@ remotedbuser.get_remote_user_form:
   route_name: remotedbuser.get_remote_user_form
   title: 'Get remote user'
   appears_on:
-    - remotedbuser.get_remote_user_form
+    - entity.user.collection

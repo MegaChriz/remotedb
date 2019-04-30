@@ -23,6 +23,8 @@ abstract class RemotedbUserKernelTestBase extends EntityKernelTestBase {
     'user',
     'remotedb',
     'remotedbuser',
+    'remotedb_test',
+    'remotedbuser_test',
   ];
 
   /**

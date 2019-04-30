@@ -84,8 +84,6 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   Returns different values depending on the method call.
    */
   public function remotedbCallback($method, $params) {
-    $accounts = $this->getRemoteAccounts();
-
     switch ($method) {
       case 'dbuser.retrieve':
         $id = $params[0];
