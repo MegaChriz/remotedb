@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\remotedbuser_test\Controller;
+namespace Drupal\remotedbuser_test\Entity;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
@@ -38,7 +38,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
   public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, RemotedbInterface $remotedb = NULL) {
 
     // Set remotedb mock.
-    $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create([]));
+    $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create([]);
     $remotedb->setCallback([$this, 'remotedbCallback']);
 
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info, $remotedb);
@@ -55,29 +55,17 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   An array of accounts.
    */
   public function getRemoteAccounts() {
-    // @FIXME
-// $result = db_select('variable')
-//       ->fields('variable', array())
-//       ->condition('name', 'remotedbuser_test_accounts')
-//       ->execute()
-//       ->fetch();
-
-    if (is_object($result) && !empty($result->value)) {
-      return unserialize($result->value);
-    }
-    return array();
+    return \Drupal::state()->get('remotedbuser_test_accounts', []);
   }
 
   /**
    * Save accounts.
    *
    * @param array $accounts
-   *   The account to save in database.
-   *
-   * @return void
+   *   The accounts to save in database.
    */
   private function setRemoteAccounts(array $accounts) {
-    return \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_test_accounts', $accounts)->save();
+    \Drupal::state()->set('remotedbuser_test_accounts', $accounts);
   }
 
   // ---------------------------------------------------------------------------
@@ -128,8 +116,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   NULL otherwise.
    */
   private function dbuserRetrieve($id, $by) {
-    $accounts = $this->getRemoteAccounts();
-    foreach ($accounts as $account) {
+    foreach ($this->getRemoteAccounts() as $account) {
       if ($account[$by] == $id) {
         return $account;
       }
@@ -140,21 +127,21 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
   /**
    * Saves a remote user.
    *
-   * @param array $account
+   * @param array $user_data
    *   The user data.
    *
    * @return int
    *   The remote user uid.
    */
-  private function dbuserSave($account) {
+  private function dbuserSave($user_data) {
     $accounts = $this->getRemoteAccounts();
-    if (empty($account['uid'])) {
+    if (empty($user_data['uid'])) {
       // Generate uid if it doesn't have one.
-      $account['uid'] = count($accounts) + 1000;
+      $user_data['uid'] = count($user_data) + 1000;
     }
-    $accounts[$account['uid']] = $account;
+    $accounts[$user_data['uid']] = $user_data;
     $this->setRemoteAccounts($accounts);
-    return $account['uid'];
+    return $user_data['uid'];
   }
 
   /**
@@ -166,29 +153,23 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The user's password.
    *
    * @return int|false
-   *   The remote user's ID if authentication was succesful.
+   *   The remote user's ID if authentication was successful.
    *   FALSE otherwise.
    */
   private function dbuserAuthenticate($name, $password) {
-    // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// require_once \Drupal::root() . '/' . variable_get('password_inc', 'includes/password.inc');
-
-    $account = $this->dbuserRetrieve($name, 'name');
+    $user_data = $this->dbuserRetrieve($name, 'name');
 
     // No account found? Return FALSE.
-    if (empty($account)) {
+    if (empty($user_data)) {
       return FALSE;
     }
 
-    $account = (object) $account;
-    if (user_check_password($password, $account)) {
-      return $account->uid;
+    if (\Drupal::service('password')->check($password, $user_data['pass'])) {
+      return $user_data['uid'];
     }
 
     // In all other cases, the password is invalid.
     return FALSE;
   }
+
 }

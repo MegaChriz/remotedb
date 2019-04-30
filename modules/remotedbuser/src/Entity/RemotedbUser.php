@@ -40,7 +40,7 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
    * {@inheritdoc}
    */
   public function toAccount() {
-    return entity_get_controller($this->entityType)->toAccount($this);
+    return $this->entityTypeManager()->getStorage($this->entityTypeId)->toAccount($this);
   }
 
 }

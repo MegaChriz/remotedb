@@ -95,7 +95,13 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []) {}
+  protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []) {
+    // Save remote user into the remote database.
+    $uid = $this->sendRequest('dbuser.save', [$entity->toArray()]);
+    if ($uid) {
+      $entity->uid = $uid;
+    }
+  }
 
   /**
    * {@inheritdoc}
@@ -209,37 +215,6 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   public function countFieldData($storage_definition, $as_bool = FALSE) {}
-
-  /**
-   * Overrides EntityAPIController::save().
-   *
-   * @return bool
-   *   TRUE if saving succeeded.
-   *   FALSE otherwise.
-   */
-  public function _save($entity) {
-    // Invoke presave hook.
-    $entity->is_new = !empty($entity->is_new) || empty($entity->{$this->idKey});
-    $this->invoke('presave', $entity);
-
-    // Save remote user into the remote database.
-    $result = $this->sendRequest('dbuser.save', array($entity->toArray()));
-    if (empty($result) || !is_numeric($result)) {
-      return FALSE;
-    }
-    $entity->uid = $result;
-
-    // Invoke postsave hook.
-    if ($entity->is_new) {
-      $this->invoke('insert', $entity);
-    }
-    else {
-      $this->invoke('update', $entity);
-    }
-
-    // We don't call parent::save(), because we don't have anything to save locally.
-    return TRUE;
-  }
 
   /**
    * {@inheritdoc}

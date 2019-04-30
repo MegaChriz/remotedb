@@ -128,42 +128,6 @@ function _remotedbuser_views_api() {
 // ---------------------------------------------------------------------------
 
 /**
- * Implements hook_form_alter().
- */
-function _remotedbuser_form_alter(&$form, FormStateInterface $form_state) {
-  $replacements = [
-    // Replace login validation handler. Login needs to be checked via the remote database.
-    'user_login_authenticate_validate' => 'remotedbuser_login_authenticate_validate',
-  ];
-
-  if (isset($form['#validate']) && is_array($form['#validate'])) {
-    foreach ($replacements as $search => $replace) {
-      $key = array_search($search, $form['#validate']);
-      if ($key !== FALSE) {
-        $form['#validate'][$key] = $replace;
-      }
-    }
-  }
-}
-
-/**
- * Validation handler for user login forms.
- *
- * Authenticates users.
- *
- * @return void
- *
- * @see remotedbuser_form_alter()
- */
-function _remotedbuser_login_authenticate_validate($form, &$form_state) {
-  $password = trim($form_state['values']['pass']);
-  if (!empty($form_state['values']['name']) && !empty($password)) {
-    $name = $form_state['values']['name'];
-    $form_state['uid'] = remotedbuser_authenticate($name, $password);
-  }
-}
-
-/**
  * Implements hook_form_FORM_ID_alter() for form user_register_form().
  *
  * @return void

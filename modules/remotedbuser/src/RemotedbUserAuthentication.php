@@ -3,6 +3,7 @@
 namespace Drupal\remotedbuser;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use Drupal\user\UserAuthInterface;
@@ -58,7 +59,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
     $this->config = $config_factory->get('remotedbuser.settings');
     $this->remotedbUserConfiguration = $remotedbuser_configuration;
     $this->userAuth = $user_auth;
-    $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedbuser');
+    $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedb_user');
   }
 
   /**
@@ -106,13 +107,13 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
     }
 
     // Get account details from the remote database.
-    $remote_account = $this->remotedbUserStorage->loadBy($remotedb_uid);
+    $remote_account = $this->remotedbUserStorage->load($remotedb_uid);
     if ($remote_account) {
       // Save user locally.
       try {
         $account = $remote_account->toAccount();
         $account->save();
-        return $account->uid;
+        return $account->id();
       }
       catch (RemotedbExistingUserException $e) {
         $e->logError();

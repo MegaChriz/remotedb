@@ -4,5 +4,11 @@ services:
     arguments: ['@config.factory', '@entity_type.manager']
   remotedbuser.authentication:
     class: Drupal\remotedbuser\RemotedbUserAuthentication
+    arguments: ['@config.factory', '@remotedbuser.configuration', '@user.auth', '@entity_type.manager']
   remotedbuser.entity.query:
     class: Drupal\remotedbuser\Entity\Query\QueryFactory
+
+  route_subscriber:
+    class: Drupal\remotedbuser\Routing\RouteSubscriber
+    tags: 
+      - {name: event_subscriber }
