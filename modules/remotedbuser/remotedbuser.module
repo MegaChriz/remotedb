@@ -211,7 +211,7 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
     // Validate the e-mail address, and check if it is taken by an existing user in the remote database.
     if (!$storage->validateMail($mail, $account)) {
       // The mail address is already taken.
-      if (\Drupal::currentUser()->id()) {
+      if (\Drupal::currentUser()->isAuthenticated()) {
         // An authenticated user is editing account data.
         $message = t('The e-mail address %email is already taken.', ['%email' => $mail]);
         if (remotedbuser_get_remote_user_access()) {

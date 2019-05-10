@@ -4,6 +4,7 @@ namespace Drupal\remotedbuser\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Form\UserLoginForm as UserLoginFormBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Authenticates users via the remote database.
@@ -13,14 +14,13 @@ class UserLoginForm extends UserLoginFormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateAuthentication(array &$form, FormStateInterface $form_state) {
-    $password = trim($form_state->getValue('pass'));
-    if (!$form_state->isValueEmpty('name') && strlen($password) > 0) {
-      // @todo use dependency injection.
-      // @todo flood check.
-      $uid = \Drupal::service('remotedbuser.authentication')->authenticate($form_state->getValue('name'), $password);
-      $form_state->set('uid', $uid);
-    }
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('flood'),
+      $container->get('entity_type.manager')->getStorage('user'),
+      $container->get('remotedbuser.authentication'),
+      $container->get('renderer')
+    );
   }
 
 }

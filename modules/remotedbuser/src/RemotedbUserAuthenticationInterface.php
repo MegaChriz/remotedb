@@ -2,32 +2,21 @@
 
 namespace Drupal\remotedbuser;
 
+use Drupal\user\UserAuthInterface;
+
 /**
  * Interface for the remotedbuser.authentication service.
  */
-interface RemotedbUserAuthenticationInterface {
+interface RemotedbUserAuthenticationInterface extends UserAuthInterface {
 
   /**
    * Remote login methods.
    *
    * @var int
    */
-  const REMOTEDB_REMOTEONLY = 0;
-  const REMOTEDB_REMOTEFIRST = 1;
-  const REMOTEDB_LOCALFIRST = 2;
-
-  /**
-   * Try to validate the user's login credentials locally.
-   *
-   * @param string $name
-   *   User name to authenticate.
-   * @param string $password
-   *   A plain-text password, such as trimmed text from form values.
-   *
-   * @return int|bool
-   *   The user's uid on success, or FALSE on failure to authenticate.
-   */
-  function authenticate($name, $password);
+  const REMOTEONLY = 0;
+  const REMOTEFIRST = 1;
+  const LOCALFIRST = 2;
 
   /**
    * Authenticates name/password against the remote database and copies over
@@ -35,9 +24,7 @@ interface RemotedbUserAuthenticationInterface {
    *
    * @return int|false
    *   The user's uid on success, or FALSE on failure to authenticate.
-   *
-   * @todo Deal with conflicts.
    */
-  function remoteAuthenticate($name, $password);
+  public function remoteAuthenticate($name, $password);
 
 }

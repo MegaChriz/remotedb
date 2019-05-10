@@ -83,7 +83,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @return mixed
    *   Returns different values depending on the method call.
    */
-  public function remotedbCallback($method, $params) {
+  public function remotedbCallback($method, array $params) {
     switch ($method) {
       case 'dbuser.retrieve':
         $id = $params[0];
@@ -131,14 +131,56 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @return int
    *   The remote user uid.
    */
-  private function dbuserSave($user_data) {
-    $accounts = $this->getRemoteAccounts();
-    if (empty($user_data['uid'])) {
-      // Generate uid if it doesn't have one.
-      $user_data['uid'] = count($user_data) + 1000;
+  private function dbuserSave(array $user_data) {
+    // First check if this account already exists.
+    $search = [
+      'uid',
+      'mail',
+      'name',
+    ];
+
+    $accounts = [];
+    foreach ($search as $key) {
+      if (!isset($user_data[$key])) {
+        continue;
+      }
+
+      $account = $this->dbuserRetrieve($user_data[$key], $key);
+      if ($account) {
+        // An account is found.
+        $accounts[$key] = $account;
+      }
     }
+
+    // Use the first found account.
+    $account = reset($accounts);
+
+    if (count($accounts) > 1) {
+      // Multiple accounts were found. Stop when different.
+      foreach ($accounts as $double_account) {
+        if ($double_account !== $account) {
+          // Multiple different accounts found. Stop.
+          return FALSE;
+        }
+      }
+    }
+
+    if (empty($account)) {
+      // No existing account was found, thus create a new user.
+      if (empty($user_data['uid'])) {
+        // Generate uid if it doesn't have one.
+        $user_data['uid'] = count($user_data) + 1000;
+      }
+    }
+    else {
+      // An existing account was found. Update it.
+      $user_data = array_merge($account, $user_data);
+    }
+
+    $accounts = $this->getRemoteAccounts();
     $accounts[$user_data['uid']] = $user_data;
     $this->setRemoteAccounts($accounts);
+
     return $user_data['uid'];
   }
 

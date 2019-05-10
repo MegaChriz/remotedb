@@ -17,7 +17,7 @@ class GetRemoteUserForm extends FormBase {
    *
    * @var int
    */
-  const REMOTEDB_USER_BATCH_MINIMUM = 3;
+  const USER_BATCH_MINIMUM = 3;
 
   /**
    * {@inheritdoc}
@@ -52,7 +52,7 @@ class GetRemoteUserForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $user_ids = explode("\n", $form_state->getValue(['user']));
-    if (count($user_ids) >= static::REMOTEDB_USER_BATCH_MINIMUM) {
+    if (count($user_ids) >= static::USER_BATCH_MINIMUM) {
       // Use batch.
       $this->getRemoteUserBatch($user_ids);
     }

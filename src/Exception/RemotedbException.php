@@ -2,6 +2,7 @@
 
 namespace Drupal\remotedb\Exception;
 
+use Drupal\Core\Logger\RfcLogLevel;
 use Exception;
 
 /**
@@ -19,7 +20,7 @@ class RemotedbException extends Exception {
   /**
    * Logs error in watchdog.
    */
-  public function logError($severity = WATCHDOG_ERROR) {
+  public function logError($severity = RfcLogLevel::ERROR) {
     watchdog_exception('remotedb', $this, NULL, [], $severity);
   }
 

@@ -54,7 +54,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testRemoteNameChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -125,7 +125,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testRemoteMailChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -150,7 +150,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testLocalPasswordChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);
@@ -173,7 +173,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testRemotePasswordChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();

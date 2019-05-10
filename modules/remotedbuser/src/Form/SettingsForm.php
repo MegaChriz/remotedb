@@ -90,9 +90,9 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Login settings'),
       '#required' => TRUE,
       '#options' => [
-        RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY => $this->t('Use remote service only.'),
-        RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEFIRST => $this->t('Use remote service first, local user database is fallback.'),
-        RemotedbUserAuthenticationInterface::REMOTEDB_LOCALFIRST => $this->t('Use local user database first, remote is fallback.'),
+        RemotedbUserAuthenticationInterface::REMOTEONLY => $this->t('Use remote service only.'),
+        RemotedbUserAuthenticationInterface::REMOTEFIRST => $this->t('Use remote service first, local user database is fallback.'),
+        RemotedbUserAuthenticationInterface::LOCALFIRST => $this->t('Use local user database first, remote is fallback.'),
       ],
       '#default_value' => $config->get('login'),
     ];

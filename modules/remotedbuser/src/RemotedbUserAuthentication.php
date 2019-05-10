@@ -5,6 +5,7 @@ namespace Drupal\remotedbuser;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerTrait;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use Drupal\user\UserAuthInterface;
 
@@ -14,6 +15,7 @@ use Drupal\user\UserAuthInterface;
 class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface {
 
   use MessengerTrait;
+  use StringTranslationTrait;
 
   /**
    * The remote database user configuration.
@@ -65,32 +67,25 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   /**
    * {@inheritdoc}
    */
-  function authenticate($name, $password) {
+  public function authenticate($name, $password) {
     switch ($this->config->get('login')) {
-      case static::REMOTEDB_LOCALFIRST:
-        // Authenticate local users first.
+      case static::LOCALFIRST:
+        // Authenticate local users first. If authentication fails, perform
+        // the next case. So this case intentionally does not end with a break.
         $uid = $this->userAuth->authenticate($name, $password);
         if ($uid) {
           return $uid;
         }
 
-      case static::REMOTEDB_REMOTEONLY:
-        $uid = $this->remoteAuthenticate($name, $password);
-        if ($uid) {
-          return $uid;
-        }
-        break;
+      case static::REMOTEONLY:
+        return $this->remoteAuthenticate($name, $password);
 
-      case static::REMOTEDB_REMOTEFIRST:
+      case static::REMOTEFIRST:
         $uid = $this->remoteAuthenticate($name, $password);
         if ($uid) {
           return $uid;
         }
-        $uid = $this->userAuth->authenticate($name, $password);
-        if ($uid) {
-          return $uid;
-        }
-        break;
+        return $this->userAuth->authenticate($name, $password);
     }
 
     return FALSE;
@@ -99,7 +94,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   /**
    * {@inheritdoc}
    */
-  function remoteAuthenticate($name, $password) {
+  public function remoteAuthenticate($name, $password) {
     $remotedb_uid = $this->remotedbUserStorage->authenticate($name, $password);
     if (!$remotedb_uid) {
       // Authentication failed.
@@ -117,9 +112,10 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
       }
       catch (RemotedbExistingUserException $e) {
         $e->logError();
-        $this->messenger->addError($this->t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'));
+        $this->messenger()->addError($this->t('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.'));
       }
     }
+
     return FALSE;
   }
 

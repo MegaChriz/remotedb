@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Traits;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedbuser\Entity\RemotedbUser;
 
 /**
@@ -61,6 +62,26 @@ trait RemotedbUserCreationTrait {
    */
   protected function hashPassword($pass) {
     return $this->container->get('password')->hash($pass);
+  }
+
+  /**
+   * Creates a dummy account.
+   *
+   * The dummy account is mocked from '\Drupal\Core\Session\AccountInterface'.
+   *
+   * @param string $name
+   *   The username for the dummy account.
+   *
+   * @return \Drupal\Core\Session\AccountInterface
+   *   A mocked account object.
+   */
+  protected function createDummyAccount($name) {
+    $dummy_account = $this->createMock(AccountInterface::class);
+    $dummy_account->expects($this->any())
+      ->method('getAccountName')
+      ->will($this->returnValue($name));
+
+    return $dummy_account;
   }
 
 }

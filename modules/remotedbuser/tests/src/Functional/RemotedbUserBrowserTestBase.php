@@ -32,6 +32,13 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   protected $remotedb_user_storage;
 
   /**
+   * ID of role that allows users to change their own account.
+   *
+   * @var int
+   */
+  protected $role_id;
+
+  /**
    * {@inheritdoc}
    */
   public function setUp() {
@@ -39,6 +46,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
 
     $this->entityTypeManager = \Drupal::entityTypeManager();
     $this->remotedb_user_storage = $this->entityTypeManager->getStorage('remotedb_user');
+    $this->role_id = $this->createRole(['change own username', 'cancel account']);
   }
 
   /**
