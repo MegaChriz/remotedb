@@ -5,7 +5,7 @@
  * Feeds hooks.
  */
 
-use Drupal\remotedbuser\Controller\RemotedbUserController;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * Implements hook_feeds_processor_targets_alter().
@@ -50,14 +50,14 @@ function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $
     // Search in remote database.
     $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
     // Try to load by email.
-    $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_MAIL);
+    $remote_account = $rd_controller->loadBy($user_id, RemotedbUserStorageInterface::BY_MAIL);
     if (!$remote_account) {
       // No success, try to load by name.
-      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_NAME);
+      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserStorageInterface::BY_NAME);
     }
     if (!$remote_account) {
       // Still no success, try to load by ID.
-      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserController::BY_ID);
+      $remote_account = $rd_controller->loadBy($user_id, RemotedbUserStorageInterface::BY_ID);
     }
     if (isset($remote_account->uid)) {
       // Copy over account data.

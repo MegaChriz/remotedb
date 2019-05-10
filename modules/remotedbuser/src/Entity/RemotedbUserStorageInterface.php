@@ -81,28 +81,28 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    *
    * @param string $name
    *   The name to check for existence.
-   * @param object $account
-   *   The user's account.
+   * @param \Drupal\user\UserInterface $account
+   *   The user's local account.
    *
    * @return bool
    *   TRUE if validation passes.
    *   FALSE otherwise.
    * @todo Remotedb_uid should probably be send along instead.
    */
-  public function validateName($name, $account);
+  public function validateName($name, UserInterface $account);
 
   /**
    * Validates mail address.
    *
    * @param string $mail
    *   The mail address to check for existence.
-   * @param object $account
-   *   The user's account.
+   * @param \Drupal\user\UserInterface $account
+   *   The user's local account.
    *
    * @return bool
    *   TRUE if validation passes.
    *   FALSE otherwise.
    */
-  public function validateMail($mail, $account);
+  public function validateMail($mail, UserInterface $account);
 
 }

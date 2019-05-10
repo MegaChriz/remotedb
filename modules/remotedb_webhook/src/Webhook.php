@@ -8,7 +8,7 @@
 namespace Drupal\remotedb_webhook;
 
 use Drupal\remotedb\Entity\RemotedbInterface;
-use Drupal\remotedbuser\Controller\RemotedbUserController;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * General webhook functions.
@@ -171,7 +171,7 @@ class Webhook {
    */
   protected function createAccount($remotedb_uid) {
     $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
-    $remote_account = $rd_controller->loadBy($remotedb_uid, RemotedbUserController::BY_ID);
+    $remote_account = $rd_controller->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
     if (isset($remote_account->uid)) {
       // Copy over account data.
       $account = $remote_account->toAccount();

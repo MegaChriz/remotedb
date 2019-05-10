@@ -2,6 +2,9 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
+
 /**
  * Tests for editing username, mail or password.
  *
@@ -10,7 +13,7 @@ namespace Drupal\Tests\remotedbuser\Functional;
 class UserEditTestCase extends RemotedbUserBrowserTestBase {
 
   /**
-   * Tests if an user can not change its username to one that already exists remotely.
+   * Tests that an user cannot choose an username already existing remotely.
    */
   public function testNameDuplicates() {
     // Create a remote user.
@@ -19,11 +22,13 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $account = $this->drupalCreateUser(['change own username']);
     $this->drupalLogin($account);
 
-    // Test that error message appears when attempting to use a non-unique user name.
-    $edit = [];
-    $edit['name'] = $remote_account->name;
-    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
-    $this->assertRaw(t('The name %name is already taken.', ['%name' => $edit['name']]));
+    // Test that an error message appears when attempting to use a non-unique
+    // user name.
+    $edit = [
+      'name' => $remote_account->name,
+    ];
+    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
+    $this->assertRaw(new FormattableMarkup('The name %name is already taken.', ['%name' => $edit['name']]));
   }
 
   /**
@@ -34,22 +39,22 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogin($account);
 
     $edit = [];
-    $edit['current_pass'] = $account->pass_raw;
-    $edit['name'] = $this->randomName();
-    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
-    $this->assertRaw(t("The changes have been saved."));
+    $edit['current_pass'] = $account->passRaw;
+    $edit['name'] = $this->randomMachineName();
+    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
+    $this->assertRaw('The changes have been saved.');
 
     // Assert that the change is reflected in the remote database.
-    $remote_account = $this->controller->loadBy($account->remotedb_uid);
-    $this->assertEqual($edit['name'], $remote_account->name, 'The username was also changed in the remote database.');
+    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $this->assertEquals($edit['name'], $remote_account->name, 'The username was also changed in the remote database.');
   }
 
   /**
-   * Tests if an user can login using his new username if it changed in the remote database.
+   * Tests if an user can login with his remotely changed username.
    */
   public function testRemoteNameChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -57,32 +62,29 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogout();
 
     // Change name from remote user.
-    $remote_account = $this->controller->loadBy($account->remotedb_uid);
-    $remote_account->name = $this->randomName();
+    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account->name = $this->randomMachineName();
     $remote_account->save();
 
-    // Verify the user can not log in using its old username.
+    // Verify the user cannot log in using its old username.
     $edit = [
-      'name' => $account->name,
-      'pass' => $account->pass_raw,
+      'name' => $account->getAccountName(),
+      'pass' => $account->passRaw,
     ];
-    $this->drupalPostForm('user', $edit, t('Log in'));
-    $this->assertText(t('Sorry, unrecognized username or password. Have you forgotten your password?'));
+    $this->drupalPostForm('user', $edit, 'Log in');
+    $this->assertText('Unrecognized username or password. Forgot your password?');
 
     // Test if the user can login using the new username.
-    $account->name = $remote_account->name;
+    $account->name->value = $remote_account->name;
     $this->drupalLogin($account);
 
     // Check if the user has a different username now.
-    // @FIXME
-    $account =
-    // To reset the user cache, use EntityStorageInterface::resetCache().
-    \Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
-    $this->assertEqual($remote_account->name, $account->name, 'The user has a new username.');
+    $account = $this->reloadEntity($account);
+    $this->assertEquals($remote_account->name, $account->getAccountName(), 'The user has a new username.');
   }
 
   /**
-   * Tests if an user can not change its mail address to one that already exists remotely.
+   * Tests that an user cannot choose a mail address already existing remotely.
    */
   public function testMailDuplicates() {
     // Create a remote user.
@@ -91,11 +93,12 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);
 
-    // Test that error message appears when attempting to use a non-unique mail address.
+    // Test that error message appears when attempting to use a non-unique mail
+    // address.
     $edit = [];
-    $edit['current_pass'] = $account->pass_raw;
+    $edit['current_pass'] = $account->passRaw;
     $edit['mail'] = $remote_account->mail;
-    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
     $this->assertRaw(t('The e-mail address %email is already taken.', ['%email' => $remote_account->mail]));
   }
 
@@ -107,14 +110,14 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogin($account);
 
     $edit = [];
-    $edit['current_pass'] = $account->pass_raw;
-    $edit['mail'] = $this->randomName() . '@example.com';
-    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
-    $this->assertRaw(t("The changes have been saved."));
+    $edit['current_pass'] = $account->passRaw;
+    $edit['mail'] = $this->randomMachineName() . '@example.com';
+    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
+    $this->assertRaw('The changes have been saved.');
 
     // Assert that the change is reflected in the remote database.
-    $remote_account = $this->controller->loadBy($account->remotedb_uid);
-    $this->assertEqual($edit['mail'], $remote_account->mail, 'The mail address was also changed in the remote database.');
+    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $this->assertEquals($edit['mail'], $remote_account->mail, 'The mail address was also changed in the remote database.');
   }
 
   /**
@@ -122,7 +125,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
    */
   public function testRemoteMailChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -130,51 +133,47 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogout();
 
     // Change mail from remote user.
-    $remote_account = $this->controller->loadBy($account->remotedb_uid);
-    $remote_account->mail = $this->randomName() . '@example.com';
+    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account->mail = $this->randomMachineName() . '@example.com';
     $remote_account->save();
 
     // Login the user again.
     $this->drupalLogin($account);
 
     // Check if the user has a different mail address now.
-    // @FIXME
-    $account =
-    // To reset the user cache, use EntityStorageInterface::resetCache().
-    \Drupal::entityTypeManager()->getStorage('user')->load($account->uid);
-    $this->assertEqual($remote_account->mail, $account->mail, 'The user has a new mail address.');
+    $account = $this->reloadEntity($account);
+    $this->assertEquals($remote_account->mail, $account->getEmail(), 'The user has a new mail address.');
   }
 
   /**
-   * Tests if an user that changes its password locally can still login via the remote
-   * database.
+   * Tests if an user can login remotely after changing its password locally.
    */
   public function testLocalPasswordChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
 
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);
 
     // Change password.
     $edit = [];
-    $edit['current_pass'] = $account->pass_raw;
-    $edit['pass[pass1]'] = $new_pass = $this->randomName();
+    $edit['current_pass'] = $account->passRaw;
+    $edit['pass[pass1]'] = $new_pass = $this->randomMachineName();
     $edit['pass[pass2]'] = $new_pass;
-    $this->drupalPostForm("user/$account->uid/edit", $edit, t('Save'));
+    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
 
     // Make sure the user can log in with its new password.
     $this->drupalLogout();
-    $account->pass_raw = $new_pass;
+    $account->passRaw = $new_pass;
     $this->drupalLogin($account);
   }
 
   /**
-   * Tests if an user can still login if the password changed on the remote database.
+   * Tests if an user can still login if their password changed remotely.
    */
   public function testRemotePasswordChange() {
     // Set logging in via the remote database only.
-    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('remotedbuser_login', REMOTEDB_REMOTEONLY)->save();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEDB_REMOTEONLY)->save();
 
     // Create an account and ensure it can initially login.
     $account = $this->drupalCreateUser();
@@ -182,22 +181,21 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogout();
 
     // Change password from remote user.
-    $remote_account = $this->controller->loadBy($account->remotedb_uid);
+    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
     $new_pass = user_password();
-    $remote_account->pass_raw = $new_pass;
     $remote_account->pass = $this->hashPassword($new_pass);
     $remote_account->save();
 
-    // Verify the user can not log in using its old password.
+    // Verify the user cannot log in using its old password.
     $edit = [
-      'name' => $account->name,
-      'pass' => $account->pass_raw,
+      'name' => $account->getAccountName(),
+      'pass' => $account->passRaw,
     ];
-    $this->drupalPostForm('user', $edit, t('Log in'));
-    $this->assertText(t('Sorry, unrecognized username or password. Have you forgotten your password?'));
+    $this->drupalPostForm('user', $edit, 'Log in');
+    $this->assertText('Unrecognized username or password. Forgot your password?');
 
     // Test if the user can login using the new password.
-    $account->pass_raw = $new_pass;
+    $account->passRaw = $new_pass;
     $this->drupalLogin($account);
   }
 

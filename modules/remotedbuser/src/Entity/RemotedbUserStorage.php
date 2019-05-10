@@ -171,14 +171,14 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   protected function doLoadMultiple(array $ids = NULL) {
-    // Attempt to load entities from the persistent cache. This will remove IDs
+    // Attempt to load entities from the static cache. This will remove IDs
     // that were loaded from $ids.
-    $entities_from_cache = $this->getFromPersistentCache($ids);
+    $entities_from_cache = $this->getFromStaticCache($ids);
 
     // Load any remaining entities from the database.
     if ($entities_from_storage = $this->getFromStorage($ids)) {
       $this->invokeStorageLoadHook($entities_from_storage);
-      $this->setPersistentCache($entities_from_storage);
+      $this->setStaticCache($entities_from_storage);
     }
 
     return $entities_from_cache + $entities_from_storage;
@@ -380,8 +380,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function validateName($name, $account) {
-    if (!empty($account->name) && $account->name == $name) {
+  public function validateName($name, UserInterface $account) {
+    if ($account->getAccountName() == $name) {
       // The username did not change. No need to validate.
       return TRUE;
     }
@@ -391,18 +391,19 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       // Name is not taken yet.
       return TRUE;
     }
-    elseif (empty($account->remotedb_uid)) {
+    elseif (empty($account->remotedb_uid->value)) {
       // This could be a valid case, but only if user name and mail exactly match.
       if (isset($account->mail)) {
-        if ($name == $remote_account->name && $account->mail == $remote_account->mail) {
+        if ($name == $remote_account->name && $account->getEmail() == $remote_account->mail) {
           return TRUE;
         }
       }
     }
-    elseif ($account->remotedb_uid == $remote_account->uid) {
+    elseif ($account->remotedb_uid->value == $remote_account->uid) {
       // Accounts match.
       return TRUE;
     }
+
     // In all other cases, name is already taken!
     return FALSE;
   }
@@ -410,8 +411,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function validateMail($mail, $account) {
-    if (!empty($account->mail) && $account->mail == $mail) {
+  public function validateMail($mail, UserInterface $account) {
+    if ($account->getEmail() == $mail) {
       // The mail address did not change. No need to validate.
       return TRUE;
     }
@@ -421,18 +422,17 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       // Mail address is not taken yet.
       return TRUE;
     }
-    elseif (empty($account->remotedb_uid)) {
+    elseif (empty($account->remotedb_uid->value)) {
       // This could be a valid case, but only if user name and mail exactly match.
-      if (isset($account->name)) {
-        if ($account->name == $remote_account->name && $mail == $remote_account->mail) {
-          return TRUE;
-        }
+      if ($account->getAccountName() == $remote_account->name && $mail == $remote_account->mail) {
+        return TRUE;
       }
     }
-    elseif ($account->remotedb_uid == $remote_account->uid) {
+    elseif ($account->remotedb_uid->value == $remote_account->uid) {
       // Accounts match.
       return TRUE;
     }
+
     // In all other cases, mail address is already taken!
     return FALSE;
   }
@@ -452,7 +452,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    */
   protected function sendRequest($method, array $params = array()) {
     if (!($this->remotedb instanceof RemotedbInterface)) {
-      throw new RemotedbException($this->t('Can not perform request to the remote database, because the RemotedbUserController did not receive a remote database object.'));
+      throw new RemotedbException($this->t('Can not perform request to the remote database, because the RemotedbUserStorage did not receive a remote database object.'));
     }
     try {
       return $this->remotedb->sendRequest($method, $params);
