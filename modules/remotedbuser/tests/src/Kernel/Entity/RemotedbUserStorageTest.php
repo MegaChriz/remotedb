@@ -18,7 +18,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @var \Drupal\remotedbuser\Entity\RemotedbUserStorage
    */
-  protected $remotedb_user_storage;
+  protected $remotedbUserStorage;
 
   /**
    * {@inheritdoc}
@@ -26,7 +26,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
   public function setUp() {
     parent::setUp();
 
-    $this->remotedb_user_storage = $this->entityTypeManager->getStorage('remotedb_user');
+    $this->remotedbUserStorage = $this->entityTypeManager->getStorage('remotedb_user');
   }
 
   /**
@@ -36,10 +36,11 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     // Create a local account.
     $account = $this->createUser([
       'name' => 'lorem',
+      'from_remotedb' => TRUE,
     ]);
 
     // Convert to a remote account.
-    $remote_user = $this->remotedb_user_storage->fromAccount($account);
+    $remote_user = $this->remotedbUserStorage->fromAccount($account);
 
     // Assert expected values.
     $expected_values = [
@@ -66,7 +67,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     ]);
 
     // Convert to a remote account.
-    $remote_user = $this->remotedb_user_storage->fromAccount($account);
+    $remote_user = $this->remotedbUserStorage->fromAccount($account);
 
     // Assert that the remote user now has an ID set.
     $this->assertEquals(101, $remote_user->uid);
@@ -85,11 +86,12 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     // Create a local account without mail address.
     $account = $this->createUser([
       'mail' => NULL,
+      'from_remotedb' => TRUE,
     ]);
 
     // Attempt to convert to a remote account.
     $this->setExpectedException(RemotedbException::class, "The account cannot be saved in the remote database, because it doesn't have a mail address.");
-    $remote_user = $this->remotedb_user_storage->fromAccount($account);
+    $remote_user = $this->remotedbUserStorage->fromAccount($account);
   }
 
   /**
@@ -101,7 +103,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     // Create a remote account.
     $remote_user = $this->createRemoteUser();
 
-    $account = $this->remotedb_user_storage->toAccount($remote_user);
+    $account = $this->remotedbUserStorage->toAccount($remote_user);
     $account->save();
 
     // Assert expected values.
@@ -126,6 +128,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     // Create an account.
     $account = $this->createUser([
       'name' => 'lorem',
+      'from_remotedb' => TRUE,
     ]);
 
     // Create a remote user with the same name.
@@ -134,7 +137,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     ]);
 
     // Merge.
-    $this->remotedb_user_storage->toAccount($remote_user)
+    $this->remotedbUserStorage->toAccount($remote_user)
       ->save();
 
     // Reload original account.
@@ -170,7 +173,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     ]);
 
     // Update local account.
-    $this->remotedb_user_storage->toAccount($remote_user)
+    $this->remotedbUserStorage->toAccount($remote_user)
       ->save();
 
     // Reload original account.
@@ -210,7 +213,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     ]);
 
     $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 102 conflicts with local user 1.');
-    $this->remotedb_user_storage->toAccount($remote_user);
+    $this->remotedbUserStorage->toAccount($remote_user);
   }
 
   /**
@@ -225,9 +228,11 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     // Create two local users.
     $account1 = $this->createUser([
       'name' => 'lorem',
+      'from_remotedb' => TRUE,
     ]);
     $account2 = $this->createUser([
       'name' => 'ipsum',
+      'from_remotedb' => TRUE,
     ]);
 
     // Create a remote user to update account 1.
@@ -238,7 +243,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     ]);
 
     $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 101 conflicts with local user 2.');
-    $this->remotedb_user_storage->toAccount($remote_user);
+    $this->remotedbUserStorage->toAccount($remote_user);
   }
 
   /**
@@ -254,9 +259,11 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
     $account1 = $this->createUser([
       'name' => 'lorem',
       'remotedb_uid' => 101,
+      'from_remotedb' => TRUE,
     ]);
     $account2 = $this->createUser([
       'name' => 'ipsum',
+      'from_remotedb' => TRUE,
     ]);
 
     // Create a remote user to update account 1.
@@ -265,7 +272,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
       'name' => 'ipsum',
     ]);
     $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 101 conflicts with local user 2.');
-    $this->remotedb_user_storage->toAccount($remote_user);
+    $this->remotedbUserStorage->toAccount($remote_user);
   }
 
 }

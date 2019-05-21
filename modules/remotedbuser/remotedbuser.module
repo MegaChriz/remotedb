@@ -55,7 +55,7 @@ function remotedbuser_user_presave(UserInterface $account) {
     \Drupal::messenger()->addError('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.');
     \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', ['%username' => $account->getUsername(), '%uid' => $account->id()]);
   }
-  elseif (empty($account->remotedb_uid->value) || $remote_account->uid != $account->remotedb_uid) {
+  elseif (empty($account->remotedb_uid->value) || $remote_account->uid != $account->remotedb_uid->value) {
     // Save remote account uid on local account.
     $account->remotedb_uid->value = $remote_account->uid;
   }
