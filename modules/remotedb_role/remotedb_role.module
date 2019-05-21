@@ -38,8 +38,8 @@ function remotedb_role_help($path, $arg) {
 function remotedb_role_user_login(\Drupal\user\UserInterface $account, $edit = []) {
   list($assigned, $unassigned) = remotedb_role_assign_roles($account);
   if (remotedb_role_variable_get('debug')) {
-    drupal_set_message(t('Assigned: @assigned', array('@assigned' => implode(', ', $assigned))), 'status', FALSE);
-    drupal_set_message(t('Unassigned: @unassigned', array('@unassigned' => implode(', ', $unassigned))), 'status', FALSE);
+    drupal_set_message(t('Assigned: @assigned', ['@assigned' => implode(', ', $assigned)]), 'status', FALSE);
+    drupal_set_message(t('Unassigned: @unassigned', ['@unassigned' => implode(', ', $unassigned)]), 'status', FALSE);
   }
 }
 
@@ -64,14 +64,14 @@ function remotedb_role_assign_roles(\Drupal\user\UserInterface $account) {
     if ($remotedb instanceof RemotedbInterface) {
       $subscription_service_class = remotedb_role_variable_get('subscription_service');
       $subscription_service = new $subscription_service_class($remotedb);
-      $action = new AssignRoles(array(), $subscription_service);
+      $action = new AssignRoles([], $subscription_service);
       return $action->execute($account);
     }
   }
-  return array(
-    array(),
-    array(),
-  );
+  return [
+    [],
+    [],
+  ];
 }
 
 /**

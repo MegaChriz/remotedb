@@ -1,7 +1,12 @@
 <?php
+
 namespace Drupal\remotedb_role;
 
+/**
+ *
+ */
 class SubscriptionService implements SubscriptionServiceInterface {
+
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------

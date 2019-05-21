@@ -1,16 +1,16 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_role\Form\RemotedbRoleSettingsForm.
- */
-
 namespace Drupal\remotedb_role\Form;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ *
+ */
 class RemotedbRoleSettingsForm extends ConfigFormBase {
 
   /**
@@ -45,7 +45,10 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
     return ['remotedb_role.settings'];
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   *
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['remotedb_role_remotedb'] = [
       '#type' => 'select',
       '#options' => entity_get_controller('remotedb')->options(),
@@ -56,7 +59,7 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
     ];
 
     $roles = user_roles(TRUE);
-    unset($roles[\Drupal\Core\Session\AccountInterface::AUTHENTICATED_RID]);
+    unset($roles[AccountInterface::AUTHENTICATED_RID]);
 
     $form['settings'] = [
       '#type' => 'vertical_tabs',
@@ -65,12 +68,12 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
           drupal_get_path('module', 'remotedb_role') . '/remotedb_role.js',
           [
             'data' => [
-              'roles' => $roles
-              ],
+              'roles' => $roles,
+            ],
             'type' => 'setting',
           ],
-        ]
         ],
+      ],
     ];
 
     if (count($roles) > 0) {
@@ -80,19 +83,16 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
         }
         else {
           // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $active = variable_get('remotedb_role_' . $rid . '_active', 0);
-
+          // // @FIXME
+          // // The correct configuration object could not be determined. You'll need to
+          // // rewrite this call manually.
+          // $active = variable_get('remotedb_role_' . $rid . '_active', 0);
         }
         // @FIXME
         // // @FIXME
         // // The correct configuration object could not be determined. You'll need to
         // // rewrite this call manually.
         // $subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '');
-
-
         $form['remotedb_role_' . $rid] = [
           '#type' => 'fieldset',
           '#title' => $role_name,
@@ -101,10 +101,10 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
           '#group' => 'settings',
         ];
 
-        // Enable/Disable
+        // Enable/Disable.
         $form['remotedb_role_' . $rid]['remotedb_role_' . $rid . '_active'] = [
           '#type' => 'radios',
-          '#title' => \Drupal\Component\Utility\Html::escape($role_name) . ' ' . t('status'),
+          '#title' => Html::escape($role_name) . ' ' . t('status'),
           '#default_value' => $active,
           '#description' => t('Enable or disable this role for automatic role assignment via remote database.'),
           '#options' => [
@@ -123,7 +123,6 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
         //         '#description' => t('Specify which subscriptions should give the user the role %role. Enter one per line.', array('%role' => $role_name)),
         //         '#required' => ($active) ? TRUE : FALSE,
         //       );
-
       }
     }
 
@@ -147,4 +146,3 @@ class RemotedbRoleSettingsForm extends ConfigFormBase {
   }
 
 }
-?>

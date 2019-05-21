@@ -1,13 +1,12 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_role\SubscriptionServiceInterface.
- */
-
 namespace Drupal\remotedb_role;
 
+/**
+ *
+ */
 interface SubscriptionServiceInterface {
+
   /**
    * Retrieves a list of subscriptions for the given user.
    *
@@ -18,4 +17,5 @@ interface SubscriptionServiceInterface {
    *   A list of subscriptions.
    */
   public function getSubscriptions($account);
+
 }

@@ -1,12 +1,8 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_role\Plugin\Action\AssignRoles.
- */
-
 namespace Drupal\remotedb_role\Plugin\Action;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
 
 /**
@@ -124,27 +120,27 @@ class AssignRoles {
     $config = [];
 
     $roles = user_roles(TRUE);
-    unset($roles[\Drupal\Core\Session\AccountInterface::AUTHENTICATED_RID]);
+    unset($roles[AccountInterface::AUTHENTICATED_RID]);
     if (count($roles) > 0) {
       foreach ($roles as $rid => $role_name) {
         // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
-//           if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
-//             $subscriptions = explode("\n", $subscriptions);
-//             // Trim values.
-//             foreach ($subscriptions as $index => $subscription) {
-//                $subscriptions[$index] = trim($subscription);
-//             }
-//             $config['roles'][$rid]['subscriptions'] =  $subscriptions;
-//           }
-//         }
-
+        // // @FIXME
+        // // The correct configuration object could not be determined. You'll need to
+        // // rewrite this call manually.
+        // if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
+        //           if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
+        //             $subscriptions = explode("\n", $subscriptions);
+        //             // Trim values.
+        //             foreach ($subscriptions as $index => $subscription) {
+        //                $subscriptions[$index] = trim($subscription);
+        //             }
+        //             $config['roles'][$rid]['subscriptions'] =  $subscriptions;
+        //           }
+        //         }
       }
     }
 
     return $config;
   }
+
 }
