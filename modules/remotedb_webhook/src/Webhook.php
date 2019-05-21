@@ -100,9 +100,9 @@ class Webhook {
       $url = static::getUrl();
     }
     static::cacheClear($remotedb);
-    return $remotedb->sendRequest('kkbservices_webhook.create', array($url, array(
+    return $remotedb->sendRequest('kkbservices_webhook.create', [$url, [
       'user__update',
-    )));
+    ]]);
   }
 
   /**
@@ -121,7 +121,7 @@ class Webhook {
     $webhooks = static::index($remotedb);
     if (isset($webhooks[$url])) {
       static::cacheClear($remotedb);
-      return $remotedb->sendRequest('kkbservices_webhook.delete', array($webhooks[$url]['webhook_id']));
+      return $remotedb->sendRequest('kkbservices_webhook.delete', [$webhooks[$url]['webhook_id']]);
     }
   }
 
@@ -143,7 +143,7 @@ class Webhook {
       switch ($hook) {
         case 'update':
           // First ensure that this user already exists locally.
-          $users = user_load_multiple(array(), array('remotedb_uid' => $data));
+          $users = user_load_multiple([], ['remotedb_uid' => $data]);
           if (empty($users)) {
             return;
           }
@@ -177,10 +177,10 @@ class Webhook {
       $account = $remote_account->toAccount();
       entity_save('user', $account);
       $uri = entity_uri('user', $account);
-      $vars = array(
+      $vars = [
         '@url' => url($uri['path'], $uri['options']),
         '%name' => $account->name,
-      );
+      ];
       watchdog('remotedb', 'User account <a href="@url">%name</a> copied over from the remote database.', $vars, WATCHDOG_INFO);
 
       return $account;

@@ -16,18 +16,18 @@ abstract class RemotedbSSOTestBase extends RemotedbUserTestBase {
   /**
    * Overrides DrupalWebTestCase::setUp().
    */
-  protected function setUp(array $modules = array()) {
-    $modules = array_merge($modules, array('remotedb_sso'));
+  protected function setUp(array $modules = []) {
+    $modules = array_merge($modules, ['remotedb_sso']);
     parent::setUp($modules);
 
     // Create a dummy remote database.
-    $record = array(
+    $record = [
       'name' => 'test',
       'label' => 'Test',
       'url' => 'http://www.example.com/server',
       'status' => 1,
       'module' => 'remotedb_sso',
-    );
+    ];
     drupal_write_record('remotedb', $record);
 
     // Set remotedb for remotedbuser.

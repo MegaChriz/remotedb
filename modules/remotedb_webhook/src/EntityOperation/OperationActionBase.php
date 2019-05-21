@@ -21,8 +21,8 @@ abstract class OperationActionBase extends EntityOperationsOperationAction {
    * Returns basic information about the operation.
    */
   function operationInfo() {
-    return array(
+    return [
       'uses form' => FALSE,
-    ) + parent::operationInfo();
+    ] + parent::operationInfo();
   }
 }

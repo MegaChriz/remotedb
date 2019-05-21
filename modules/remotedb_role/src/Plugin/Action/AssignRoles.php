@@ -67,8 +67,8 @@ class AssignRoles {
     }
 
     // Keep track of roles that were assigned and roles that were unassigned.
-    $assign = array();
-    $unassign = array();
+    $assign = [];
+    $unassign = [];
     $changed = FALSE;
 
     $role_names = user_roles();
@@ -111,17 +111,17 @@ class AssignRoles {
       user_save($account);
     }
 
-    return array(
+    return [
       $assign,
       $unassign,
-    );
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    $config = array();
+    $config = [];
 
     $roles = user_roles(TRUE);
     unset($roles[DRUPAL_AUTHENTICATED_RID]);

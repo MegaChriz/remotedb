@@ -249,7 +249,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       throw new RemotedbException(t("The account cannot be saved in the remote database, because it doesn't have a mail address."));
     }
 
-    $values = array(
+    $values = [
       'name' => $account->getAccountName(),
       'mail' => $account->getEmail(),
       'pass' => $account->getPassword(),
@@ -258,7 +258,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       'timezone' => !empty($account->timezone->value) ? $account->timezone->value : NULL,
       'language' => !empty($account->language->value) ? $account->language->value : NULL,
       'init' => $account->getInitialEmail(),
-    );
+    ];
 
     if (!empty($account->remotedb_uid->value)) {
       $values['uid'] = $account->remotedb_uid->value;
@@ -283,11 +283,11 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
 
     // First, get account from local database, if it exists.
     // First find by remotedb_uid, then by name and finally by mail.
-    $search = array(
+    $search = [
       'remotedb_uid' => $entity->uid,
       'name' => $entity->name,
       'mail' => $entity->mail,
-    );
+    ];
     foreach ($search as $key => $value) {
       $users = $user_storage->loadByProperties([$key => $value]);
       if (!empty($users)) {
@@ -299,30 +299,30 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     // Check if this account is already linked to a remote account. If so, we should not
     // suddenly link it to an other account.
     if (!empty($account->remotedb_uid->value) && $account->remotedb_uid->value != $entity->uid) {
-      $vars = array(
+      $vars = [
         '@uid' => $account->id(),
         '@remotedb_uid' => $entity->uid,
-      );
+      ];
       throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
     }
 
     // Name and mail must be unique. If an account was found, make sure that no other account
     // exists that has either the name or the mail address from the remote account.
     if (!empty($account)) {
-      $search = array(
+      $search = [
         'name' => $entity->name,
         'mail' => $entity->mail,
-      );
+      ];
       foreach ($search as $key => $value) {
         $users = $user_storage->loadByProperties([$key => $value]);
         if (!empty($users)) {
           $account2 = reset($users);
           if ($account->id() != $account2->id()) {
             // We have a conflict here.
-            $vars = array(
+            $vars = [
               '@uid' => $account2->id(),
               '@remotedb_uid' => $entity->uid,
-            );
+            ];
             throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
           }
         }
@@ -374,7 +374,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   public function authenticate($name, $pass) {
-    return $this->sendRequest('dbuser.authenticate', array($name, $pass));
+    return $this->sendRequest('dbuser.authenticate', [$name, $pass]);
   }
 
   /**
@@ -450,7 +450,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @throws RemotedbException
    *   In case the remote database object was not set.
    */
-  protected function sendRequest($method, array $params = array()) {
+  protected function sendRequest($method, array $params = []) {
     if (!($this->remotedb instanceof RemotedbInterface)) {
       throw new RemotedbException($this->t('Can not perform request to the remote database, because the RemotedbUserStorage did not receive a remote database object.'));
     }

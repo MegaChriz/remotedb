@@ -18,7 +18,7 @@ class MockTicketService implements TicketServiceInterface {
     if (!empty($account->remotedb_uid)) {
       $uid = $account->remotedb_uid;
     }
-    return implode('/', array($uid, REQUEST_TIME, user_password()));
+    return implode('/', [$uid, REQUEST_TIME, user_password()]);
   }
 
   /**

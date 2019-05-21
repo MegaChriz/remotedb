@@ -43,14 +43,14 @@ class TicketService implements TicketServiceInterface {
    * Implements TicketInterface::getTicket().
    */
   public function getTicket($account) {
-    return $this->sendRequest('ticket.retrieve', array($account->mail, 'mail'));
+    return $this->sendRequest('ticket.retrieve', [$account->mail, 'mail']);
   }
 
   /**
    * Implements TicketInterface::validateTicket().
    */
   public function validateTicket($remotedb_uid, $timestamp, $hash) {
-    if ($this->sendRequest('ticket.validate', array($remotedb_uid, $timestamp, $hash))) {
+    if ($this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
       $controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
 
       // Get account details from the remote database.
@@ -71,7 +71,7 @@ class TicketService implements TicketServiceInterface {
    * @throws RemotedbException
    *   In case the remote database object was not set.
    */
-  protected function sendRequest($method, array $params = array()) {
+  protected function sendRequest($method, array $params = []) {
     return $this->remotedb->sendRequest($method, $params);
   }
 }

@@ -30,7 +30,7 @@ class SSO {
    *
    * @var array
    */
-  protected $settings = array();
+  protected $settings = [];
 
   /**
    * {@inheritdoc}
@@ -51,7 +51,7 @@ class SSO {
    */
   public static function processDefault($text) {
     $filter = new stdClass();
-    $filter->settings = array();
+    $filter->settings = [];
     $sso_filter = new static($filter);
     return $sso_filter->process($text);
   }
@@ -60,13 +60,13 @@ class SSO {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, $form_state) {
-    $element = array();
-    $element['websites'] = array(
+    $element = [];
+    $element['websites'] = [
       '#type' => 'textarea',
       '#title' => t('Websites'),
-      '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at !remotedb_sso_settings_url page.', array('!remotedb_sso_settings_url' => l(t('RemoteDB settings'), 'admin/config/services/remotedb/sso'))),
+      '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at !remotedb_sso_settings_url page.', ['!remotedb_sso_settings_url' => l(t('RemoteDB settings'), 'admin/config/services/remotedb/sso')]),
       '#default_value' => $this->settings['websites'],
-    );
+    ];
     return $element;
   }
 
@@ -102,7 +102,7 @@ class SSO {
 
       $sites = explode("\n", $sites);
 
-      $sso_url = url('sso/goto/', array('absolute' => TRUE));
+      $sso_url = url('sso/goto/', ['absolute' => TRUE]);
 
       foreach ($sites as $site) {
         $text = Url::createSSOGotoUrl($site, $text);

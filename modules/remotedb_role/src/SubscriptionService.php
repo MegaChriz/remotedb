@@ -43,7 +43,7 @@ class SubscriptionService implements SubscriptionServiceInterface {
    * Implements SubscriptionInterface::getSubscriptions().
    */
   public function getSubscriptions($account) {
-    return $this->sendRequest('dbsubscription.retrieve', array($account->mail, 'mail'));
+    return $this->sendRequest('dbsubscription.retrieve', [$account->mail, 'mail']);
   }
 
   /**
@@ -59,7 +59,7 @@ class SubscriptionService implements SubscriptionServiceInterface {
    * @throws RemotedbException
    *   In case the remote database object was not set.
    */
-  protected function sendRequest($method, array $params = array()) {
+  protected function sendRequest($method, array $params = []) {
     return $this->remotedb->sendRequest($method, $params);
   }
 }

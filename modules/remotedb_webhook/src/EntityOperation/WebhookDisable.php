@@ -20,10 +20,10 @@ class WebhookDisable extends OperationActionBase {
    * Returns basic information about the operation.
    */
   function operationInfo() {
-    return array(
+    return [
       'label' => t('Disable webhook'),
       'description' => t('Enable or disable webhooks for this remote database.'),
-    ) + parent::operationInfo();
+    ] + parent::operationInfo();
   }
 
   /**
@@ -37,19 +37,19 @@ class WebhookDisable extends OperationActionBase {
    *    - 'submit message'
    */
   function operationStrings() {
-    return array(
+    return [
       'tab title' => 'Disable webhook',
       'page title' => 'Disable webhook for %label',
       'button label' => t('Disable webhook'),
       'confirm question' => t('Are you sure you want to disable webhooks for %label?'),
       'submit message' => t('Webhooks are disabled for %entity-type %label.'),
-    );
+    ];
   }
 
   /**
    * Access callback: deny access if webhook is already enabled.
    */
-  function operationAccess($entity_type, $entity, $params = array()) {
+  function operationAccess($entity_type, $entity, $params = []) {
     try {
       if (!WebhookUtil::exists($entity)) {
         return FALSE;
@@ -65,7 +65,7 @@ class WebhookDisable extends OperationActionBase {
   /**
    * The disable webhooks action.
    */
-  function execute($entity_type, $entity, $parameters = array()) {
+  function execute($entity_type, $entity, $parameters = []) {
     if (!($entity instanceof RemotedbInterface)) {
       throw new InvalidArgumentException('Entity must be of type \Drupal\remotedb\Entity\RemotedbInterface');
     }

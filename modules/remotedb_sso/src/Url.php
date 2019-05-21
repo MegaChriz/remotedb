@@ -28,17 +28,17 @@ class Url {
     // Make $site regex safe first.
     $site = preg_quote($site, '/');
     // Now replace the URLS.
-    return preg_replace_callback('/http:\/\/(' . $site . ')\/?(.*?)\"/i', array(__CLASS__, 'helper'), $text);
+    return preg_replace_callback('/http:\/\/(' . $site . ')\/?(.*?)\"/i', [__CLASS__, 'helper'], $text);
   }
 
   public static function helper($a) {
     $path = 'sso/goto';
-    $options = array(
-      'query' => array(
+    $options = [
+      'query' => [
         'site' => $a[1],
-      ),
+      ],
       'absolute' => TRUE,
-    );
+    ];
     if (!empty($a[2])) {
       $options['query']['path'] = $a[2];
     }

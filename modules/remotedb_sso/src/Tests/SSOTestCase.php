@@ -16,11 +16,11 @@ use Drupal\remotedb_sso\Util;
  */
 class SSOTestCase extends RemotedbSSOTestBase {
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'SSO: Base',
       'description' => 'Test if single sign-on functionality works as expected.',
       'group' => 'Remote database',
-    );
+    ];
   }
 
   /**
@@ -31,10 +31,10 @@ class SSOTestCase extends RemotedbSSOTestBase {
     $remote_account = $this->createRemoteUser();
 
     // Login using information from remote account.
-    $edit = array(
+    $edit = [
       'name' => $remote_account->name,
       'pass' => $remote_account->pass_raw
-    );
+    ];
     $this->drupalPost('user', $edit, t('Log in'));
 
     // Follow a link to an "external" site.

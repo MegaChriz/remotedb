@@ -103,13 +103,13 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return array(
+    return [
       'id' => $this->getPluginId(),
       'provider' => $this->pluginDefinition['provider'],
       'status' => $this->status,
       'weight' => $this->weight,
       'settings' => $this->settings,
-    );
+    ];
   }
 
   /**
