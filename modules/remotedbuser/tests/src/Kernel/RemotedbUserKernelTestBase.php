@@ -5,7 +5,6 @@ namespace Drupal\Tests\remotedbuser\Kernel;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\Tests\remotedb\Traits\RemotedbCreationTrait;
 use Drupal\Tests\remotedbuser\Traits\RemotedbUserCreationTrait;
-use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
  * Base class for Remote database user kernel tests.

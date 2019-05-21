@@ -5,7 +5,6 @@ namespace Drupal\remotedb\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\remotedb\AuthenticationPluginCollection;
-use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 
 /**
@@ -48,7 +47,7 @@ use Drupal\remotedb\Exception\RemotedbException;
  *   }
  * )
  */
-class Remotedb extends ConfigEntityBase implements RemotedbInterface {
+class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWithPluginCollectionInterface {
 
   // ---------------------------------------------------------------------------
   // PROPERTIES

@@ -5,7 +5,6 @@ namespace Drupal\remotedb\Plugin;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\remotedb\Entity\RemotedbInterface;
-use Drupal\remotedb\Plugin\AuthenticationInterface;
 
 /**
  * Base class for remote database authentication plugins.
@@ -153,4 +152,5 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
     // array here if there are no additional settings needed.
     return [];
   }
+
 }

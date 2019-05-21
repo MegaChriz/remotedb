@@ -88,9 +88,9 @@ abstract class RemotedbFormBase extends EntityForm {
       '#title' => $this->t('Authentication method processing order'),
       '#tabledrag' => [
         [
-         'action' => 'order',
-         'relationship' => 'sibling',
-         'group' => 'authentication-method-order-weight',
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'authentication-method-order-weight',
         ],
       ],
       '#tree' => FALSE,

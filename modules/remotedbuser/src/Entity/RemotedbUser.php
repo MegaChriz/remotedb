@@ -19,7 +19,7 @@ use Drupal\Core\Entity\ContentEntityBase;
  *   ),
  *   handlers = {
  *     "storage" = "Drupal\remotedbuser\Entity\RemotedbUserStorage",
-*    },
+ *   },
  * )
  */
 class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {

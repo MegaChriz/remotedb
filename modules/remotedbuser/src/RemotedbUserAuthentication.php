@@ -25,7 +25,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   protected $config;
 
   /**
-   * The remote database user configuration service
+   * The remote database user configuration service.
    *
    * @var \Drupal\remotedbuser\RemotedbUserConfigurationInterface
    */

@@ -31,7 +31,7 @@ class UserPasswordForm extends UserPasswordFormBase {
    *   The user storage.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
-   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $user_storage
+   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remote_user_storage
    *   The remote user storage.
    */
   public function __construct(UserStorageInterface $user_storage, LanguageManagerInterface $language_manager, RemotedbUserStorageInterface $remote_user_storage) {

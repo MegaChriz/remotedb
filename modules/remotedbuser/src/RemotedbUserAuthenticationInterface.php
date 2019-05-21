@@ -19,8 +19,9 @@ interface RemotedbUserAuthenticationInterface extends UserAuthInterface {
   const LOCALFIRST = 2;
 
   /**
-   * Authenticates name/password against the remote database and copies over
-   * the remote user if needed.
+   * Authenticates user against the remote database.
+   *
+   * Copies over the remote user if needed.
    *
    * @return int|false
    *   The user's uid on success, or FALSE on failure to authenticate.

@@ -108,8 +108,6 @@ class GetRemoteUserForm extends FormBase {
    * @param int $limit_per_batch
    *   (optional) How many users should be imported per batch.
    *   Defaults to 10.
-   *
-   * @return void
    */
   protected function getRemoteUserBatch(array $user_ids, $limit_per_batch = 10) {
     $operations = [];
@@ -137,10 +135,10 @@ class GetRemoteUserForm extends FormBase {
    * @param int $limit_per_batch
    *   (optional) How many users should be imported per batch.
    *   Defaults to 10.
-   *
-   * @return void
+   * @param array $context
+   *   The batch context array, passed by reference.
    */
-  public function getRemoteUserBatchOperation(array $user_ids, $limit_per_batch = 10, &$context) {
+  public function getRemoteUserBatchOperation(array $user_ids, $limit_per_batch = 10, array &$context) {
     if (empty($context['sandbox'])) {
       $context['sandbox'] = [];
       $context['sandbox']['progress'] = 0;

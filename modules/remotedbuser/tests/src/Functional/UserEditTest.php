@@ -50,7 +50,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an user can login with his remotely changed username.
+   * Tests if an user can login with their remotely changed username.
    */
   public function testRemoteNameChange() {
     // Set logging in via the remote database only.

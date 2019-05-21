@@ -30,8 +30,6 @@ class StringLib {
 
   /**
    * Parses a single array value.
-   *
-   * @return void
    */
   private function textToArrayParse(&$key, &$value) {
     $value = trim($value);

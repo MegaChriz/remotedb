@@ -6,7 +6,6 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

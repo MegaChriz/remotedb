@@ -47,6 +47,7 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    *
    * @return \Drupal\remotedb\Entity\RemotedbUserInterface
    *   A remote user object.
+   *
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   If the passed in account does not have a mail address.
    */
@@ -68,7 +69,7 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    *
    * @param string $name
    *   User name to authenticate.
-   * @param string $password
+   * @param string $pass
    *   A plain-text password.
    *
    * @return int|bool
@@ -87,6 +88,7 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    * @return bool
    *   TRUE if validation passes.
    *   FALSE otherwise.
+   *
    * @todo Remotedb_uid should probably be send along instead.
    */
   public function validateName($name, UserInterface $account);
