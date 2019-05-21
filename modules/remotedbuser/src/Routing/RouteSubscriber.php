@@ -17,6 +17,9 @@ class RouteSubscriber extends RouteSubscriberBase {
     if ($route = $collection->get('user.login')) {
       $route->setDefault('_form', '\Drupal\remotedbuser\Form\UserLoginForm');
     }
+    if ($route = $collection->get('user.pass')) {
+      $route->setDefault('_form', '\Drupal\remotedbuser\Form\UserPasswordForm');
+    }
   }
 
 }

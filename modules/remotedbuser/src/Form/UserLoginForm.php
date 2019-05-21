@@ -2,7 +2,6 @@
 
 namespace Drupal\remotedbuser\Form;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Form\UserLoginForm as UserLoginFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
