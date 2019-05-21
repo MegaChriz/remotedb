@@ -33,10 +33,26 @@ class InstallTest extends BrowserTestBase {
   public $moduleInstaller;
 
   /**
+   * The number of times the mocked remote database callback was called.
+   *
+   * @var int
+   */
+  protected $calledRemotedbCallback = 0;
+
+  /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
+    $this->moduleHandler = $this->container->get('module_handler');
+    $this->moduleInstaller = $this->container->get('module_installer');
+  }
+
+  /**
+   * Reloads services used by this test.
+   */
+  protected function reloadServices() {
+    $this->rebuildContainer();
     $this->moduleHandler = $this->container->get('module_handler');
     $this->moduleInstaller = $this->container->get('module_installer');
   }
@@ -47,6 +63,7 @@ class InstallTest extends BrowserTestBase {
   public function testInstallation() {
     $this->assertFalse($this->moduleHandler->moduleExists('remotedb'));
     $this->assertTrue($this->moduleInstaller->install(['remotedb']));
+    $this->reloadServices();
     $this->assertTrue($this->moduleHandler->moduleExists('remotedb'));
   }
 
@@ -56,6 +73,7 @@ class InstallTest extends BrowserTestBase {
   public function testInstallationWithTestModule() {
     $this->assertFalse($this->moduleHandler->moduleExists('remotedb'));
     $this->assertTrue($this->moduleInstaller->install(['remotedb', 'remotedb_test']));
+    $this->reloadServices();
     $this->assertTrue($this->moduleHandler->moduleExists('remotedb'));
     $this->assertTrue($this->moduleHandler->moduleExists('remotedb_test'));
 
