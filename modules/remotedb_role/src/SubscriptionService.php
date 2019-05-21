@@ -1,13 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_role\SubscriptionService.
- */
-
 namespace Drupal\remotedb_role;
-
-use Drupal\remotedb\Entity\RemotedbInterface;
 
 class SubscriptionService implements SubscriptionServiceInterface {
   // ---------------------------------------------------------------------------

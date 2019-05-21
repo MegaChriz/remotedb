@@ -1,0 +1,3 @@
+remotedb_role.bypass:
+  title: 'Bypass automatic role assignment'
+  description: 'Users with this permission are ignored when roles are automatically assigned/unassigned.'

@@ -108,7 +108,7 @@ class AssignRoles {
     }
 
     if ($changed) {
-      user_save($account);
+      $account->save();
     }
 
     return [
@@ -124,19 +124,24 @@ class AssignRoles {
     $config = [];
 
     $roles = user_roles(TRUE);
-    unset($roles[DRUPAL_AUTHENTICATED_RID]);
+    unset($roles[\Drupal\Core\Session\AccountInterface::AUTHENTICATED_RID]);
     if (count($roles) > 0) {
       foreach ($roles as $rid => $role_name) {
-        if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
-          if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
-            $subscriptions = explode("\n", $subscriptions);
-            // Trim values.
-            foreach ($subscriptions as $index => $subscription) {
-               $subscriptions[$index] = trim($subscription);
-            }
-            $config['roles'][$rid]['subscriptions'] =  $subscriptions;
-          }
-        }
+        // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
+//           if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
+//             $subscriptions = explode("\n", $subscriptions);
+//             // Trim values.
+//             foreach ($subscriptions as $index => $subscription) {
+//                $subscriptions[$index] = trim($subscription);
+//             }
+//             $config['roles'][$rid]['subscriptions'] =  $subscriptions;
+//           }
+//         }
+
       }
     }
 

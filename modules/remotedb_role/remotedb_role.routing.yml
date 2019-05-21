@@ -1,0 +1,7 @@
+remotedb_role.settings_form:
+  path: /admin/config/services/remotedb/roles
+  defaults:
+    _title: 'Role assign'
+    _form: \Drupal\remotedb_role\Form\RemotedbRoleSettingsForm
+  requirements:
+    _permission: remotedb.administer

@@ -1,0 +1,6 @@
+name: 'Remote database roles'
+description: 'Assign and unassign roles based on subscriptions in remote database.'
+core: 8.x
+type: module
+dependencies:
+  - remotedb

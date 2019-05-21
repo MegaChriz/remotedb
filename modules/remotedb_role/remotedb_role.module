@@ -13,24 +13,6 @@ use Drupal\remotedb_role\Plugin\Action\AssignRoles;
 // ---------------------------------------------------------------------------
 
 /**
- * Implements hook_menu().
- */
-function remotedb_role_menu() {
-  $items = array();
-
-  $items['admin/config/services/remotedb/roles'] = array(
-    'title' => 'Role assign',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedb_role_settings_form'),
-    'access arguments' => array('remotedb.administer'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'remotedb_role.admin.inc',
-  );
-
-  return $items;
-}
-
-/**
  * Implements hook_help().
  */
 function remotedb_role_help($path, $arg) {
@@ -43,23 +25,17 @@ function remotedb_role_help($path, $arg) {
 }
 
 /**
- * Implements hook_permission().
- */
-function remotedb_role_permission() {
-  return array(
-    'remotedb_role.bypass' => array(
-      'title' => t('Bypass automatic role assignment'),
-      'description' => t('Users with this permission are ignored when roles are automatically assigned/unassigned.'),
-    ),
-  );
-}
-
-/**
  * Implements hook_user_login().
  *
  * Assigns/Unassigns roles for account.
+ *
+ * @FIXME
+ * The $edit parameter is gone in Drupal 8. It has been left here in order to
+ * prevent 'undefined variable' errors, but it will never actually be passed to
+ * this hook. You'll need to modify this function and remove every reference to it.
  */
-function remotedb_role_user_login($edit, $account) {
+
+function remotedb_role_user_login(\Drupal\user\UserInterface $account, $edit = []) {
   list($assigned, $unassigned) = remotedb_role_assign_roles($account);
   if (remotedb_role_variable_get('debug')) {
     drupal_set_message(t('Assigned: @assigned', array('@assigned' => implode(', ', $assigned))), 'status', FALSE);
@@ -82,8 +58,8 @@ function remotedb_role_user_login($edit, $account) {
  *   - assigned: (array) roles that were assigned.
  *   - unassigned: (array) roles that were unassigned.
  */
-function remotedb_role_assign_roles($account) {
-  if (!user_access('remotedb_role.bypass', $account)) {
+function remotedb_role_assign_roles(\Drupal\user\UserInterface $account) {
+  if (!$account->hasPermission('remotedb_role.bypass')) {
     $remotedb = remotedb_role_get_remotedb();
     if ($remotedb instanceof RemotedbInterface) {
       $subscription_service_class = remotedb_role_variable_get('subscription_service');
@@ -126,7 +102,12 @@ function remotedb_role_get_remotedb() {
  *   The value of the setting.
  */
 function remotedb_role_variable_get($name) {
-  $value = variable_get('remotedb_role_' . $name, NULL);
+  // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $value = variable_get('remotedb_role_' . $name, NULL);
+
   if (is_null($value)) {
     switch ($name) {
       case 'remotedb':

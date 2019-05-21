@@ -1,0 +1,3 @@
+remotedb_role.settings_form:
+  route_name: remotedb_role.settings_form
+  title: 'Role assign'
