@@ -3,6 +3,15 @@
   "type": "drupal-module",
   "description": "Client-side module to exchange information with a remote database via XML-RPC.",
   "license": "GPL-2.0+",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.drupal.org/8"
+    }
+  ],
+  "require": {
+    "drupal/xmlrpc": "^1.0@beta",
+  },
   "require-dev": {
     "bex/behat-screenshot": "^1.2",
     "composer/installers": "^1.2",
