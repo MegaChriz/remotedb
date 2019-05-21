@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use Drupal\user\UserInterface;
+
 /**
  * Test registration of users.
  *
@@ -13,68 +15,59 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
    * Tests if user is saved to remote database on a succesful register.
    */
   public function testRegistration() {
-    // Don't require e-mail verification.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('user_email_verification', FALSE);
-    // Allow registration by site visitors without administrator approval.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('user_register', USER_REGISTER_VISITORS);
+    // Don't require e-mail verification and allow registration by site visitors
+    // without administrator approval.
+    $this->config('user.settings')
+      ->set('verify_mail', FALSE)
+      ->set('register', UserInterface::REGISTER_VISITORS)
+      ->save();
+
     // Register.
     $edit = [];
-    $edit['name'] = $name = $this->randomName();
+    $edit['name'] = $name = $this->randomMachineName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
-    $edit['pass[pass1]'] = $new_pass = $this->randomName();
+    $edit['pass[pass1]'] = $new_pass = $this->randomMachineName();
     $edit['pass[pass2]'] = $new_pass;
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
+    $this->assertText(t('Registration successful. You are now logged in.'), 'User registered successfully.');
 
-    // Assert the account exists local.
-    $accounts = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $name, 'mail' => $mail]);
+    // Assert that the local account exists.
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
+    $storage = $this->container->get('entity_type.manager')->getStorage('user');
+    $accounts = $storage->loadByProperties(['name' => $name, 'mail' => $mail]);
     $new_user = reset($accounts);
-    $this->assertNotNull($new_user, 'The account was created succesfully.');
+    $this->assertTrue($new_user->isActive(), 'New account is active after registration.');
 
-    // Assert the remote account exists.
-    $remote_account = $this->controller->loadBy($name, 'name');
+    // Assert that the remote account exists.
+    $remote_account = $this->remotedbUserStorage->loadBy($name, 'name');
     $this->assertNotNull($remote_account, 'A remote account was created.');
 
-    if ($remote_account && $new_user) {
-      // Assert that the remote account has an uid.
-      $this->assertNotNull($remote_account->uid, 'The remote account has an ID.');
+    // Assert that the remote account has an uid.
+    $this->assertNotNull($remote_account->uid, 'The remote account has an ID.');
 
-      // Assert that remotedb_uid was saved on the new user.
-      $this->assertEqual($new_user->remotedb_uid, $remote_account->uid, 'The local user account has save the remote user ID.');
-    }
+    // Assert that remotedb_uid was saved on the new user.
+    $this->assertEquals($new_user->remotedb_uid->value, $remote_account->uid, 'The local user account has saved the remote user ID.');
   }
 
   /**
    * Tests if registration fails if the user's name already exists remotely.
    */
   public function testRegistrationNameDuplicates() {
-    // Don't require e-mail verification.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('user_email_verification', FALSE);
-    // Allow registration by site visitors without administrator approval.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('user_register', USER_REGISTER_VISITORS);
+    // Don't require e-mail verification and allow registration by site visitors
+    // without administrator approval.
+    $this->config('user.settings')
+      ->set('verify_mail', FALSE)
+      ->set('register', UserInterface::REGISTER_VISITORS)
+      ->save();
+
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
     // Register.
     $edit = [];
     $edit['name'] = $remote_account->name;
-    $edit['mail'] = $this->randomName() . '@example.com';
-    $this->drupalPostForm('user/register', $edit, t('Create new account'));
+    $edit['mail'] = $this->randomMachineName() . '@example.com';
+    $this->drupalPostForm('user/register', $edit, 'Create new account');
     $this->assertRaw(t('The name %name is already taken.', ['%name' => $remote_account->name]));
   }
 
@@ -82,23 +75,18 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
    * Tests if registration fails if the user's mail address already exists remotely.
    */
   public function testRegistrationEmailDuplicates() {
-    // Don't require e-mail verification.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('user_email_verification', FALSE);
-    // Allow registration by site visitors without administrator approval.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('user_register', USER_REGISTER_VISITORS);
+    // Don't require e-mail verification and allow registration by site visitors
+    // without administrator approval.
+    $this->config('user.settings')
+      ->set('verify_mail', FALSE)
+      ->set('register', UserInterface::REGISTER_VISITORS)
+      ->save();
+
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
     $edit = [];
-    $edit['name'] = $this->randomName();
+    $edit['name'] = $this->randomMachineName();
     $edit['mail'] = $remote_account->mail;
 
     // Attempt to create a new account using an existing e-mail address.

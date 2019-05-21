@@ -45,7 +45,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->assertRaw('The changes have been saved.');
 
     // Assert that the change is reflected in the remote database.
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $this->assertEquals($edit['name'], $remote_account->name, 'The username was also changed in the remote database.');
   }
 
@@ -62,7 +62,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogout();
 
     // Change name from remote user.
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $remote_account->name = $this->randomMachineName();
     $remote_account->save();
 
@@ -116,7 +116,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->assertRaw('The changes have been saved.');
 
     // Assert that the change is reflected in the remote database.
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $this->assertEquals($edit['mail'], $remote_account->mail, 'The mail address was also changed in the remote database.');
   }
 
@@ -133,7 +133,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogout();
 
     // Change mail from remote user.
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $remote_account->mail = $this->randomMachineName() . '@example.com';
     $remote_account->save();
 
@@ -181,7 +181,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
     $this->drupalLogout();
 
     // Change password from remote user.
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $new_pass = user_password();
     $remote_account->pass = $this->hashPassword($new_pass);
     $remote_account->save();

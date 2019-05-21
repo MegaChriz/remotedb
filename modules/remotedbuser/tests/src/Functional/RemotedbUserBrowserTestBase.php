@@ -29,14 +29,14 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
    *
    * @var \Drupal\remotedbuser\Entity\RemotedbUserStorage
    */
-  protected $remotedb_user_storage;
+  protected $remotedbUserStorage;
 
   /**
    * ID of role that allows users to change their own account.
    *
    * @var int
    */
-  protected $role_id;
+  protected $roleId;
 
   /**
    * {@inheritdoc}
@@ -45,8 +45,8 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
     parent::setUp();
 
     $this->entityTypeManager = \Drupal::entityTypeManager();
-    $this->remotedb_user_storage = $this->entityTypeManager->getStorage('remotedb_user');
-    $this->role_id = $this->createRole(['change own username', 'cancel account']);
+    $this->remotedbUserStorage = $this->entityTypeManager->getStorage('remotedb_user');
+    $this->roleId = $this->createRole(['change own username', 'cancel account']);
   }
 
   /**
@@ -59,7 +59,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
 
     // Make sure that a remote account exists.
     $this->assertTrue($account->remotedb_uid->value, 'The account is linked to a remote account.');
-    $remote_account = $this->remotedb_user_storage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $this->assertNotNull($remote_account, 'The remote account was created.');
     if (!is_null($remote_account)) {
       $this->assertTrue($account->remotedb_uid->value === $remote_account->uid, 'The account belongs to the expected remote account.');

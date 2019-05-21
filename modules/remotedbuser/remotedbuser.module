@@ -224,7 +224,7 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
         $form_state->setErrorByName('mail', $message);
       }
       else {
-        $form_state->setErrorByName('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', ['%email' => $mail, '@password' => Url::fromRoute('user.pass')]));
+        $form_state->setErrorByName('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', ['%email' => $mail, '@password' => Url::fromRoute('user.pass')->toString()]));
       }
     }
   }

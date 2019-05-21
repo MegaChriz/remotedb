@@ -171,7 +171,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
       'mail' => $this->randomMachineName() . '@example.com',
       'pass' => 'foo',
       'status' => 1,
-      'roles' => [$this->role_id],
+      'roles' => [$this->roleId],
     ]);
     // Prevent this account from exchanging it with the remote database.
     $account1->from_remotedb = TRUE;
@@ -182,7 +182,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
       'mail' => $remote_account->mail,
       'pass' => 'bar',
       'status' => 1,
-      'roles' => [$this->role_id],
+      'roles' => [$this->roleId],
     ]);
     // Prevent this account from exchanging it with the remote database.
     $account2->from_remotedb = TRUE;
@@ -216,7 +216,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
     // Check that there are remote accounts for each local user now.
     $account1_found = FALSE;
     $account2_found = FALSE;
-    $remotes = $this->remotedb_user_storage->getRemoteAccounts();
+    $remotes = $this->remotedbUserStorage->getRemoteAccounts();
     foreach ($remotes as $remote_user) {
       switch ($remote_user['name']) {
         case $account1->getAccountName():
