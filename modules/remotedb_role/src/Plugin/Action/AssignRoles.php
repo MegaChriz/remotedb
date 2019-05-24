@@ -2,8 +2,14 @@
 
 namespace Drupal\remotedb_role\Plugin\Action;
 
+use Drupal\Component\Plugin\ConfigurableInterface;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Action\ActionBase;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Assigns or unassigns roles based on the subscriptions the user has.
@@ -14,47 +20,61 @@ use Drupal\remotedb_role\SubscriptionServiceInterface;
  *   type = "user"
  * )
  */
-class AssignRoles {
-  /**
-   * Configuration information passed into the plugin.
-   *
-   * @var array
-   */
-  protected $configuration;
+class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
    * A service to get subscriptions from.
    *
    * @var \Drupal\remotedb_role\SubscriptionServiceInterface
    */
-  protected $subscription_servic;
+  protected $subscriptionService;
 
   /**
    * AssignRoles object constructor.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
    * @param \Drupal\remotedb_role\SubscriptionServiceInterface
    *   A service that can return subscriptions.
    *
    * @return \Drupal\remotedb_role\Plugin\Action\AssignRoles
    */
-  public function __construct(array $configuration, SubscriptionServiceInterface $subscription_service) {
-    $this->configuration = $configuration;
-    $this->configuration += $this->defaultConfiguration();
-    $this->subscription_service = $subscription_service;
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeInterface $entity_type, SubscriptionServiceInterface $subscription_service) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->subscriptionService = $subscription_service;
   }
 
   /**
-   * Executes action.
-   *
-   * @param object $account
-   *   The account to assign/unassign roles for.
-   *
-   * @return array
-   *   An array containing the roles that were assigned/unassigned:
-   *   - (array) roles that were assigned.
-   *   - (array) roles that were unassigned.
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    if (!isset($configuration['roles'])) {
+      $configuration['roles'] = $container->get('remotedb_role.settings')->get('roles');
+    }
+
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager')->getDefinition('user_role'),
+      $container->get('remotedb_role.subscription')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
+    $result = AccessResult::allowed();
+    return $return_as_object ? $result : $result->isAllowed();
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function execute($account = NULL) {
     if (empty($account)) {
@@ -62,43 +82,42 @@ class AssignRoles {
       return;
     }
 
+    $role_settings = $this->configuration['roles'];
+    $subscriptions = $this->subscriptionService->getSubscriptions($account);
+
     // Keep track of roles that were assigned and roles that were unassigned.
     $assign = [];
     $unassign = [];
     $changed = FALSE;
 
-    $role_names = user_roles();
-    $role_settings = $this->configuration['roles'];
-    $subscriptions = $this->subscription_service->getSubscriptions($account);
-
     if (is_array($subscriptions)) {
       // Loop through all roles and prepare a list of assign/unassign roles.
       foreach ($role_settings as $rid => $role_setting) {
-        $unassign[$rid] = $role_names[$rid];
+        if (empty($role_setting['status'])) {
+          continue;
+        }
+
+        $unassign[$rid] = $rid;
         foreach ($subscriptions as $subscription) {
           if (in_array($subscription['subscription_id'], $role_setting['subscriptions'])) {
-            $assign[$rid] = $role_names[$rid];
+            $assign[$rid] = $rid;
             unset($unassign[$rid]);
           }
         }
       }
 
       // Unassign roles.
-      if (count($unassign) > 0) {
-        foreach ($unassign as $rid => $role_name) {
-          if (isset($account->roles[$rid])) {
-            unset($account->roles[$rid]);
-            $changed = TRUE;
-          }
+      foreach ($unassign as $rid) {
+        if ($account->hasRole($rid)) {
+          $account->removeRole($rid);
+          $changed = TRUE;
         }
       }
       // Assign roles.
-      if (count($assign) > 0) {
-        foreach ($assign as $rid => $role_name) {
-          if (!isset($account->roles[$rid])) {
-            $account->roles[$rid] = $role_names[$rid];
-            $changed = TRUE;
-          }
+      foreach ($assign as $rid) {
+        if (!$account->hasRole($rid)) {
+          $account->addRole($rid);
+          $changed = TRUE;
         }
       }
     }
@@ -106,41 +125,6 @@ class AssignRoles {
     if ($changed) {
       $account->save();
     }
-
-    return [
-      $assign,
-      $unassign,
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultConfiguration() {
-    $config = [];
-
-    $roles = user_roles(TRUE);
-    unset($roles[AccountInterface::AUTHENTICATED_RID]);
-    if (count($roles) > 0) {
-      foreach ($roles as $rid => $role_name) {
-        // @FIXME
-        // // @FIXME
-        // // The correct configuration object could not be determined. You'll need to
-        // // rewrite this call manually.
-        // if (variable_get('remotedb_role_' . $rid . '_active', 0)) {
-        //           if ($subscriptions = variable_get('remotedb_role_' . $rid . '_subscriptions', '')) {
-        //             $subscriptions = explode("\n", $subscriptions);
-        //             // Trim values.
-        //             foreach ($subscriptions as $index => $subscription) {
-        //                $subscriptions[$index] = trim($subscription);
-        //             }
-        //             $config['roles'][$rid]['subscriptions'] =  $subscriptions;
-        //           }
-        //         }
-      }
-    }
-
-    return $config;
   }
 
 }

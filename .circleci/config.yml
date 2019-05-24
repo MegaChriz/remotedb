@@ -63,6 +63,7 @@ unit_kernel_tests: &unit_kernel_tests
         command: |
           ./test.sh $CIRCLE_PROJECT_REPONAME
           ./test.sh remotedbuser
+          ./test.sh remotedb_role
 
     - store_test_results:
         path: /var/www/html/artifacts/phpunit

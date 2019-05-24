@@ -1,0 +1,7 @@
+services:
+  remotedb_role.subscription:
+    class: Drupal\remotedb_role\SubscriptionServiceInterface
+    factory: remotedb_role.subscription_factory:get
+  remotedb_role.subscription_factory:
+    class: Drupal\remotedb_role\SubscriptionServiceFactory
+    arguments: ['@config.factory', '@entity_type.manager']

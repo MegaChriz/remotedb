@@ -2,8 +2,11 @@
 
 namespace Drupal\remotedb_role;
 
+use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\user\UserInterface;
+
 /**
- *
+ * Class for requesting subscriptions for a specific account.
  */
 class SubscriptionService implements SubscriptionServiceInterface {
 
@@ -37,10 +40,10 @@ class SubscriptionService implements SubscriptionServiceInterface {
   // ---------------------------------------------------------------------------
 
   /**
-   * Implements SubscriptionInterface::getSubscriptions().
+   * {@inheritdoc}
    */
-  public function getSubscriptions($account) {
-    return $this->sendRequest('dbsubscription.retrieve', [$account->mail, 'mail']);
+  public function getSubscriptions(UserInterface $account) {
+    return $this->sendRequest('dbsubscription.retrieve', [$account->getEmail(), 'mail']);
   }
 
   /**
