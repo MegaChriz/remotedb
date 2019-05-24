@@ -6,8 +6,6 @@ use Drupal\remotedb\Entity\Remotedb;
 
 /**
  * A mocked remote database.
- *
- * @todo determine if this class is still needed.
  */
 class MockRemotedb extends Remotedb {
 
@@ -19,38 +17,7 @@ class MockRemotedb extends Remotedb {
   protected $callback;
 
   /**
-   * {@inheritdoc}
-   */
-  public function getUrl() {
-    return 'http://www.example.com';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getHeader($header) {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getHeaders() {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setHeader($header, $value) {}
-
-  /**
-   * {@inheritdoc}
-   */
-  public function save() {}
-
-  /**
-   * Set the callback to use for method calls.
+   * Sets the callback to use for method calls.
    *
    * @param callable $callback
    *   A callable to use for method calls.

@@ -84,6 +84,7 @@ functional_tests: &functional_tests
         command: |
           ./test-functional.sh $CIRCLE_PROJECT_REPONAME
           ./test-functional.sh remotedbuser
+          ./test-functional.sh remotedb_role
 
     - store_test_results:
         path: /var/www/html/artifacts/phpunit

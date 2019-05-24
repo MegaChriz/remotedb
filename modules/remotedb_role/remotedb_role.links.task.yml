@@ -1,3 +1,4 @@
-remotedb_role.settings_form:
-  route_name: remotedb_role.settings_form
+remotedb_role.admin_settings_form:
+  route_name: remotedb_role.admin_settings_form
   title: 'Role assign'
+  base_route: entity.remotedb.collection

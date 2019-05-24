@@ -1,0 +1,3 @@
+remote_role_settings:
+  js:
+    js/remotedb_role.js: {}

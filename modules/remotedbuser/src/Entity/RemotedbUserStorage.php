@@ -320,10 +320,11 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
           if ($account->id() != $account2->id()) {
             // We have a conflict here.
             $vars = [
-              '@uid' => $account2->id(),
+              '@uid1' => $account1->id(),
+              '@uid2' => $account2->id(),
               '@remotedb_uid' => $entity->uid,
             ];
-            throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
+            throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local users @uid1 and @uid2.', $vars));
           }
         }
       }
