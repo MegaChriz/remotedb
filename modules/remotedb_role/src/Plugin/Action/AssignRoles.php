@@ -30,6 +30,20 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
   protected $subscriptionService;
 
   /**
+   * A list of roles that were assigned by this action.
+   *
+   * @var array
+   */
+  protected $assigned = [];
+
+  /**
+   * A list of roles that were unassigned by this action.
+   *
+   * @var array
+   */
+  protected $unassigned = [];
+
+  /**
    * AssignRoles object constructor.
    *
    * @param array $configuration
@@ -53,7 +67,9 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     if (!isset($configuration['roles'])) {
-      $configuration['roles'] = $container->get('remotedb_role.settings')->get('roles');
+      $configuration['roles'] = $container->get('config.factory')
+        ->get('remotedb_role.settings')
+        ->get('roles');
     }
 
     return new static(
@@ -86,8 +102,8 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
     $subscriptions = $this->subscriptionService->getSubscriptions($account);
 
     // Keep track of roles that were assigned and roles that were unassigned.
-    $assign = [];
-    $unassign = [];
+    $this->assigned = [];
+    $this->unassigned = [];
     $changed = FALSE;
 
     if (is_array($subscriptions)) {
@@ -97,27 +113,33 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
           continue;
         }
 
-        $unassign[$rid] = $rid;
+        $this->unassigned[$rid] = $rid;
         foreach ($subscriptions as $subscription) {
           if (in_array($subscription['subscription_id'], $role_setting['subscriptions'])) {
-            $assign[$rid] = $rid;
-            unset($unassign[$rid]);
+            $this->assigned[$rid] = $rid;
+            unset($this->unassigned[$rid]);
           }
         }
       }
 
       // Unassign roles.
-      foreach ($unassign as $rid) {
+      foreach ($this->unassigned as $rid) {
         if ($account->hasRole($rid)) {
           $account->removeRole($rid);
           $changed = TRUE;
         }
+        else {
+          unset($this->unassigned[$rid]);
+        }
       }
       // Assign roles.
-      foreach ($assign as $rid) {
+      foreach ($this->assigned as $rid) {
         if (!$account->hasRole($rid)) {
           $account->addRole($rid);
           $changed = TRUE;
+        }
+        else {
+          unset($this->assigned[$rid]);
         }
       }
     }
@@ -125,6 +147,26 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
     if ($changed) {
       $account->save();
     }
+  }
+
+  /**
+   * Returns the roles that got assigned by the latest execute call.
+   *
+   * @return array
+   *   A list of assigned role ID's.
+   */
+  public function getAssignedRoles() {
+    return $this->assigned;
+  }
+
+  /**
+   * Returns the roles that got assigned by the latest execute call.
+   *
+   * @return array
+   *   A list of assigned role ID's.
+   */
+  public function getUnassignedRoles() {
+    return $this->unassigned;
   }
 
 }

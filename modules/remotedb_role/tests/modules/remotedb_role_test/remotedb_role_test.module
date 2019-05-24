@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Test module for setting a callback for the subscription service.
+ */
+
+/**
+ * Implements hook_ENTITY_TYPE_load() for 'remotedb'.
+ */
+function remotedb_role_test_remotedb_load(array $entities) {
+  foreach ($entities as $remotedb) {
+    $remotedb->setCallback('remotedb_role_test_remotedb_callback');
+  }
+}
+
+/**
+ * Callback for remote database calls.
+ *
+ * @param string $method
+ *   The method being called.
+ * @param array $params
+ *   An array of parameters.
+ *
+ * @return mixed
+ *   Returns different values depending on the method call.
+ */
+function remotedb_role_test_remotedb_callback($method, array $params) {
+  switch ($method) {
+    case 'dbsubscription.retrieve':
+      return \Drupal::state()->get('remotedb_role_subscriptions', []);
+  }
+}

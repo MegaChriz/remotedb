@@ -31,95 +31,27 @@ function remotedb_role_help($route_name, RouteMatchInterface $route_match) {
  *
  * Assigns/unassigns roles for account.
  */
-function _remotedb_role_user_login(UserInterface $account) {
-  list($assigned, $unassigned) = remotedb_role_assign_roles($account);
-  if (remotedb_role_variable_get('debug')) {
-    drupal_set_message(t('Assigned: @assigned', ['@assigned' => implode(', ', $assigned)]), 'status', FALSE);
-    drupal_set_message(t('Unassigned: @unassigned', ['@unassigned' => implode(', ', $unassigned)]), 'status', FALSE);
+function remotedb_role_user_login(UserInterface $account) {
+  if ($account->hasPermission('remotedb_role.bypass')) {
+    // @todo move to action.
+    return;
   }
-}
 
-// ---------------------------------------------------------------------------
-// UTIL
-// ---------------------------------------------------------------------------
+  // Apply action on entity.
+  $action = \Drupal::service('plugin.manager.action')
+    ->createInstance('remotedb_role_assign_roles');
+  $action->execute($account);
 
-/**
- * Assign/unassign roles based on the subscriptions the user has.
- *
- * @param object $account
- *   The user account to assign/unassign roles for.
- *
- * @return array
- *   An array containing the roles that were assigned/unassigned:
- *   - assigned: (array) roles that were assigned.
- *   - unassigned: (array) roles that were unassigned.
- */
-function remotedb_role_assign_roles(UserInterface $account) {
-  if (!$account->hasPermission('remotedb_role.bypass')) {
-    $remotedb = remotedb_role_get_remotedb();
-    if ($remotedb instanceof RemotedbInterface) {
-      $subscription_service_class = remotedb_role_variable_get('subscription_service');
-      $subscription_service = new $subscription_service_class($remotedb);
-      $action = new AssignRoles([], $subscription_service);
-      return $action->execute($account);
-    }
+  // Display debug information, if configured.
+  if (\Drupal::config('remotedb_role.settings')->get('debug')) {
+    $assigned = $action->getAssignedRoles();
+    $unassigned = $action->getUnassignedRoles();
+
+    \Drupal::messenger()->addStatus(t('Assigned: @assigned', [
+      '@assigned' => !empty($assigned) ? implode(', ', $assigned) : 'none',
+    ]));
+    \Drupal::messenger()->addStatus(t('Unassigned: @unassigned', [
+      '@unassigned' => !empty($unassigned) ? implode(', ', $unassigned) : 'none',
+    ]));
   }
-  return [
-    [],
-    [],
-  ];
-}
-
-/**
- * Gets remote database to use for user related actions.
- *
- * @return \Drupal\remotedb\Entity\RemotedbInterface | NULL
- *   An instance of RemotedbInterface, if found.
- *   NULL otherwise.
- */
-function remotedb_role_get_remotedb() {
-  $remotedb_id = remotedb_role_variable_get('remotedb');
-  if ($remotedb_id) {
-    $remotedb = entity_load_single('remotedb', $remotedb_id);
-    if ($remotedb instanceof RemotedbInterface) {
-      return $remotedb;
-    }
-  }
-  return NULL;
-}
-
-/**
- * Get a remotedbuser setting.
- *
- * @param string $name
- *   The setting to get.
- *
- * @return mixed
- *   The value of the setting.
- */
-function remotedb_role_variable_get($name) {
-  // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $value = variable_get('remotedb_role_' . $name, NULL);
-
-  if (is_null($value)) {
-    switch ($name) {
-      case 'remotedb':
-        $options = entity_get_controller('remotedb')->options();
-        if (empty($options)) {
-          return NULL;
-        }
-        reset($options);
-        return key($options);
-
-      case 'debug':
-        return FALSE;
-
-      case 'subscription_service':
-        return 'Drupal\remotedb_role\SubscriptionService';
-    }
-  }
-  return $value;
 }

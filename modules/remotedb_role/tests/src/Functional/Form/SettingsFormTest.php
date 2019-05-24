@@ -2,22 +2,13 @@
 
 namespace Drupal\Tests\remotedb_role\Functional\Form;
 
-use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
+use Drupal\Tests\remotedb_role\Functional\RemotedbRoleBrowserTestBase;
 
 /**
  * @coversDefaultClass \Drupal\remotedb_role\Form\SettingsForm
  * @group remotedb_role
  */
-class SettingsFormTest extends RemotedbBrowserTestBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static $modules = [
-    'remotedb',
-    'remotedb_test',
-    'remotedb_role',
-  ];
+class SettingsFormTest extends RemotedbRoleBrowserTestBase {
 
   /**
    * A test user with administrative privileges.
@@ -27,27 +18,10 @@ class SettingsFormTest extends RemotedbBrowserTestBase {
   protected $adminUser;
 
   /**
-   * A remote database.
-   *
-   * @var \Drupal\remotedb\Entity\RemotedbInterface
-   */
-  protected $remotedb;
-
-  /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
-
-    // Create a remote database.
-    $this->remotedb = $this->createRemotedb();
-
-    // Create a few roles.
-    $this->createRole([
-      'remotedb.administer',
-    ], 'admin');
-    $this->createRole([], 'foo');
-    $this->createRole([], 'foo_bar');
 
     // Create an user with admin privileges.
     $this->adminUser = $this->drupalCreateUser([], NULL, FALSE, [
