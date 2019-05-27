@@ -1,10 +1,12 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
 /**
  * Class with Util functions for remotedb_sso.
  */
 class Util {
+
   /**
    * Gets ticket service to use.
    *
@@ -35,11 +37,10 @@ class Util {
    */
   public static function variableGet($name) {
     // @FIXME
-// // @FIXME
-// // The correct configuration object could not be determined. You'll need to
-// // rewrite this call manually.
-// $value = variable_get('remotedb_sso_' . $name, NULL);
-
+    // // @FIXME
+    // // The correct configuration object could not be determined. You'll need to
+    // // rewrite this call manually.
+    // $value = variable_get('remotedb_sso_' . $name, NULL);
     if (is_null($value)) {
       switch ($name) {
         case 'ticket_service':
@@ -48,4 +49,5 @@ class Util {
     }
     return $value;
   }
+
 }

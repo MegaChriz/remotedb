@@ -1,7 +1,12 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
+/**
+ *
+ */
 class MockTicketService implements TicketServiceInterface {
+
   /**
    * Implements TicketInterface::getTicket().
    */
@@ -22,4 +27,5 @@ class MockTicketService implements TicketServiceInterface {
     // Get account details from the remote database.
     return $controller->loadBy($remotedb_uid);
   }
+
 }

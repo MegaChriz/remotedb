@@ -1,10 +1,15 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
 /**
  * @coversDefaultClass \Drupal\remotedb_sso\Url
  */
 class UrlTest extends RemotedbSSOTestBase {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return [
       'name' => 'SSO: Url',
@@ -31,9 +36,8 @@ class UrlTest extends RemotedbSSOTestBase {
       '<a href="http://www.example2.com/subsite/subpath?path=Amen">Amen.</a>',
     ];
     // @FIXME
-// url() expects a route name or an external URI.
-// $base = url('sso/goto', ['absolute' => TRUE]);
-
+    // url() expects a route name or an external URI.
+    // $base = url('sso/goto', ['absolute' => TRUE]);
     $expected = [
       'A text with no link at all.',
       'Go to <a href="' . $base . '?site=www.example.com&path=lorem"> for Lorem Ipsum.',
@@ -50,4 +54,5 @@ class UrlTest extends RemotedbSSOTestBase {
       $this->assertEqual($expected[$i], $text);
     }
   }
+
 }

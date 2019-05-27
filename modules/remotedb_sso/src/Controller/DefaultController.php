@@ -1,7 +1,4 @@
-<?php /**
- * @file
- * Contains \Drupal\remotedb_sso\Controller\DefaultController.
- */
+<?php
 
 namespace Drupal\remotedb_sso\Controller;
 
@@ -12,6 +9,9 @@ use Drupal\Core\Controller\ControllerBase;
  */
 class DefaultController extends ControllerBase {
 
+  /**
+   *
+   */
   public function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
     $user = \Drupal::currentUser();
 
@@ -28,7 +28,7 @@ class DefaultController extends ControllerBase {
 
     if ($user->uid) {
       // An user is already logged in, so ignore the attempt and go to the target
-    // url.
+      // url.
       drupal_goto($target_path, $options);
     }
 
@@ -48,9 +48,10 @@ class DefaultController extends ControllerBase {
 
           // Reload the user's account object to ensure a full user object is
           // passed along to the various hooks.
-          $account = // @FIXME
+          // @FIXME
+          $account =
             // To reset the user cache, use EntityStorageInterface::resetCache().
-\Drupal::entityManager()->getStorage('user')->load($account->uid);
+          \Drupal::entityManager()->getStorage('user')->load($account->uid);
 
           // Now login the user.
           $user = $account;
@@ -58,15 +59,17 @@ class DefaultController extends ControllerBase {
         }
       }
     }
-    
 
-      catch (RemotedbException $e) {
+    catch (RemotedbException $e) {
       // Log any remote database exceptions.
       $e->logError(WATCHDOG_WARNING);
     }
     drupal_goto($target_path, $options);
   }
 
+  /**
+   *
+   */
   public function remotedb_sso_goto() {
     $user = \Drupal::currentUser();
 
@@ -91,8 +94,8 @@ class DefaultController extends ControllerBase {
         drupal_goto($url);
       }
     }
-    
-      catch (RemotedbException $e) {
+
+    catch (RemotedbException $e) {
       $e->printMessage();
       return '';
     }

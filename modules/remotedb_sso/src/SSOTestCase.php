@@ -1,10 +1,15 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
 /**
  * Test for single sign on.
  */
 class SSOTestCase extends RemotedbSSOTestBase {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return [
       'name' => 'SSO: Base',
@@ -23,7 +28,7 @@ class SSOTestCase extends RemotedbSSOTestBase {
     // Login using information from remote account.
     $edit = [
       'name' => $remote_account->name,
-      'pass' => $remote_account->pass_raw
+      'pass' => $remote_account->pass_raw,
     ];
     $this->drupalPost('user', $edit, t('Log in'));
 
@@ -111,4 +116,5 @@ class SSOTestCase extends RemotedbSSOTestBase {
     $this->drupalGet('sso/goto/www.example.com');
     $this->assertResponse(404);
   }
+
 }

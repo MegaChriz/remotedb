@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\Filter\SSOTest.
- */
-
 namespace Drupal\remotedb_sso\Tests\Filter;
 
 use stdClass;
@@ -15,6 +10,10 @@ use Drupal\remotedb_sso\Tests\RemotedbSSOTestBase;
  * @coversDefaultClass \Drupal\remotedb_sso\Filter\SSO
  */
 class SSOTest extends RemotedbSSOTestBase {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return [
       'name' => 'SSO: SSO Filter',
@@ -92,4 +91,5 @@ class SSOTest extends RemotedbSSOTestBase {
       $this->assertEqual($expected[$i], $sso_filter->process($text));
     }
   }
+
 }

@@ -6,7 +6,6 @@
  */
 
 use Drupal\remotedb\Exception\RemotedbException;
-use Drupal\remotedb_sso\Url;
 use Drupal\remotedb_sso\Util;
 
 /**
@@ -57,9 +56,10 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
 
         // Reload the user's account object to ensure a full user object is
         // passed along to the various hooks.
-        $account = // @FIXME
-// To reset the user cache, use EntityStorageInterface::resetCache().
-\Drupal::entityManager()->getStorage('user')->load($account->uid);
+        // @FIXME
+        $account =
+        // To reset the user cache, use EntityStorageInterface::resetCache().
+        \Drupal::entityManager()->getStorage('user')->load($account->uid);
 
         // Now login the user.
         $user = $account;

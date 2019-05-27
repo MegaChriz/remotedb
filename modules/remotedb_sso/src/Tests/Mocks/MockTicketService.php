@@ -1,15 +1,14 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\Mocks\MockTicketService.
- */
-
 namespace Drupal\remotedb_sso\Tests\Mocks;
 
 use Drupal\remotedb_sso\TicketServiceInterface;
 
+/**
+ *
+ */
 class MockTicketService implements TicketServiceInterface {
+
   /**
    * Implements TicketInterface::getTicket().
    */
@@ -30,4 +29,5 @@ class MockTicketService implements TicketServiceInterface {
     // Get account details from the remote database.
     return $controller->loadBy($remotedb_uid);
   }
+
 }

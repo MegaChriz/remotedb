@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
 /**
@@ -51,14 +52,13 @@ class SSO {
   public function settingsForm(array $form, $form_state) {
     $element = [];
     // @FIXME
-// l() expects a Url object, created from a route name or external URI.
-// $element['websites'] = [
-//       '#type' => 'textarea',
-//       '#title' => t('Websites'),
-//       '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at !remotedb_sso_settings_url page.', ['!remotedb_sso_settings_url' => l(t('RemoteDB settings'), 'admin/config/services/remotedb/sso')]),
-//       '#default_value' => $this->settings['websites'],
-//     ];
-
+    // l() expects a Url object, created from a route name or external URI.
+    // $element['websites'] = [
+    //       '#type' => 'textarea',
+    //       '#title' => t('Websites'),
+    //       '#description' => t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".') . ' ' . t('Leave empty to use the defaults which can be set at !remotedb_sso_settings_url page.', ['!remotedb_sso_settings_url' => l(t('RemoteDB settings'), 'admin/config/services/remotedb/sso')]),
+    //       '#default_value' => $this->settings['websites'],
+    //     ];
     return $element;
   }
 
@@ -95,10 +95,8 @@ class SSO {
       $sites = explode("\n", $sites);
 
       // @FIXME
-// url() expects a route name or an external URI.
-// $sso_url = url('sso/goto/', ['absolute' => TRUE]);
-
-
+      // url() expects a route name or an external URI.
+      // $sso_url = url('sso/goto/', ['absolute' => TRUE]);
       foreach ($sites as $site) {
         $text = Url::createSSOGotoUrl($site, $text);
       }
@@ -115,4 +113,5 @@ class SSO {
   public function tips($long = FALSE) {
     return t('SSO links to certain external websites will be automatically created.');
   }
+
 }

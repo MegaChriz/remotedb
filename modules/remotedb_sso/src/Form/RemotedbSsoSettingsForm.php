@@ -1,16 +1,14 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Form\RemotedbSsoSettingsForm.
- */
-
 namespace Drupal\remotedb_sso\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
+/**
+ *
+ */
 class RemotedbSsoSettingsForm extends ConfigFormBase {
 
   /**
@@ -27,7 +25,10 @@ class RemotedbSsoSettingsForm extends ConfigFormBase {
     return ['remotedb_sso.settings'];
   }
 
-  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  /**
+   *
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
     $form['remotedb_sso_websites'] = [
       '#type' => 'textarea',
       '#title' => t('Websites'),

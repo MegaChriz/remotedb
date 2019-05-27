@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\RemotedbSSOTestBase.
- */
-
 namespace Drupal\remotedb_sso\Tests;
 
 use Drupal\remotedbuser\Tests\RemotedbUserTestBase;
@@ -13,6 +8,7 @@ use Drupal\remotedbuser\Tests\RemotedbUserTestBase;
  * Base class for remotedb_sso tests.
  */
 abstract class RemotedbSSOTestBase extends RemotedbUserTestBase {
+
   /**
    * Overrides DrupalWebTestCase::setUp().
    */
@@ -32,13 +28,12 @@ abstract class RemotedbSSOTestBase extends RemotedbUserTestBase {
 
     // Set remotedb for remotedbuser.
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('remotedbuser_remotedb', 'test');
-
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('remotedbuser_remotedb', 'test');
     // Set ticket service.
     \Drupal::configFactory()->getEditable('remotedb_sso.settings')->set('remotedb_sso_ticket_service', 'Drupal\remotedb_sso\Tests\Mocks\MockTicketService')->save();
   }
+
 }

@@ -1,10 +1,12 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
 /**
  * Class for generating SSO urls.
  */
 class Url {
+
   /**
    * Creates an SSO Goto URL for the specified text.
    *
@@ -25,6 +27,9 @@ class Url {
     return preg_replace_callback('/http:\/\/(' . $site . ')\/?(.*?)\"/i', [__CLASS__, 'helper'], $text);
   }
 
+  /**
+   *
+   */
   public static function helper($a) {
     $path = 'sso/goto';
     $options = [
@@ -37,9 +42,8 @@ class Url {
       $options['query']['path'] = $a[2];
     }
     // @FIXME
-// url() expects a route name or an external URI.
-// return url($path, $options) . '"';
-
+    // url() expects a route name or an external URI.
+    // return url($path, $options) . '"';
   }
 
   /**
@@ -56,4 +60,5 @@ class Url {
   public static function generateSSOLoginLink($site, $path = NULL) {
     return 'http://' . $site . '/sso/login/' . $ticket . '/' . $path;
   }
+
 }
