@@ -12,10 +12,12 @@ remotedb_sso.goto:
     _controller: '\Drupal\remotedb_sso\Controller\DefaultController::remotedb_sso_goto'
   requirements:
     _access: 'true'
-remotedb_sso.settings_form:
+
+# Admin settings.
+remotedb_sso.admin_settings_form:
   path: /admin/config/services/remotedb/sso
   defaults:
     _title: SSO
-    _form: \Drupal\remotedb_sso\Form\RemotedbSsoSettingsForm
+    _form: \Drupal\remotedb_sso\Form\SettingsForm
   requirements:
     _permission: remotedb.administer

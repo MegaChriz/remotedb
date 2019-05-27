@@ -1,6 +1,6 @@
 remotedb_role.settings:
   type: config_object
-  label: 'Remote database user settings'
+  label: 'Remote database role settings'
   mapping:
     remotedb:
       type: string

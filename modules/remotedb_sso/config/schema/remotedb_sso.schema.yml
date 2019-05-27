@@ -1,0 +1,8 @@
+remotedb_sso.settings:
+  type: config_object
+  label: 'Remote database SSO settings'
+  mapping:
+    websites:
+      type: sequence
+      sequence:
+        type: string

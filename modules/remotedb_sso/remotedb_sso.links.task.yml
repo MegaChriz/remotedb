@@ -1,3 +1,4 @@
-remotedb_sso.settings_form:
-  route_name: remotedb_sso.settings_form
-  title: SSO
+remotedb_sso.admin_settings_form:
+  route_name: remotedb_sso.admin_settings_form
+  title: 'SSO'
+  base_route: entity.remotedb.collection
