@@ -1,18 +1,30 @@
 <?php
 
-namespace Drupal\remotedb_sso;
+namespace Drupal\Tests\remotedb_sso\Functional;
+
+use Drupal\Tests\remotedbuser\Functional\RemotedbUserBrowserTestBase;
 
 /**
  * Base class for remotedb_sso tests.
  */
-abstract class RemotedbSSOTestBase extends RemotedbUserTestBase {
+abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
 
   /**
-   * Overrides DrupalWebTestCase::setUp().
+   * {@inheritdoc}
    */
-  protected function setUp(array $modules = []) {
-    $modules = array_merge($modules, ['remotedb_sso']);
-    parent::setUp($modules);
+  public static $modules = [
+    'remotedb',
+    'remotedb_test',
+    'remotedbuser',
+    'remotedbuser_test',
+    'remotedb_sso',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
 
     // Create a dummy remote database.
     $record = [

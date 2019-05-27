@@ -19,7 +19,7 @@ use Drupal\remotedb_sso\Util;
  *   }
  * )
  */
-class SSO {
+class Sso {
   /**
    * An associative array containing the configured settings of this filter.
    *

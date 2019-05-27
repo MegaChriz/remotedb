@@ -1,26 +1,18 @@
 <?php
 
-namespace Drupal\remotedb_sso\Tests\Filter;
+namespace Drupal\Tests\remotedb_sso\Unit\Filter;
 
 use stdClass;
-use Drupal\remotedb_sso\Filter\SSO;
-use Drupal\remotedb_sso\Tests\RemotedbSSOTestBase;
+use Drupal\remotedb_sso\Filter\Sso;
+use Drupal\Tests\UnitTestCase;
 
 /**
- * @coversDefaultClass \Drupal\remotedb_sso\Filter\SSO
+ * Test if the SSO Filter works as expected.
+ *
+ * @coversDefaultClass \Drupal\remotedb_sso\Filter\Sso
+ * @group remotedb_sso
  */
-class SSOTest extends RemotedbSSOTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'SSO: SSO Filter',
-      'description' => 'Test if the SSO Filter works as expected.',
-      'group' => 'Remote database',
-    ];
-  }
+class SsoTest extends UnitTestCase {
 
   /**
    * @covers ::processDefault

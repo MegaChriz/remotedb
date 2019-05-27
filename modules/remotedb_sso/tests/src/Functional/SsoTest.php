@@ -1,26 +1,17 @@
 <?php
 
-namespace Drupal\remotedb_sso\Tests;
+namespace Drupal\Tests\remotedb_sso\Functional;
 
 use stdClass;
 use Drupal\remotedb_sso\Url;
 use Drupal\remotedb_sso\Util;
 
 /**
- * Test for single sign on.
+ * Tests for single sign on.
+ *
+ * @group remotedb_sso
  */
-class SSOTestCase extends RemotedbSSOTestBase {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'SSO: Base',
-      'description' => 'Test if single sign-on functionality works as expected.',
-      'group' => 'Remote database',
-    ];
-  }
+class SsoTest extends RemotedbSsoBrowserTestBase {
 
   /**
    * Tests if an authenticated user is redirected to the right page.
