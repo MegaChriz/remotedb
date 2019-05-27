@@ -22,10 +22,10 @@ use Drupal\remotedb_sso\Util;
  * @todo Implement as action?
  */
 function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
-  global $user;
+  $user = \Drupal::currentUser();
 
   $target_path = remotedb_sso_target_path(func_get_args(), 3);
-  $options = array();
+  $options = [];
 
   if (!empty($_GET)) {
     $query = $_GET;
@@ -53,11 +53,13 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
       if ($remote_account) {
         // Ticket is valid. Update account data in local database.
         $account = $remote_account->toAccount();
-        entity_save('user', $account);
+        $account->save();
 
         // Reload the user's account object to ensure a full user object is
         // passed along to the various hooks.
-        $account = user_load($account->uid, TRUE);
+        $account = // @FIXME
+// To reset the user cache, use EntityStorageInterface::resetCache().
+\Drupal::entityManager()->getStorage('user')->load($account->uid);
 
         // Now login the user.
         $user = $account;
@@ -81,7 +83,7 @@ function remotedb_sso_login($remotedb_uid, $timestamp, $hashed_pass) {
  * @todo Implement as action?
  */
 function remotedb_sso_goto() {
-  global $user;
+  $user = \Drupal::currentUser();
 
   if (empty($_GET['site'])) {
     return MENU_NOT_FOUND;

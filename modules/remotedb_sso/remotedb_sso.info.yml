@@ -1,0 +1,8 @@
+name: 'Remote database Single Sign-on'
+description: 'Provides Single Sign-on functionality for remote users.'
+package: 'Remote database'
+core: 8.x
+type: module
+configure: remotedb_sso.settings_form
+dependencies:
+  - remotedbuser

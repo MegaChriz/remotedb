@@ -15,34 +15,34 @@ use Drupal\remotedb_sso\Filter\SSO;
  * Implements hook_menu().
  */
 function remotedb_sso_menu() {
-  $items = array();
+  $items = [];
 
   // Pass the user ID, timestamp, and hashed_pass.
-  $items['sso/login/%/%/%'] = array(
+  $items['sso/login/%/%/%'] = [
     'title' => 'Login',
     'page callback' => 'remotedb_sso_login',
-    'page arguments' => array(2, 3, 4),
+    'page arguments' => [2, 3, 4],
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file' => 'remotedb_sso.pages.inc',
-  );
-  $items['sso/goto'] = array(
+  ];
+  $items['sso/goto'] = [
     'title' => 'SSO Redirect',
     'page callback' => 'remotedb_sso_goto',
-    'page arguments' => array(2),
+    'page arguments' => [2],
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
     'file' => 'remotedb_sso.pages.inc',
-  );
+  ];
 
-  $items['admin/config/services/remotedb/sso'] = array(
+  $items['admin/config/services/remotedb/sso'] = [
     'title' => 'SSO',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('remotedb_sso_settings_form'),
-    'access arguments' => array('remotedb.administer'),
+    'page arguments' => ['remotedb_sso_settings_form'],
+    'access arguments' => ['remotedb.administer'],
     'type' => MENU_LOCAL_TASK,
     'file' => 'remotedb_sso.admin.inc',
-  );
+  ];
 
   return $items;
 }
@@ -55,17 +55,17 @@ function remotedb_sso_menu() {
  * Implements hook_filter_info().
  */
 function remotedb_sso_filter_info() {
-  $filters = array();
-  $filters['remotedb_sso'] = array(
+  $filters = [];
+  $filters['remotedb_sso'] = [
     'title' => t('SSO Link filter'),
     'description' => t('Automatically create SSO links from links to certain external websites'),
     'process callback' => 'remotedb_sso_filter_process',
     'settings callback' => 'remotedb_sso_filter_settings',
-    'default settings' => array(
+    'default settings' => [
       'websites' => '',
-    ),
+    ],
     'tips callback' => 'remotedb_sso_filter_tips',
-  );
+  ];
   return $filters;
 }
 

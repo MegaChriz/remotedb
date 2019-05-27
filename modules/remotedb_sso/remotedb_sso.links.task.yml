@@ -1,0 +1,3 @@
+remotedb_sso.settings_form:
+  route_name: remotedb_sso.settings_form
+  title: SSO

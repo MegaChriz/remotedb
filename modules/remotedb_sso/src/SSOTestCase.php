@@ -1,15 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\SSOTestCase.
- */
-
-namespace Drupal\remotedb_sso\Tests;
-
-use \stdClass;
-use Drupal\remotedb_sso\Url;
-use Drupal\remotedb_sso\Util;
+namespace Drupal\remotedb_sso;
 
 /**
  * Test for single sign on.

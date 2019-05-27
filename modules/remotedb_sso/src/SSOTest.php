@@ -1,15 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\Filter\SSOTest.
- */
-
-namespace Drupal\remotedb_sso\Tests\Filter;
-
-use stdClass;
-use Drupal\remotedb_sso\Filter\SSO;
-use Drupal\remotedb_sso\Tests\RemotedbSSOTestBase;
+namespace Drupal\remotedb_sso;
 
 /**
  * @coversDefaultClass \Drupal\remotedb_sso\Filter\SSO

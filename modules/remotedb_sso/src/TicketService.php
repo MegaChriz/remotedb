@@ -1,13 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\TicketService.
- */
-
 namespace Drupal\remotedb_sso;
-
-use Drupal\remotedb\Entity\RemotedbInterface;
 
 class TicketService implements TicketServiceInterface {
   // ---------------------------------------------------------------------------

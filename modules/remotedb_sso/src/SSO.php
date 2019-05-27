@@ -1,16 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Filter\SSO.
- */
-
-namespace Drupal\remotedb_sso\Filter;
-
-use stdClass;
-use Drupal\remotedb\Exception\RemotedbException;
-use Drupal\remotedb_sso\Url;
-use Drupal\remotedb_sso\Util;
+namespace Drupal\remotedb_sso;
 
 /**
  * Provides a filter to limit allowed HTML tags.

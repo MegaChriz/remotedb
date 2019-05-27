@@ -1,10 +1,4 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Url.
- */
-
 namespace Drupal\remotedb_sso;
 
 /**
@@ -42,7 +36,10 @@ class Url {
     if (!empty($a[2])) {
       $options['query']['path'] = $a[2];
     }
-    return url($path, $options) . '"';
+    // @FIXME
+// url() expects a route name or an external URI.
+// return url($path, $options) . '"';
+
   }
 
   /**

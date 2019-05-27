@@ -1,13 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Util.
- */
-
 namespace Drupal\remotedb_sso;
-
-use Drupal\remotedb_sso\TicketServiceInterface;
 
 /**
  * Class with Util functions for remotedb_sso.
@@ -42,7 +34,12 @@ class Util {
    *   The value of the setting.
    */
   public static function variableGet($name) {
-    $value = variable_get('remotedb_sso_' . $name, NULL);
+    // @FIXME
+// // @FIXME
+// // The correct configuration object could not be determined. You'll need to
+// // rewrite this call manually.
+// $value = variable_get('remotedb_sso_' . $name, NULL);
+
     if (is_null($value)) {
       switch ($name) {
         case 'ticket_service':

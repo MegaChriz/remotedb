@@ -1,13 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\RemotedbSSOTestBase.
- */
-
-namespace Drupal\remotedb_sso\Tests;
-
-use Drupal\remotedbuser\Tests\RemotedbUserTestBase;
+namespace Drupal\remotedb_sso;
 
 /**
  * Base class for remotedb_sso tests.

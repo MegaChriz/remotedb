@@ -1,14 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_sso\Tests\UrlTest.
- */
-
-namespace Drupal\remotedb_sso\Tests;
-
-use \DrupalUnitTestCase;
-use Drupal\remotedb_sso\Url;
+namespace Drupal\remotedb_sso;
 
 /**
  * @coversDefaultClass \Drupal\remotedb_sso\Url
