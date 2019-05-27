@@ -1,0 +1,3 @@
+services:
+  remotedb_sso.url:
+    class: Drupal\remotedb_sso\Url

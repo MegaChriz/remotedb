@@ -2,62 +2,54 @@
 
 namespace Drupal\remotedb_sso;
 
+use Drupal\Core\Url as CoreUrl;
+
 /**
  * Class for generating SSO urls.
  */
-class Url {
+class Url implements UrlInterface {
 
   /**
-   * Creates an SSO Goto URL for the specified text.
-   *
-   * @param string $site
-   *   The site to replace in the url.
-   * @param string $text
-   *   The text to replace urls in.
-   *
-   * @return string
-   *   The text where in the URLs are modified.
+   * {@inheritdoc}
    */
-  public static function createSSOGotoUrl($site, $text) {
+  public function createSsoGotoUrl($site, $text) {
     // Remove whitespace.
     $site = trim($site);
     // Make $site regex safe first.
     $site = preg_quote($site, '/');
     // Now replace the URLS.
-    return preg_replace_callback('/http:\/\/(' . $site . ')\/?(.*?)\"/i', [__CLASS__, 'helper'], $text);
+    return preg_replace_callback('/https?:\/\/(' . $site . ')\/?(.*?)\"/i', [$this, 'createSsoGotoUrlCallback'], $text);
   }
 
   /**
+   * Regular expression callback for ::createSsoGotoUrl().
    *
+   * Creates an url.
+   *
+   * @param array $matches
+   *   A list of matches from the regular expression.
+   *
+   * @return string
+   *   The generated url.
    */
-  public static function helper($a) {
-    $path = 'sso/goto';
+  protected function createSsoGotoUrlCallback($matches) {
     $options = [
       'query' => [
-        'site' => $a[1],
+        'site' => $matches[1],
       ],
       'absolute' => TRUE,
     ];
-    if (!empty($a[2])) {
-      $options['query']['path'] = $a[2];
+    if (!empty($matches[2])) {
+      $options['query']['path'] = $matches[2];
     }
-    // @FIXME
-    // url() expects a route name or an external URI.
-    // return url($path, $options) . '"';
+
+    return CoreUrl::fromRoute('remotedb_sso.goto', [], $options)->toString() . '"';
   }
 
   /**
-   * Generates a SSO Login link.
-   *
-   * @param string $site
-   *   The site to generate an Url for.
-   * @param string $path
-   *   The path for the website.
-   *
-   * @return string
-   *   The generated SSO Url.
+   * {@inheritdoc}
    */
-  public static function generateSSOLoginLink($site, $path = NULL) {
+  public function generateSsoLoginLink($site, $path = NULL) {
     return 'http://' . $site . '/sso/login/' . $ticket . '/' . $path;
   }
 
