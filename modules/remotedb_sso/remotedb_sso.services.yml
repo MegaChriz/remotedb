@@ -7,3 +7,8 @@ services:
     arguments: ['@config.factory', '@entity_type.manager']
   remotedb_sso.url:
     class: Drupal\remotedb_sso\Url
+
+  remotedb_sso.path_processor.sso_login:
+    class: Drupal\remotedb_sso\PathProcessor\PathProcessorSsoLogin
+    tags:
+      - { name: path_processor_inbound, priority: 200 }
