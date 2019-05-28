@@ -1,7 +1,14 @@
 <?php
+
 namespace Drupal\remotedb_sso;
 
+use Drupal\remotedb\Entity\RemotedbInterface;
+
+/**
+ * Class for requesting a ticket for SSO from the remote database.
+ */
 class TicketService implements TicketServiceInterface {
+
   // ---------------------------------------------------------------------------
   // PROPERTIES
   // ---------------------------------------------------------------------------
@@ -18,10 +25,10 @@ class TicketService implements TicketServiceInterface {
   // ---------------------------------------------------------------------------
 
   /**
-   * Ticket object constructor.
+   * Constructs a new TicketService object.
    *
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote datase to use.
+   *   The remote database to use.
    */
   public function __construct(RemotedbInterface $remotedb) {
     $this->remotedb = $remotedb;
@@ -32,21 +39,20 @@ class TicketService implements TicketServiceInterface {
   // ---------------------------------------------------------------------------
 
   /**
-   * Implements TicketInterface::getTicket().
+   * {@inheritdoc}
    */
   public function getTicket($account) {
     return $this->sendRequest('ticket.retrieve', [$account->mail, 'mail']);
   }
 
   /**
-   * Implements TicketInterface::validateTicket().
+   * {@inheritdoc}
    */
   public function validateTicket($remotedb_uid, $timestamp, $hash) {
     if ($this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
-      $controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
-
       // Get account details from the remote database.
-      return $controller->loadBy($remotedb_uid);
+      return \Drupal::entityTypeManager()->getStorage('remotedb_user')
+        ->loadBy($remotedb_uid);
     }
   }
 
@@ -60,10 +66,9 @@ class TicketService implements TicketServiceInterface {
    *
    * @return mixed
    *   The result of the method call.
-   * @throws RemotedbException
-   *   In case the remote database object was not set.
    */
   protected function sendRequest($method, array $params = []) {
     return $this->remotedb->sendRequest($method, $params);
   }
+
 }

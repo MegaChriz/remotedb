@@ -29,7 +29,7 @@ class SubscriptionService implements SubscriptionServiceInterface {
    * Subscription object constructor.
    *
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote datase to use.
+   *   The remote database to use.
    */
   public function __construct(RemotedbInterface $remotedb) {
     $this->remotedb = $remotedb;
@@ -56,8 +56,6 @@ class SubscriptionService implements SubscriptionServiceInterface {
    *
    * @return mixed
    *   The result of the method call.
-   * @throws RemotedbException
-   *   In case the remote database object was not set.
    */
   protected function sendRequest($method, array $params = []) {
     return $this->remotedb->sendRequest($method, $params);

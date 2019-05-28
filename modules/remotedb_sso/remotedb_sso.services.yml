@@ -1,3 +1,9 @@
 services:
+  remotedb_sso.ticket:
+    class: Drupal\remotedb_sso\TicketServiceInterface
+    factory: remotedb_sso.ticket_factory:get
+  remotedb_sso.ticket_factory:
+    class: Drupal\remotedb_sso\TicketServiceFactory
+    arguments: ['@config.factory', '@entity_type.manager']
   remotedb_sso.url:
     class: Drupal\remotedb_sso\Url
