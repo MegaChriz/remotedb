@@ -18,32 +18,38 @@ abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
     'remotedbuser',
     'remotedbuser_test',
     'remotedb_sso',
+    'remotedb_sso_test',
   ];
+
+  /**
+   * The SSO url generator.
+   *
+   * @var \Drupal\remotedb_sso\UrlInterface
+   */
+  protected $urlGenerator;
+
+  /**
+   * The SSO ticket service.
+   *
+   * @var \Drupal\remotedb_sso\TicketInterface
+   */
+  protected $ticketService;
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  public function setUp() {
     parent::setUp();
 
-    // Create a dummy remote database.
-    $record = [
-      'name' => 'test',
-      'label' => 'Test',
-      'url' => 'http://www.example.com/server',
-      'status' => 1,
-      'module' => 'remotedb_sso',
-    ];
-    \Drupal::database()->insert('remotedb')->fields($record)->execute();
+    // Create a dummy remote database and set this one as the the one used by remotedbuser
+    // module.
+    $remotedb = $this->createRemotedb();
+    \Drupal::configFactory()->getEditable('remotedbuser.settings')
+      ->set('remotedb', $remotedb->id())
+      ->save();
 
-    // Set remotedb for remotedbuser.
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('remotedbuser_remotedb', 'test');
-    // Set ticket service.
-    \Drupal::configFactory()->getEditable('remotedb_sso.settings')->set('remotedb_sso_ticket_service', 'Drupal\remotedb_sso\Tests\Mocks\MockTicketService')->save();
+    $this->urlGenerator = $this->container->get('remotedb_sso.url');
+    $this->ticketService = $this->container->get('remotedb_sso.ticket');
   }
 
 }

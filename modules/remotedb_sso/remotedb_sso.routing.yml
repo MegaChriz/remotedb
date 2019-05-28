@@ -2,16 +2,16 @@ remotedb_sso.login:
   path: '/sso/login/{remotedb_uid}/{timestamp}/{hashed_pass}'
   defaults:
     _title: Login
-    _controller: '\Drupal\remotedb_sso\Controller\DefaultController::remotedb_sso_login'
+    _controller: '\Drupal\remotedb_sso\Controller\SsoController::login'
   requirements:
-    _access: 'true'
+    _access: 'TRUE'
 remotedb_sso.goto:
   path: /sso/goto
   defaults:
     _title: 'SSO Redirect'
-    _controller: '\Drupal\remotedb_sso\Controller\DefaultController::remotedb_sso_goto'
+    _controller: '\Drupal\remotedb_sso\Controller\SsoController::goto'
   requirements:
-    _access: 'true'
+    _access: 'TRUE'
 
 # Admin settings.
 remotedb_sso.admin_settings_form:

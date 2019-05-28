@@ -2,6 +2,7 @@
 
 namespace Drupal\remotedb_sso;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 
 /**
@@ -41,8 +42,8 @@ class TicketService implements TicketServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTicket($account) {
-    return $this->sendRequest('ticket.retrieve', [$account->mail, 'mail']);
+  public function getTicket(AccountInterface $account) {
+    return $this->sendRequest('ticket.retrieve', [$account->getEmail(), 'mail']);
   }
 
   /**

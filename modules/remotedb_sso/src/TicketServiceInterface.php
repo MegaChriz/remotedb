@@ -2,21 +2,23 @@
 
 namespace Drupal\remotedb_sso;
 
+use Drupal\Core\Session\AccountInterface;
+
 /**
- *
+ * Interface for the sso ticket service.
  */
 interface TicketServiceInterface {
 
   /**
    * Generate a ticket for the given user.
    *
-   * @param object $account
+   * @param \Drupal\Core\Session\AccountInterface $account
    *   The account to generate a ticket for.
    *
    * @return string
    *   The ticket.
    */
-  public function getTicket($account);
+  public function getTicket(AccountInterface $account);
 
   /**
    * Validate a ticket.
