@@ -64,6 +64,7 @@ unit_kernel_tests: &unit_kernel_tests
           ./test.sh $CIRCLE_PROJECT_REPONAME
           ./test.sh remotedbuser
           ./test.sh remotedb_role
+          ./test.sh remotedb_sso
 
     - store_test_results:
         path: /var/www/html/artifacts/phpunit
@@ -86,6 +87,7 @@ functional_tests: &functional_tests
           ./test-functional.sh $CIRCLE_PROJECT_REPONAME
           ./test-functional.sh remotedbuser
           ./test-functional.sh remotedb_role
+          ./test-functional.sh remotedb_sso
 
     - store_test_results:
         path: /var/www/html/artifacts/phpunit

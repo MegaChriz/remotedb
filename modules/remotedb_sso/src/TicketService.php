@@ -4,6 +4,7 @@ namespace Drupal\remotedb_sso;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * Class for requesting a ticket for SSO from the remote database.
@@ -53,7 +54,7 @@ class TicketService implements TicketServiceInterface {
     if ($this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
       // Get account details from the remote database.
       return \Drupal::entityTypeManager()->getStorage('remotedb_user')
-        ->loadBy($remotedb_uid);
+        ->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
     }
   }
 

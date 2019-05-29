@@ -6,7 +6,7 @@ use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Defines a path processor to rewrite file URLs.
+ * Defines a path processor to rewrite sso login URLs.
  *
  * As the route system does not allow arbitrary amount of parameters convert
  * the file path to a query parameter on the request.
@@ -21,7 +21,7 @@ class PathProcessorSsoLogin implements InboundPathProcessorInterface {
       $pattern = '/^(\/sso\/login\/[0-9a-z]+\/[0-9a-z]+\/[0-9a-z]+)\/?(.*)/i';
       $login_path = preg_replace($pattern, '${1}', $path);
       $additional_path = preg_replace($pattern, '${2}', $path);
-      $request->query->set('path', $additional_path);
+      $request->query->set('target_path', $additional_path);
       return $login_path;
     }
     return $path;

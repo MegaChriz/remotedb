@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\remotedb_sso\Functional;
 
+use Drupal\user\Entity\User;
+
 /**
  * Tests for single sign on.
  *
@@ -39,12 +41,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if an anonymous user is redirected to the right page.
    */
-  public function _testAnonymousRedirect() {
-    // Log out current user if there is one logged in.
-    if ($this->loggedInUser) {
-      $this->drupalLogout();
-    }
-
+  public function testAnonymousRedirect() {
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
     $site = preg_replace('/^https?\:\/\/([^\/]+)\/.*/', '\\1', $ext_url);
@@ -59,7 +56,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if an authenticated user gets logged in when following a SSO link.
    */
-  public function _testSsoLogin() {
+  public function testSsoLogin() {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -79,16 +76,21 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   }
 
   /**
-   * Tests if an authenticated user gets logged in when following a SSO link
-   * even when he didn't had an account on the website yet.
+   * Tests logging in a new remote user using a SSO link.
+   *
+   * When an user that only exists remotely, an user account is expected to be
+   * created locally and a login should be successful.
    */
-  public function _testSsoLoginNewUser() {
+  public function testSsoLoginNewUser() {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
-    // Create fake account to generate ticket for.
-    $account = new stdClass();
-    $account->remotedb_uid = $remote_account->uid;
+    // Create a fake account to generate a ticket for.
+    $account = User::create([
+      'name' => $remote_account->name,
+      'mail' => $remote_account->mail,
+      'remotedb_uid' => $remote_account->uid,
+    ]);
 
     // Generate a ticket.
     $ticket = $this->ticketService->getTicket($account);
@@ -104,7 +106,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if the user is redirected to a 404 page in case of a invalid SSO url.
    */
-  public function _testInvalidSso() {
+  public function testInvalidSso() {
     $this->drupalGet('sso/goto/www.example.com');
     $this->assertResponse(404);
   }

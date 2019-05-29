@@ -4,6 +4,7 @@ namespace Drupal\remotedb_sso_test;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb_sso\TicketServiceInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * A mocked ticket service to be used in functional tests.
@@ -27,7 +28,7 @@ class MockTicketService implements TicketServiceInterface {
   public function validateTicket($remotedb_uid, $timestamp, $hash) {
     // Get account details from the remote database.
     return \Drupal::entityTypeManager()->getStorage('remotedb_user')
-      ->loadBy($remotedb_uid);
+      ->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
   }
 
 }
