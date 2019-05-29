@@ -23,6 +23,7 @@ use Drupal\remotedb\Exception\RemotedbException;
  *   handlers = {
  *     "list_builder" = "Drupal\remotedb\RemoteDbListBuilder",
  *     "storage" = "Drupal\remotedb\Entity\RemotedbStorage",
+ *     "access" = "Drupal\remotedb\RemotedbAccessControlHandler",
  *     "form" = {
  *       "add" = "Drupal\remotedb\Form\RemotedbAddForm",
  *       "edit" = "Drupal\remotedb\Form\RemotedbEditForm",

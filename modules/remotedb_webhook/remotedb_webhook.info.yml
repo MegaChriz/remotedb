@@ -2,7 +2,6 @@ name: 'Remote database Webhook'
 description: 'Allows updates via webhooks.'
 package: 'Remote database'
 core: 8.x
-dependencies:
-  remotedbuser: 'drupal:remotedbuser'
-  psr0: 'psr0:psr0'
 type: module
+dependencies:
+  - remotedbuser

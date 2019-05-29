@@ -13,7 +13,7 @@ class RemotedbEditForm extends RemotedbFormBase {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $form['#title'] = $this->t('Edit remote datbase %name', ['%name' => $this->entity->label()]);
+    $form['#title'] = $this->t('Edit remote database %name', ['%name' => $this->entity->label()]);
     $form = parent::form($form, $form_state);
     return $form;
   }

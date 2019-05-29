@@ -1,7 +1,0 @@
-name = "Remote database Webhook"
-description = "Allows updates via webhooks."
-package = "Remote database"
-core = 7.x
-dependencies[] = remotedbuser
-dependencies[] = psr0
-version = "7.x-1.0"

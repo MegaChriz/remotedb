@@ -1,0 +1,15 @@
+remotedb_webhook.enable:
+  route_name: entity.remotedb.webhook_enable
+  title: Enable webhook
+  appears_on:
+    - entity.remotedb.edit_form
+  cache_tags:
+    - remotedb_webhook_enabled
+
+remotedb_webhook.disable:
+  route_name: entity.remotedb.webhook_disable
+  title: Disable webhook
+  appears_on:
+    - entity.remotedb.edit_form
+  cache_tags:
+    - remotedb_webhook_enabled

@@ -1,148 +1,155 @@
 <?php
 
-use Drupal\Component\Utility\Crypt;
-
 namespace Drupal\remotedb_webhook;
+
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Site\Settings;
+use Drupal\Core\Url;
+use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * General webhook functions.
  */
-class Webhook {
-  /**
-   * Cache ID for index.
-   *
-   * @var string
-   */
-  const CACHE_CID = 'kkbservices_webhook_index';
+class Webhook implements WebhookInterface {
 
   /**
-   * Generates webhook key.
+   * The remote user storage.
    *
-   * @return string
-   *   The key.
+   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
    */
-  public static function getKey() {
-    return Crypt::hashBase64($GLOBALS['base_url'] . drupal_get_private_key() . drupal_get_hash_salt());
+  protected $remotedbUserStorage;
+
+  /**
+   * The cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cache;
+
+  /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
+   * Constructs a new Webhook object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The remote user storage.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   *   The cache backend.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
+   *
+   * @todo dependency injection for:
+   *   - logger
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time) {
+    $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedb_user');
+    $this->cache = $cache;
+    $this->time = $time;
   }
 
   /**
-   * Generate the webhook endpoint URL.
-   *
-   * @return string
-   *   The endpoint URL.
+   * {@inheritdoc}
    */
-  public static function getUrl() {
-    return $GLOBALS['base_url'] . '/remotedb/webhook/' . static::getKey();
+  public function getKey() {
+    $base_url = Url::fromRoute('<front>', [], ['absolute' => TRUE])
+      ->toString();
+
+    return Crypt::hashBase64($base_url . \Drupal::service('private_key')->get() . Settings::getHashSalt());
   }
 
   /**
-   * Returns if url already exists.
-   *
-   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote database to register a webhook for.
-   * @param string $url
-   *   (optional) The webhook url to check.
-   *   Defaults to default webhook url.
-   *
-   * @return bool
-   *   TRUE if the url already exists.
-   *   FALSE otherwise.
+   * {@inheritdoc}
    */
-  public static function exists(RemotedbInterface $remotedb, $url = NULL) {
+  public function getUrl() {
+    return Url::fromRoute('remotedb_webhook.process_webhook', [
+      'key' => $this->getKey(),
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function exists(RemotedbInterface $remotedb, Url $url = NULL) {
     if (is_null($url)) {
-      $url = static::getUrl();
+      $url = $this->getUrl();
     }
-    $webhooks = static::index($remotedb);
-    return isset($webhooks[$url]);
+    $url->setOption('absolute', TRUE);
+
+    $webhooks = $this->index($remotedb);
+    return isset($webhooks[$url->toString()]);
   }
 
   /**
-   * Gets existing webhooks from the remote database.
-   *
-   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote database to get registered webhooks for.
-   *
-   * @return array
-   *   An array of existing webhooks.
+   * {@inheritdoc}
    */
-  public static function index(RemotedbInterface $remotedb) {
-    $cache = \Drupal::cache()->get(static::CACHE_CID . $remotedb->name);
+  public function index(RemotedbInterface $remotedb) {
+    $cache = $this->cache->get(static::CACHE_CID . $remotedb->id());
     if ($cache) {
       return $cache->data;
     }
     else {
       $index = $remotedb->sendRequest('kkbservices_webhook.index');
-      \Drupal::cache('cache')->set(static::CACHE_CID . $remotedb->name, $index, REQUEST_TIME + 3600);
+      $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
     }
   }
 
   /**
-   * Registers a webhook to the remote database.
-   *
-   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote database to register a webhook for.
-   * @param string $url
-   *   (optional) The webhook url to add.
-   *   Defaults to default webhook url.
-   *
-   * @return bool
-   *   TRUE if the webhook was added with success.
-   *   FALSE otherwise.
+   * {@inheritdoc}
    */
-  public static function add(RemotedbInterface $remotedb, $url = NULL) {
+  public function add(RemotedbInterface $remotedb, $url = NULL) {
     if (is_null($url)) {
-      $url = static::getUrl();
+      $url = $this->getUrl();
     }
-    static::cacheClear($remotedb);
-    return $remotedb->sendRequest('kkbservices_webhook.create', [$url, [
-      'user__update',
-    ],
+    $this->cacheClear($remotedb);
+    return $remotedb->sendRequest('kkbservices_webhook.create', [
+      $url,
+      ['user__update'],
     ]);
   }
 
   /**
-   * Removes a webhook from the remote database.
-   *
-   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote database to register a webhook for.
-   * @param string $url
-   *   (optional) The webhook url to remove.
-   *   Defaults to default webhook url.
+   * {@inheritdoc}
    */
-  public static function delete(RemotedbInterface $remotedb, $url = NULL) {
+  public function delete(RemotedbInterface $remotedb, $url = NULL) {
     if (is_null($url)) {
-      $url = static::getUrl();
+      $url = $this->getUrl();
     }
-    $webhooks = static::index($remotedb);
+    $webhooks = $this->index($remotedb);
     if (isset($webhooks[$url])) {
-      static::cacheClear($remotedb);
+      $this->cacheClear($remotedb);
       return $remotedb->sendRequest('kkbservices_webhook.delete', [$webhooks[$url]['webhook_id']]);
     }
   }
 
   /**
-   * Clears cache.
+   * {@inheritdoc}
    */
-  public static function cacheClear(RemotedbInterface $remotedb) {
-    cache_clear_all(static::CACHE_CID . $remotedb->name, 'cache');
-    // @FIXME
-    // // @FIXME
-    // // This looks like another module's variable. You'll need to rewrite this call
-    // // to ensure that it uses the correct configuration object.
-    // variable_set('menu_rebuild_needed', TRUE);
+  public function cacheClear(RemotedbInterface $remotedb) {
+    $this->cache->delete(static::CACHE_CID . $remotedb->id());
+    Cache::invalidateTags(['remotedb_webhook_enabled']);
   }
 
   /**
-   * Processes webhook data.
+   * {@inheritdoc}
    */
-  public static function process($type, $data) {
+  public function process($type, $data) {
     list($entity_type, $hook) = explode('__', $type);
 
     if ($entity_type == 'user') {
       switch ($hook) {
         case 'update':
           // First ensure that this user already exists locally.
-          $users = \Drupal::entityManager()->getStorage('user')->loadByProperties(['remotedb_uid' => $data]);
+          $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['remotedb_uid' => $data]);
           if (empty($users)) {
             return;
           }
@@ -153,7 +160,7 @@ class Webhook {
         case 'welcome_email':
           // The user should receive a welcome mail.
           // First ensure that this user already exists locally.
-          $account = static::createAccount($data);
+          $account = $this->createAccount($data);
           if ($account) {
             _user_mail_notify('register_admin_created', $account);
           }
@@ -169,20 +176,18 @@ class Webhook {
    *   The ID of the user in the remote database.
    */
   protected function createAccount($remotedb_uid) {
-    $rd_controller = \Drupal::entityTypeManager()->getStorage('remotedb_user');
-    $remote_account = $rd_controller->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
+    $remote_account = $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
+
     if (isset($remote_account->uid)) {
       // Copy over account data.
       $account = $remote_account->toAccount();
       $account->save();
-      $uri = entity_uri('user', $account);
-      // @FIXME
-      // url() expects a route name or an external URI.
-      // $vars = [
-      //         '@url' => url($uri['path'], $uri['options']),
-      //         '%name' => $account->name,
-      //       ];
-      \Drupal::logger('remotedb')->info('User account <a href="@url">%name</a> copied over from the remote database.', []);
+
+      $vars = [
+        '@url' => $account->toUrl()->toString(),
+        '%name' => $account->getAccountName(),
+      ];
+      \Drupal::logger('remotedb')->info('User account <a href="@url">%name</a> copied over from the remote database.', $vars);
 
       return $account;
     }

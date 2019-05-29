@@ -5,62 +5,41 @@
  * Remote database Webhook module.
  */
 
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb_webhook\Webhook;
+use Drupal\remotedb_webhook\Form\WebhookDisable;
+use Drupal\remotedb_webhook\Form\WebhookEnable;
 
 /**
- * Implements hook_menu().
+ * Implements hook_entity_type_build().
  */
-function remotedb_webhook_menu() {
-  $items = [];
+function remotedb_webhook_entity_type_build(array &$entity_types) {
+  if (!isset($entity_types['remotedb'])) {
+    return;
+  }
 
-  $items['remotedb/webhook'] = [
-    'title' => 'Remote database webhooks endpoint',
-    'page callback' => 'remotedb_webhook_process_webhook',
-    'access callback' => 'remotedb_webhook_process_webhook_access',
-    'access arguments' => [2],
-    'type' => MENU_CALLBACK,
-    'file' => 'remotedb_webhook.inc',
-  ];
-
-  return $items;
+  $entity_types['remotedb']
+    ->setFormClass('webhook_enable', WebhookEnable::class)
+    ->setFormClass('webhook_disable', WebhookDisable::class);
 }
 
 /**
- * Access callback for remotedb_process_webhook().
- *
- * @string $key
- *   The webhook key.
+ * Implements hook_ENTITY_TYPE_access() for 'remotedb'.
  */
-function remotedb_webhook_process_webhook_access($key) {
-  return $key == Webhook::getKey();
-}
+function remotedb_webhook_remotedb_access(EntityInterface $remotedb, $operation, AccountInterface $account) {
+  $has_perm = $account->hasPermission('remotedb.administer');
 
-/**
- * Implements hook_entity_operation_info().
- */
-function remotedb_webhook_entity_operation_info() {
-  $info['remotedb'] = [
-    'webhook' => [
-      'handler' => 'Drupal\remotedb_webhook\EntityOperation\WebhookEnable',
-      'provision' => [
-        'menu' => [
-          'menu item' => [
-            'type' => MENU_LOCAL_ACTION,
-          ],
-        ],
-      ],
-    ],
-    'webhook-disable' => [
-      'handler' => 'Drupal\remotedb_webhook\EntityOperation\WebhookDisable',
-      'provision' => [
-        'menu' => [
-          'menu item' => [
-            'type' => MENU_LOCAL_ACTION,
-          ],
-        ],
-      ],
-    ],
-  ];
+  switch ($operation) {
+    case 'webhook_enable':
+      return AccessResult::allowedIf($has_perm && !\Drupal::service('remotedb_webhook.webhook')->exists($remotedb));
 
-  return $info;
+    case 'webhook_disable':
+      return AccessResult::allowedIf($has_perm && \Drupal::service('remotedb_webhook.webhook')->exists($remotedb));
+  }
+
+  // No opinion.
+  return AccessResult::neutral();
 }

@@ -2,6 +2,24 @@ remotedb_webhook.process_webhook:
   path: '/remotedb/webhook/{key}'
   defaults:
     _title: 'Remote database webhooks endpoint'
-    _controller: '\Drupal\remotedb_webhook\Controller\DefaultController::remotedb_webhook_process_webhook'
+    _controller: '\Drupal\remotedb_webhook\Controller\WebhookController::processWebhook'
   requirements:
-    _custom_access: '\Drupal\remotedb_webhook\Controller\DefaultController::remotedb_webhook_process_webhook_access'
+    _custom_access: '\Drupal\remotedb_webhook\Controller\WebhookController::processWebhookAccess'
+
+entity.remotedb.webhook_enable:
+  path: '/admin/config/services/remotedb/manage/{remotedb}/webhook-enable'
+  defaults:
+    _entity_form: 'remotedb.webhook_enable'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _entity_access: 'remotedb.webhook_enable'
+
+entity.remotedb.webhook_disable:
+  path: '/admin/config/services/remotedb/manage/{remotedb}/webhook-disable'
+  defaults:
+    _entity_form: 'remotedb.webhook_disable'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _entity_access: 'remotedb.webhook_disable'
