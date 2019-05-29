@@ -1,10 +1,8 @@
-<?php /**
- * @file
- * Contains \Drupal\remotedb_webhook\Controller\DefaultController.
- */
+<?php
 
 namespace Drupal\remotedb_webhook\Controller;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Controller\ControllerBase;
 
 /**
@@ -12,10 +10,16 @@ use Drupal\Core\Controller\ControllerBase;
  */
 class DefaultController extends ControllerBase {
 
-  public function remotedb_webhook_process_webhook_access($key, Drupal\Core\Session\AccountInterface $account) {
+  /**
+   *
+   */
+  public function remotedb_webhook_process_webhook_access($key, AccountInterface $account) {
     return $key == Webhook::getKey();
   }
 
+  /**
+   *
+   */
   public function remotedb_webhook_process_webhook() {
     if (empty($_POST)) {
       \Drupal::logger('remotedb')->notice('Tried to process a webhook with no post data.', []);
@@ -39,8 +43,8 @@ class DefaultController extends ControllerBase {
 
     // Log event.
     \Drupal::logger('remotedb')->info('Webhook type @type has been processed.', [
-      '@type' => $type
-      ]);
+      '@type' => $type,
+    ]);
 
     return NULL;
   }

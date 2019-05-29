@@ -1,14 +1,16 @@
 <?php
+
 namespace Drupal\remotedb_webhook;
 
 /**
  * Register a webhook url.
  */
 class WebhookEnable extends OperationActionBase {
+
   /**
    * Returns basic information about the operation.
    */
-  function operationInfo() {
+  public function operationInfo() {
     return [
       'label' => t('Enable webhook'),
       'description' => t('Enable or disable webhooks for this remote database.'),
@@ -19,13 +21,13 @@ class WebhookEnable extends OperationActionBase {
    * Returns strings for the operations.
    *
    * @return
-   *  An array containing the following keys:
-   *  - 'form': An array of strings for the operation form, containing:
+   *   An array containing the following keys:
+   *   - 'form': An array of strings for the operation form, containing:
    *    - 'button label'
    *    - 'confirm question'
    *    - 'submit message'
    */
-  function operationStrings() {
+  public function operationStrings() {
     return [
       'tab title' => 'Enable webhook',
       'page title' => 'Enable webhook for %label',
@@ -38,7 +40,7 @@ class WebhookEnable extends OperationActionBase {
   /**
    * Access callback: deny access if webhook is already enabled.
    */
-  function operationAccess($entity_type, $entity, $params = []) {
+  public function operationAccess($entity_type, $entity, $params = []) {
     try {
       if (WebhookUtil::exists($entity)) {
         return FALSE;
@@ -54,10 +56,11 @@ class WebhookEnable extends OperationActionBase {
   /**
    * The enable webhooks action.
    */
-  function execute($entity_type, $entity, $parameters = []) {
+  public function execute($entity_type, $entity, $parameters = []) {
     if (!($entity instanceof RemotedbInterface)) {
       throw new InvalidArgumentException('Entity must be of type \Drupal\remotedb\Entity\RemotedbInterface');
     }
     WebhookUtil::add($entity);
   }
+
 }

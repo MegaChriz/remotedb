@@ -1,4 +1,7 @@
 <?php
+
+use Drupal\Component\Utility\Crypt;
+
 namespace Drupal\remotedb_webhook;
 
 /**
@@ -19,7 +22,7 @@ class Webhook {
    *   The key.
    */
   public static function getKey() {
-    return \Drupal\Component\Utility\Crypt::hashBase64($GLOBALS['base_url'] . drupal_get_private_key() . drupal_get_hash_salt());
+    return Crypt::hashBase64($GLOBALS['base_url'] . drupal_get_private_key() . drupal_get_hash_salt());
   }
 
   /**
@@ -93,7 +96,8 @@ class Webhook {
     static::cacheClear($remotedb);
     return $remotedb->sendRequest('kkbservices_webhook.create', [$url, [
       'user__update',
-    ]]);
+    ],
+    ]);
   }
 
   /**
@@ -122,11 +126,10 @@ class Webhook {
   public static function cacheClear(RemotedbInterface $remotedb) {
     cache_clear_all(static::CACHE_CID . $remotedb->name, 'cache');
     // @FIXME
-// // @FIXME
-// // This looks like another module's variable. You'll need to rewrite this call
-// // to ensure that it uses the correct configuration object.
-// variable_set('menu_rebuild_needed', TRUE);
-
+    // // @FIXME
+    // // This looks like another module's variable. You'll need to rewrite this call
+    // // to ensure that it uses the correct configuration object.
+    // variable_set('menu_rebuild_needed', TRUE);
   }
 
   /**
@@ -174,12 +177,11 @@ class Webhook {
       $account->save();
       $uri = entity_uri('user', $account);
       // @FIXME
-// url() expects a route name or an external URI.
-// $vars = [
-//         '@url' => url($uri['path'], $uri['options']),
-//         '%name' => $account->name,
-//       ];
-
+      // url() expects a route name or an external URI.
+      // $vars = [
+      //         '@url' => url($uri['path'], $uri['options']),
+      //         '%name' => $account->name,
+      //       ];
       \Drupal::logger('remotedb')->info('User account <a href="@url">%name</a> copied over from the remote database.', []);
 
       return $account;
