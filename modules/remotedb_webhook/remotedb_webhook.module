@@ -11,16 +11,16 @@ use Drupal\remotedb_webhook\Webhook;
  * Implements hook_menu().
  */
 function remotedb_webhook_menu() {
-  $items = array();
+  $items = [];
 
-  $items['remotedb/webhook'] = array(
+  $items['remotedb/webhook'] = [
     'title' => 'Remote database webhooks endpoint',
     'page callback' => 'remotedb_webhook_process_webhook',
     'access callback' => 'remotedb_webhook_process_webhook_access',
-    'access arguments' => array(2),
+    'access arguments' => [2],
     'type' => MENU_CALLBACK,
     'file' => 'remotedb_webhook.inc',
-  );
+  ];
 
   return $items;
 }
@@ -39,28 +39,28 @@ function remotedb_webhook_process_webhook_access($key) {
  * Implements hook_entity_operation_info().
  */
 function remotedb_webhook_entity_operation_info() {
-  $info['remotedb'] = array(
-    'webhook' => array(
+  $info['remotedb'] = [
+    'webhook' => [
       'handler' => 'Drupal\remotedb_webhook\EntityOperation\WebhookEnable',
-      'provision' => array(
-        'menu' => array(
-          'menu item' => array(
+      'provision' => [
+        'menu' => [
+          'menu item' => [
             'type' => MENU_LOCAL_ACTION,
-          ),
-        ),
-      ),
-    ),
-    'webhook-disable' => array(
+          ],
+        ],
+      ],
+    ],
+    'webhook-disable' => [
       'handler' => 'Drupal\remotedb_webhook\EntityOperation\WebhookDisable',
-      'provision' => array(
-        'menu' => array(
-          'menu item' => array(
+      'provision' => [
+        'menu' => [
+          'menu item' => [
             'type' => MENU_LOCAL_ACTION,
-          ),
-        ),
-      ),
-    ),
-  );
+          ],
+        ],
+      ],
+    ],
+  ];
 
   return $info;
 }

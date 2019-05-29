@@ -12,11 +12,11 @@ use Drupal\remotedb_webhook\Webhook;
  */
 function remotedb_webhook_process_webhook() {
   if (empty($_POST)) {
-    watchdog('remotedb', 'Tried to process a webhook with no post data.', array(), WATCHDOG_NOTICE);
+    \Drupal::logger('remotedb')->notice('Tried to process a webhook with no post data.', []);
     return 'Remote database Webhook Endpoint.';
   }
   if (empty($_POST['data']) || empty($_POST['type'])) {
-    watchdog('remotedb', 'Tried to process a webhook with unsufficient information.', array(), WATCHDOG_NOTICE);
+    \Drupal::logger('remotedb')->notice('Tried to process a webhook with unsufficient information.', []);
     return;
   }
 
@@ -26,10 +26,10 @@ function remotedb_webhook_process_webhook() {
   Webhook::process($type, $data);
 
   // Allow other modules to act on a webhook.
-  module_invoke_all('remotedb_process_webhook', $type, $data);
+  \Drupal::moduleHandler()->invokeAll('remotedb_process_webhook', [$type, $data]);
 
   // Log event.
-  watchdog('remotedb', 'Webhook type @type has been processed.', array('@type' => $type), WATCHDOG_INFO);
+  \Drupal::logger('remotedb')->info('Webhook type @type has been processed.', ['@type' => $type]);
 
   return NULL;
 }

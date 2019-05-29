@@ -1,14 +1,5 @@
 <?php
-
-/**
- * @file
- * Contains \Drupal\remotedb_webhook\Webhook.
- */
-
 namespace Drupal\remotedb_webhook;
-
-use Drupal\remotedb\Entity\RemotedbInterface;
-use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * General webhook functions.
@@ -28,7 +19,7 @@ class Webhook {
    *   The key.
    */
   public static function getKey() {
-    return drupal_hash_base64($GLOBALS['base_url'] . drupal_get_private_key() . drupal_get_hash_salt());
+    return \Drupal\Component\Utility\Crypt::hashBase64($GLOBALS['base_url'] . drupal_get_private_key() . drupal_get_hash_salt());
   }
 
   /**
@@ -72,13 +63,13 @@ class Webhook {
    *   An array of existing webhooks.
    */
   public static function index(RemotedbInterface $remotedb) {
-    $cache = cache_get(static::CACHE_CID . $remotedb->name);
+    $cache = \Drupal::cache()->get(static::CACHE_CID . $remotedb->name);
     if ($cache) {
       return $cache->data;
     }
     else {
       $index = $remotedb->sendRequest('kkbservices_webhook.index');
-      cache_set(static::CACHE_CID . $remotedb->name, $index, 'cache', REQUEST_TIME + 3600);
+      \Drupal::cache('cache')->set(static::CACHE_CID . $remotedb->name, $index, REQUEST_TIME + 3600);
     }
   }
 
@@ -130,7 +121,12 @@ class Webhook {
    */
   public static function cacheClear(RemotedbInterface $remotedb) {
     cache_clear_all(static::CACHE_CID . $remotedb->name, 'cache');
-    variable_set('menu_rebuild_needed', TRUE);
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// variable_set('menu_rebuild_needed', TRUE);
+
   }
 
   /**
@@ -143,7 +139,7 @@ class Webhook {
       switch ($hook) {
         case 'update':
           // First ensure that this user already exists locally.
-          $users = user_load_multiple([], ['remotedb_uid' => $data]);
+          $users = \Drupal::entityManager()->getStorage('user')->loadByProperties(['remotedb_uid' => $data]);
           if (empty($users)) {
             return;
           }
@@ -175,13 +171,16 @@ class Webhook {
     if (isset($remote_account->uid)) {
       // Copy over account data.
       $account = $remote_account->toAccount();
-      entity_save('user', $account);
+      $account->save();
       $uri = entity_uri('user', $account);
-      $vars = [
-        '@url' => url($uri['path'], $uri['options']),
-        '%name' => $account->name,
-      ];
-      watchdog('remotedb', 'User account <a href="@url">%name</a> copied over from the remote database.', $vars, WATCHDOG_INFO);
+      // @FIXME
+// url() expects a route name or an external URI.
+// $vars = [
+//         '@url' => url($uri['path'], $uri['options']),
+//         '%name' => $account->name,
+//       ];
+
+      \Drupal::logger('remotedb')->info('User account <a href="@url">%name</a> copied over from the remote database.', []);
 
       return $account;
     }

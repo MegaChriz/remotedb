@@ -1,0 +1,7 @@
+remotedb_webhook.process_webhook:
+  path: '/remotedb/webhook/{key}'
+  defaults:
+    _title: 'Remote database webhooks endpoint'
+    _controller: '\Drupal\remotedb_webhook\Controller\DefaultController::remotedb_webhook_process_webhook'
+  requirements:
+    _custom_access: '\Drupal\remotedb_webhook\Controller\DefaultController::remotedb_webhook_process_webhook_access'
