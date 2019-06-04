@@ -44,11 +44,4 @@ abstract class OperationActionBase extends EntityConfirmFormBase {
     return $this->entity->toUrl();
   }
 
-  /**
-   * Clears a certain cache.
-   */
-  protected function clearCache() {
-    $this->webhookService->cacheClear($this->entity);
-  }
-
 }

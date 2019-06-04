@@ -64,7 +64,7 @@ interface WebhookInterface {
    *
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   The remote database to register a webhook for.
-   * @param string $url
+   * @param \Drupal\Core\Url $url
    *   (optional) The webhook url to add.
    *   Defaults to default webhook url.
    *
@@ -72,18 +72,18 @@ interface WebhookInterface {
    *   TRUE if the webhook was added with success.
    *   FALSE otherwise.
    */
-  public function add(RemotedbInterface $remotedb, $url = NULL);
+  public function add(RemotedbInterface $remotedb, Url $url = NULL);
 
   /**
    * Removes a webhook from the remote database.
    *
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   The remote database to register a webhook for.
-   * @param string $url
+   * @param \Drupal\Core\Url $url
    *   (optional) The webhook url to remove.
    *   Defaults to default webhook url.
    */
-  public function delete(RemotedbInterface $remotedb, $url = NULL);
+  public function delete(RemotedbInterface $remotedb, Url $url = NULL);
 
   /**
    * Clears cache.

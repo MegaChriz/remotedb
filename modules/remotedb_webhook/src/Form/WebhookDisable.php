@@ -30,7 +30,6 @@ class WebhookDisable extends OperationActionBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->webhookService->delete($this->entity);
-    $this->clearCache();
 
     $success = !$this->webhookService->exists($this->entity);
     $args = ['%label' => $this->entity->label()];

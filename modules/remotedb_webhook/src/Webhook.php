@@ -106,10 +106,13 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function add(RemotedbInterface $remotedb, $url = NULL) {
+  public function add(RemotedbInterface $remotedb, Url $url = NULL) {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
+    $url->setOption('absolute', TRUE);
+    $url = $url->toString();
+
     $this->cacheClear($remotedb);
     return $remotedb->sendRequest('kkbservices_webhook.create', [
       $url,
@@ -120,10 +123,13 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function delete(RemotedbInterface $remotedb, $url = NULL) {
+  public function delete(RemotedbInterface $remotedb, Url $url = NULL) {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
+    $url->setOption('absolute', TRUE);
+    $url = $url->toString();
+
     $webhooks = $this->index($remotedb);
     if (isset($webhooks[$url])) {
       $this->cacheClear($remotedb);

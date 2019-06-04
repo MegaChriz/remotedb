@@ -30,7 +30,6 @@ class WebhookEnable extends OperationActionBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->webhookService->add($this->entity);
-    $this->clearCache();
 
     $success = $this->webhookService->exists($this->entity);
     $args = ['%label' => $this->entity->label()];
