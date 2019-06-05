@@ -23,7 +23,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     $this->remotedbUserStorage = $this->entityTypeManager->getStorage('remotedb_user');

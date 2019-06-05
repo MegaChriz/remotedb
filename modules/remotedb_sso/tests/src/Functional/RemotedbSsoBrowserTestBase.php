@@ -38,7 +38,7 @@ abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create a dummy remote database and set this one as the the one used by

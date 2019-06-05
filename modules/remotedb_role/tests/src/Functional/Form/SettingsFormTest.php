@@ -20,7 +20,7 @@ class SettingsFormTest extends RemotedbRoleBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create an user with admin privileges.

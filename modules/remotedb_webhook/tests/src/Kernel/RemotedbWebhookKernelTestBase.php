@@ -25,7 +25,7 @@ abstract class RemotedbWebhookKernelTestBase extends RemotedbUserKernelTestBase 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create user 1.

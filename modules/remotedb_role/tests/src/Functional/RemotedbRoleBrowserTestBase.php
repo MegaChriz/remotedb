@@ -29,7 +29,7 @@ abstract class RemotedbRoleBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create a remote database.

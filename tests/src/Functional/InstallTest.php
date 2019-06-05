@@ -42,7 +42,7 @@ class InstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
     $this->moduleHandler = $this->container->get('module_handler');
     $this->moduleInstaller = $this->container->get('module_installer');

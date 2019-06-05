@@ -26,7 +26,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     $this->webhookService = $this->container->get('remotedb_webhook.webhook');

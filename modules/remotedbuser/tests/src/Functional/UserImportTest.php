@@ -15,7 +15,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp() {
     parent::setUp();
 
     // Create an admin user.
