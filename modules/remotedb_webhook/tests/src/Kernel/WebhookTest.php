@@ -3,7 +3,6 @@
 namespace Drupal\Tests\remotedb_webhook\Kernel;
 
 use Drupal\Core\Test\AssertMailTrait;
-use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\user\UserInterface;
 
 /**
