@@ -61,10 +61,10 @@ unit_kernel_tests: &unit_kernel_tests
     - run:
         working_directory: /var/www/html
         command: |
-          ./test.sh $CIRCLE_PROJECT_REPONAME
           ./test.sh remotedbuser
           ./test.sh remotedb_role
           ./test.sh remotedb_sso
+          ./test.sh remotedb_webhook
 
     - store_test_results:
         path: /var/www/html/artifacts/phpunit
