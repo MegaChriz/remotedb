@@ -184,7 +184,46 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
    * Tests that roles are left untouched for users with bypass permission.
    */
   public function testWithBypassPermission() {
-    $this->markTestIncomplete('Not implemented yet');
+    // Create a role with bypass permission.
+    $bypass_rid = $this->createRole(['remotedb_role.bypass']);
+
+    // Create an account with this role and the role 'foo'.
+    $account = $this->drupalCreateUser([], NULL, FALSE, [
+      'roles' => ['foo', $bypass_rid],
+    ]);
+
+    // Setup config.
+    $this->config('remotedb_role.settings')
+      ->set('remotedb', $this->remotedb->id())
+      ->set('roles', [
+        'foo' => [
+          'status' => TRUE,
+          'subscriptions' => [
+            '1001',
+            '1002',
+          ],
+        ],
+        'foo_bar' => [
+          'status' => TRUE,
+          'subscriptions' => [
+            '1003',
+            '1004',
+          ],
+        ],
+      ])
+      ->set('debug', FALSE)
+      ->save();
+
+    // Let the subscription service return subscription 1003.
+    $this->setSubscriptions(['1003' => 'FooBar']);
+
+    $this->drupalLogin($account);
+
+    // Assert that the user still has the same roles.
+    $account = $this->reloadEntity($account);
+    $this->assertTrue($account->hasRole($bypass_rid));
+    $this->assertTrue($account->hasRole('foo'));
+    $this->assertFalse($account->hasRole('foo_bar'));
   }
 
 }
