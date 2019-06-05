@@ -10,7 +10,8 @@
     }
   ],
   "require": {
-    "drupal/xmlrpc": "^1.0@beta"
+    "drupal/xmlrpc": "^1.0@beta",
+    "drupal/core": "^8.7"
   },
   "require-dev": {
     "bex/behat-screenshot": "^1.2",
