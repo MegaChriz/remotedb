@@ -93,6 +93,11 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
       return;
     }
 
+    if ($account->hasPermission('remotedb_role.bypass')) {
+      // Roles of this account may not be assigned/revoked. Abort.
+      return;
+    }
+
     $role_settings = $this->configuration['roles'];
     $subscriptions = $this->subscriptionService->getSubscriptions($account);
 

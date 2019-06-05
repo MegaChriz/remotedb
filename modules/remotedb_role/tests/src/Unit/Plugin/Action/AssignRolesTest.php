@@ -20,13 +20,6 @@ class AssignRolesTest extends UnitTestCase {
   protected $account;
 
   /**
-   * The user role entity type.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeInterface
-   */
-  protected $userRoleEntityType;
-
-  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -36,7 +29,6 @@ class AssignRolesTest extends UnitTestCase {
       ->getMockBuilder('Drupal\user\Entity\User')
       ->disableOriginalConstructor()
       ->getMock();
-    $this->userRoleEntityType = $this->getMock('Drupal\Core\Entity\EntityTypeInterface');
   }
 
   /**
@@ -100,7 +92,7 @@ class AssignRolesTest extends UnitTestCase {
       ],
     ];
 
-    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $this->userRoleEntityType, $subscription_service);
+    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $subscription_service);
     $plugin->execute($this->account);
   }
 
@@ -137,7 +129,7 @@ class AssignRolesTest extends UnitTestCase {
       ],
     ];
 
-    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $this->userRoleEntityType, $subscription_service);
+    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $subscription_service);
     $plugin->execute($this->account);
   }
 
@@ -174,7 +166,7 @@ class AssignRolesTest extends UnitTestCase {
       ],
     ];
 
-    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $this->userRoleEntityType, $subscription_service);
+    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $subscription_service);
     $plugin->execute($this->account);
   }
 
@@ -211,7 +203,7 @@ class AssignRolesTest extends UnitTestCase {
       ],
     ];
 
-    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $this->userRoleEntityType, $subscription_service);
+    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $subscription_service);
     $plugin->execute($this->account);
   }
 
@@ -255,7 +247,7 @@ class AssignRolesTest extends UnitTestCase {
       ],
     ];
 
-    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $this->userRoleEntityType, $subscription_service);
+    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $subscription_service);
     $plugin->execute($this->account);
   }
 
@@ -315,7 +307,7 @@ class AssignRolesTest extends UnitTestCase {
       ],
     ];
 
-    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $this->userRoleEntityType, $subscription_service);
+    $plugin = new AssignRoles($config, 'remotedb_role_assign_roles', ['type' => 'user'], $subscription_service);
     $plugin->execute($this->account);
   }
 

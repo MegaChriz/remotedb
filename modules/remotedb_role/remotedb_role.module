@@ -26,11 +26,6 @@ function remotedb_role_help($route_name, RouteMatchInterface $route_match) {
  * Assigns/unassigns roles for account.
  */
 function remotedb_role_user_login(UserInterface $account) {
-  if ($account->hasPermission('remotedb_role.bypass')) {
-    // @todo move to action.
-    return;
-  }
-
   // Apply action on entity.
   $action = \Drupal::service('plugin.manager.action')
     ->createInstance('remotedb_role_assign_roles');
