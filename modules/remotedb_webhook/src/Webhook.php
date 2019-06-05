@@ -11,6 +11,7 @@ use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * General webhook functions.
@@ -23,6 +24,13 @@ class Webhook implements WebhookInterface {
    * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
    */
   protected $remotedbUserStorage;
+
+  /**
+   * The local user storage.
+   *
+   * @var \Drupal\user\UserStorageInterface
+   */
+  protected $userStorage;
 
   /**
    * The cache backend.
@@ -39,6 +47,13 @@ class Webhook implements WebhookInterface {
   protected $time;
 
   /**
+   * The logger service.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * Constructs a new Webhook object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -47,14 +62,15 @@ class Webhook implements WebhookInterface {
    *   The cache backend.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
-   *
-   * @todo dependency injection for:
-   *   - logger
+   * @param \Psr\Log\LoggerInterface $logger
+   *   The logger service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time, LoggerInterface $logger) {
     $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedb_user');
+    $this->userStorage = $entity_type_manager->getStorage('user');
     $this->cache = $cache;
     $this->time = $time;
+    $this->logger = $logger;
   }
 
   /**
@@ -155,7 +171,7 @@ class Webhook implements WebhookInterface {
       switch ($hook) {
         case 'update':
           // First ensure that this user already exists locally.
-          $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['remotedb_uid' => $data]);
+          $users = $this->userStorage->loadByProperties(['remotedb_uid' => $data]);
           if (empty($users)) {
             return;
           }
@@ -193,7 +209,7 @@ class Webhook implements WebhookInterface {
         '@url' => $account->toUrl()->toString(),
         '%name' => $account->getAccountName(),
       ];
-      \Drupal::logger('remotedb')->info('User account <a href="@url">%name</a> copied over from the remote database.', $vars);
+      $this->logger->info('User account <a href="@url">%name</a> copied over from the remote database.', $vars);
 
       return $account;
     }

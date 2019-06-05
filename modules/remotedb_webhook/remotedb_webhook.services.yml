@@ -1,4 +1,4 @@
 services:
   remotedb_webhook.webhook:
     class: Drupal\remotedb_webhook\Webhook
-    arguments: ['@entity_type.manager', '@cache.default', '@datetime.time']
+    arguments: ['@entity_type.manager', '@cache.default', '@datetime.time', '@logger.channel.remotedb']

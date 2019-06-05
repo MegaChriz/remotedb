@@ -2,3 +2,6 @@ services:
   plugin.manager.remotedb.authentication:
     class: Drupal\remotedb\AuthenticationPluginManager
     parent: default_plugin_manager
+  logger.channel.remotedb:
+    parent: logger.channel_base
+    arguments: ['remotedb']
