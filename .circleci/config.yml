@@ -88,6 +88,7 @@ functional_tests: &functional_tests
           ./test-functional.sh remotedbuser
           ./test-functional.sh remotedb_role
           ./test-functional.sh remotedb_sso
+          ./test-functional.sh remotedb_webhook
 
     - store_test_results:
         path: /var/www/html/artifacts/phpunit

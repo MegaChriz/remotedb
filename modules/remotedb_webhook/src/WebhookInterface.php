@@ -87,6 +87,9 @@ interface WebhookInterface {
 
   /**
    * Clears cache.
+   *
+   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
+   *   The remote database to clear cache for.
    */
   public function cacheClear(RemotedbInterface $remotedb);
 

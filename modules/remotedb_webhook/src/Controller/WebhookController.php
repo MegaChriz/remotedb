@@ -8,6 +8,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\remotedb_webhook\WebhookInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Default controller for the remotedb_webhook module.
@@ -72,23 +74,29 @@ class WebhookController extends ControllerBase {
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The http request.
    *
-   * @return ???
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   A response in JSON format.
    */
   public function processWebhook(Request $request) {
-    // @todo get post data from request.
-
-    if (empty($_POST)) {
-      $this->logger->notice('Tried to process a webhook with no post data.', []);
-      return 'Remote database Webhook Endpoint.';
-    }
-    if (empty($_POST['data']) || empty($_POST['type'])) {
-      $this->logger->notice('Tried to process a webhook with unsufficient information.', []);
-      return;
+    if ($request->getMethod() != 'POST') {
+      $this->logger->notice('Tried to process a webhook with no post data.');
+      return new JsonResponse('Remote database Webhook Endpoint.', 400);
     }
 
-    $data = $_POST['data'];
-    $type = $_POST['type'];
+    $type = $request->get('type');
+    $data = $request->get('data');
 
+    if (empty($type) || empty($data)) {
+      $this->logger->notice('Tried to process a webhook with unsufficient information.');
+      return new JsonResponse("Remote database Webhook Endpoint, but missing post data for 'type' or 'data'.", 400);
+    }
+
+    if (!is_string($type)) {
+      $this->logger->notice("Tried to process a webhook with malformed syntax for 'type' parameter.");
+      return new JsonResponse("The parameter 'type' should be a string.", 400);
+    }
+
+    // Process webhook.
     $this->webhook->process($type, $data);
 
     // Allow other modules to act on a webhook.
@@ -102,7 +110,7 @@ class WebhookController extends ControllerBase {
       '@type' => $type,
     ]);
 
-    return NULL;
+    return new JsonResponse();
   }
 
 }
