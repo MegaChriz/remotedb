@@ -50,7 +50,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if registration fails if the user's name already exists remotely.
+   * Tests registration failure when username already exists remotely.
    */
   public function testRegistrationNameDuplicates() {
     // Don't require e-mail verification and allow registration by site visitors
@@ -72,7 +72,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if registration fails if the user's mail address already exists remotely.
+   * Tests registration failure when mail address already exists remotely.
    */
   public function testRegistrationEmailDuplicates() {
     // Don't require e-mail verification and allow registration by site visitors
@@ -93,7 +93,8 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $this->drupalPostForm('user/register', $edit, t('Create new account'));
     $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying an exact duplicate email address displays an error message.');
 
-    // Attempt to bypass duplicate email registration validation by adding spaces.
+    // Attempt to bypass duplicate email registration validation by adding
+    // spaces.
     $edit['mail'] = '   ' . $remote_account->mail . '   ';
 
     $this->drupalPostForm('user/register', $edit, t('Create new account'));

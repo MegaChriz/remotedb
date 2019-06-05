@@ -19,11 +19,11 @@ class Url implements UrlInterface {
     $site = preg_quote($site, '/');
 
     // Prepare protocols pattern for absolute URLs.
-    // \Drupal\Component\Utility\UrlHelper::stripDangerousProtocols() will replace
-    // any bad protocols with HTTP, so we need to support the identical list.
-    // While '//' is technically optional for MAILTO only, we cannot cleanly
-    // differ between protocols here without hard-coding MAILTO, so '//' is
-    // optional for all protocols.
+    // \Drupal\Component\Utility\UrlHelper::stripDangerousProtocols() will
+    // replace any bad protocols with HTTP, so we need to support the identical
+    // list. While '//' is technically optional for MAILTO only, we cannot
+    // cleanly differ between protocols here without hard-coding MAILTO, so '//'
+    // is optional for all protocols.
     // @see \Drupal\Component\Utility\UrlHelper::stripDangerousProtocols()
     $protocols = \Drupal::getContainer()->getParameter('filter_protocols');
     $protocols = implode(':(?://)?|', $protocols) . ':(?://)?';
@@ -43,7 +43,8 @@ class Url implements UrlInterface {
     $valid_url_query_ending_chars = '[a-zA-Z0-9_&=#\/]';
 
     // Full path.
-    // and allow @ in a url, but only in the middle. Catch things like http://example.com/@user/
+    // and allow @ in a url, but only in the middle. Catch things like
+    // http://example.com/@user/.
     $valid_url_path = '(?:(?:' . $valid_url_path_characters . '*(?:' . $valid_url_balanced_parens . $valid_url_path_characters . '*)*' . $valid_url_ending_characters . ')|(?:@' . $valid_url_path_characters . '+\/))';
 
     // Prepare trail pattern.
@@ -68,7 +69,7 @@ class Url implements UrlInterface {
    * @return string
    *   The generated url.
    */
-  protected function createSsoGotoUrlCallback($matches) {
+  protected function createSsoGotoUrlCallback(array $matches) {
     $options = [
       'query' => [
         'site' => $matches[3],

@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -118,13 +117,13 @@ class SettingsForm extends ConfigFormBase {
         ];
         $subscriptions = $config->get('roles.' . $rid . '.subscriptions');
         $form['roles'][$rid]['subscriptions'] = [
-           '#type' => 'textarea',
-           '#title' => $this->t('Subscriptions'),
-           '#default_value' => NULL,
-           '#description' => $this->t('Specify which subscriptions should give the user the role %role. Enter one per line.', [
-             '%role' => $role->label(),
-           ]),
-           '#default_value' => !empty($subscriptions) ? implode("\n", $subscriptions) : NULL,
+          '#type' => 'textarea',
+          '#title' => $this->t('Subscriptions'),
+          '#default_value' => NULL,
+          '#description' => $this->t('Specify which subscriptions should give the user the role %role. Enter one per line.', [
+            '%role' => $role->label(),
+          ]),
+          '#default_value' => !empty($subscriptions) ? implode("\n", $subscriptions) : NULL,
         ];
       }
     }

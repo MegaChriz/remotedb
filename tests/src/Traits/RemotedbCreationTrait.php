@@ -15,7 +15,8 @@ trait RemotedbCreationTrait {
    * Creates a remote database entity.
    *
    * @param array $settings
-   *   (optional) An associative array of settings for the remote database entity.
+   *   (optional) An associative array of settings for the remote database
+   *   entity.
    *
    * @return \Drupal\remotedb\Entity\RemotedbInterface
    *   The created remote database entity.

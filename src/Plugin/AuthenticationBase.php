@@ -11,10 +11,6 @@ use Drupal\remotedb\Entity\RemotedbInterface;
  */
 abstract class AuthenticationBase extends PluginBase implements AuthenticationInterface {
 
-  // ---------------------------------------------------------------------------
-  // PROPERTIES
-  // ---------------------------------------------------------------------------
-
   /**
    * A remote database.
    *
@@ -50,10 +46,6 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
    */
   public $settings = [];
 
-  // ---------------------------------------------------------------------------
-  // CONSTRUCT
-  // ---------------------------------------------------------------------------
-
   /**
    * Constructs a new AuthenticationBase instance.
    *
@@ -74,10 +66,6 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
     $this->setConfiguration($configuration);
   }
 
-  // ---------------------------------------------------------------------------
-  // SETTERS
-  // ---------------------------------------------------------------------------
-
   /**
    * {@inheritdoc}
    */
@@ -93,10 +81,6 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
     }
     return $this;
   }
-
-  // ---------------------------------------------------------------------------
-  // GETTERS
-  // ---------------------------------------------------------------------------
 
   /**
    * {@inheritdoc}

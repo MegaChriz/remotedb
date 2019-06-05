@@ -50,10 +50,6 @@ use Drupal\remotedb\Exception\RemotedbException;
  */
 class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWithPluginCollectionInterface {
 
-  // ---------------------------------------------------------------------------
-  // PROPERTIES
-  // ---------------------------------------------------------------------------
-
   /**
    * The unique identifier for this remote database.
    *
@@ -95,10 +91,6 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
    * @var bool
    */
   protected $authenticated = FALSE;
-
-  // ---------------------------------------------------------------------------
-  // GETTERS
-  // ---------------------------------------------------------------------------
 
   /**
    * {@inheritdoc}
@@ -152,10 +144,6 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
     return $this->headers;
   }
 
-  // ---------------------------------------------------------------------------
-  // SETTERS
-  // ---------------------------------------------------------------------------
-
   /**
    * {@inheritdoc}
    */
@@ -167,10 +155,6 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
       unset($this->headers[$header]);
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // ACTION
-  // ---------------------------------------------------------------------------
 
   /**
    * Authenticates to the XML-RPC server.
@@ -199,6 +183,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
    *
    * @return mixed
    *   The result of the request.
+   *
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case of errors during the request.
    */

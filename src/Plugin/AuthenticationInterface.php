@@ -16,6 +16,7 @@ interface AuthenticationInterface extends ConfigurableInterface, DependentPlugin
    * Returns the administrative label for this authentication method.
    *
    * @return string
+   *   The method's administrative label.
    */
   public function getLabel();
 
@@ -23,6 +24,7 @@ interface AuthenticationInterface extends ConfigurableInterface, DependentPlugin
    * Returns the administrative description for this authentication method.
    *
    * @return string
+   *   The method's description.
    */
   public function getDescription();
 

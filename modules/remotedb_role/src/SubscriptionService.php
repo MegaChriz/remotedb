@@ -10,20 +10,12 @@ use Drupal\user\UserInterface;
  */
 class SubscriptionService implements SubscriptionServiceInterface {
 
-  // ---------------------------------------------------------------------------
-  // PROPERTIES
-  // ---------------------------------------------------------------------------
-
   /**
    * A remote database.
    *
    * @var \Drupal\remotedb\Entity\RemotedbInterface
    */
   private $remotedb;
-
-  // ---------------------------------------------------------------------------
-  // CONSTRUCT
-  // ---------------------------------------------------------------------------
 
   /**
    * Subscription object constructor.
@@ -34,10 +26,6 @@ class SubscriptionService implements SubscriptionServiceInterface {
   public function __construct(RemotedbInterface $remotedb) {
     $this->remotedb = $remotedb;
   }
-
-  // ---------------------------------------------------------------------------
-  // ACTION
-  // ---------------------------------------------------------------------------
 
   /**
    * {@inheritdoc}
@@ -60,4 +48,5 @@ class SubscriptionService implements SubscriptionServiceInterface {
   protected function sendRequest($method, array $params = []) {
     return $this->remotedb->sendRequest($method, $params);
   }
+
 }

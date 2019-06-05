@@ -28,39 +28,39 @@ class RemotedbAuthentication extends Plugin {
   /**
    * The human-readable name of the authentication method.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $title;
 
   /**
    * A brief description of the authentication method.
    *
-   * @ingroup plugin_translatable
+   * @var \Drupal\Core\Annotation\Translation|string
    *
-   * @var \Drupal\Core\Annotation\Translation (optional)
+   * @ingroup plugin_translatable
    */
   public $description = '';
 
   /**
    * A default weight used for presentation in the user interface only.
    *
-   * @var int (optional)
+   * @var int
    */
   public $weight = 0;
 
   /**
    * Whether this method is enabled or disabled by default.
    *
-   * @var bool (optional)
+   * @var bool
    */
   public $status = FALSE;
 
   /**
    * The default settings for the method.
    *
-   * @var array (optional)
+   * @var array
    */
   public $settings = [];
 

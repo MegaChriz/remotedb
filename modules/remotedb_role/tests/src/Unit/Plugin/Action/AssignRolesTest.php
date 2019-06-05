@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\remotedb_role\Unit\Plugin\Action;
 
-use Drupal\Core\Config\ConfigBase;
 use Drupal\remotedb_role\Plugin\Action\AssignRoles;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
 use Drupal\Tests\UnitTestCase;
@@ -217,7 +216,12 @@ class AssignRolesTest extends UnitTestCase {
   }
 
   /**
-   * Tests that a role is added only once when two subscriptions lead to the same role.
+   * Test adding roles with two subscriptions for the same role.
+   *
+   * When two subscriptions would result into the same role being added, the
+   * role should only be added once.
+   *
+   * @covers ::execute
    */
   public function testExecuteWithTwoSubscriptionsForSameRole() {
     $this->account->expects($this->once())
@@ -270,7 +274,7 @@ class AssignRolesTest extends UnitTestCase {
 
     $this->account->expects($this->any())
       ->method('hasRole')
-      ->will($this->returnCallback(function($rid) {
+      ->will($this->returnCallback(function ($rid) {
         switch ($rid) {
           case 'test_role_1':
             return TRUE;

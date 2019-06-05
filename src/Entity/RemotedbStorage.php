@@ -12,7 +12,7 @@ class RemotedbStorage extends ConfigEntityStorage implements RemotedbStorageInte
   /**
    * {@inheritdoc}
    */
-  public function options($entities = NULL) {
+  public function options(array $entities = NULL) {
     if (is_null($entities)) {
       $entities = $this->loadMultiple();
     }

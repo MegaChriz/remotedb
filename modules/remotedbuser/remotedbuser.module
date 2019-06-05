@@ -14,9 +14,11 @@ use Drupal\Core\Url;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\user\UserInterface;
 
-/*******************************************************************************
- * ACCESS
- ******************************************************************************/
+// @codingStandardsIgnoreStart
+// -----------------------------------------------------------------------------
+// ACCESS
+// -----------------------------------------------------------------------------
+// @codingStandardsIgnoreEnd
 
 /**
  * Checks if user may retrieve users from the remote database.
@@ -31,9 +33,11 @@ function remotedbuser_get_remote_user_access(AccountInterface $account = NULL) {
   return $account->hasPermission('remotedb.administer') || $account->hasPermission('remotedbuser.getuser');
 }
 
-/*******************************************************************************
- * USER HOOKS
- ******************************************************************************/
+// @codingStandardsIgnoreStart
+// -----------------------------------------------------------------------------
+// USER HOOKS
+// -----------------------------------------------------------------------------
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_user_presave().
@@ -83,9 +87,11 @@ function _remotedbuser_user_view(array &$build, UserInterface $account) {
   }
 }
 
-/*******************************************************************************
- * ENTITY API HOOKS
- ******************************************************************************/
+// @codingStandardsIgnoreStart
+// -----------------------------------------------------------------------------
+// ENTITY API HOOKS
+// -----------------------------------------------------------------------------
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_entity_base_field_info_alter().
@@ -104,9 +110,11 @@ function remotedbuser_entity_base_field_info_alter(array &$fields, EntityTypeInt
   }
 }
 
-/*******************************************************************************
- * VIEWS HOOKS
- ******************************************************************************/
+// @codingStandardsIgnoreStart
+// -----------------------------------------------------------------------------
+// VIEWS HOOKS
+// -----------------------------------------------------------------------------
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_views_api().
@@ -117,9 +125,11 @@ function _remotedbuser_views_api() {
   ];
 }
 
-/*******************************************************************************
- * FORM ALTERS
- ******************************************************************************/
+// @codingStandardsIgnoreStart
+// -----------------------------------------------------------------------------
+// FORM ALTERS
+// -----------------------------------------------------------------------------
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_form_FORM_ID_alter() for form user_register_form().
@@ -181,8 +191,8 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
     // Get account from the remote database, if it exists.
     $remote_account = $storage->loadBy($mail, RemotedbUserStorageInterface::BY_MAIL);
     if ($remote_account) {
-      // Account exists. Make sure that the chosen username is not already taken if the
-      // remote account has an other username.
+      // Account exists. Make sure that the chosen username is not already taken
+      // if the remote account has an other username.
       if ($remote_account->name != $name) {
         if (!$storage->validateName($name, $account)) {
           // @todo make this a constraint?
@@ -192,34 +202,35 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
     }
   }
   else {
-    // The account is an existing account or the account is not created by an administrator.
-    // Validate new or changing username.
+    // The account is an existing account or the account is not created by an
+    // administrator. Validate new or changing username.
     if ($name) {
       if (!$storage->validateName($name, $account)) {
         $message = t('The name %name is already taken.', ['%name' => $name]);
         if (remotedbuser_get_remote_user_access()) {
-           $message = t('An user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
-             '%name' => $name,
-             '@link' => Url::fromRoute('remotedbuser.get_remote_user_form')->toString(),
-             '@title' => t('Get remote user'),
-           ]);
+          $message = t('An user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
+            '%name' => $name,
+            '@link' => Url::fromRoute('remotedbuser.get_remote_user_form')->toString(),
+            '@title' => t('Get remote user'),
+          ]);
         }
         $form_state->setErrorByName('name', $message);
       }
     }
 
-    // Validate the e-mail address, and check if it is taken by an existing user in the remote database.
+    // Validate the e-mail address, and check if it is taken by an existing user
+    // in the remote database.
     if (!$storage->validateMail($mail, $account)) {
       // The mail address is already taken.
       if (\Drupal::currentUser()->isAuthenticated()) {
         // An authenticated user is editing account data.
         $message = t('The e-mail address %email is already taken.', ['%email' => $mail]);
         if (remotedbuser_get_remote_user_access()) {
-           $message = t('An user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
-             '%email' => $mail,
-             '@link' => Url::fromRoute('remotedbuser.get_remote_user_form')->toString(),
-             '@title' => t('Get remote user'),
-           ]);
+          $message = t('An user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
+            '%email' => $mail,
+            '@link' => Url::fromRoute('remotedbuser.get_remote_user_form')->toString(),
+            '@title' => t('Get remote user'),
+          ]);
         }
         $form_state->setErrorByName('mail', $message);
       }

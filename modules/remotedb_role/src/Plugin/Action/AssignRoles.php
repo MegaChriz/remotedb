@@ -2,10 +2,8 @@
 
 namespace Drupal\remotedb_role\Plugin\Action;
 
-use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Action\ActionBase;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
@@ -52,12 +50,10 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\remotedb_role\SubscriptionServiceInterface
+   * @param \Drupal\remotedb_role\SubscriptionServiceInterface $subscription_service
    *   A service that can return subscriptions.
-   *
-   * @return \Drupal\remotedb_role\Plugin\Action\AssignRoles
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeInterface $entity_type, SubscriptionServiceInterface $subscription_service) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, SubscriptionServiceInterface $subscription_service) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->subscriptionService = $subscription_service;
   }
@@ -76,7 +72,6 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')->getDefinition('user_role'),
       $container->get('remotedb_role.subscription')
     );
   }

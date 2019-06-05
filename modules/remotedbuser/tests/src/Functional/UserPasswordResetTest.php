@@ -3,7 +3,7 @@
 namespace Drupal\Tests\remotedbuser\Functional;
 
 /**
- * Ensure that users that only exists on the remote database can request a new password.
+ * Tests for requesting a new password via the remote database.
  *
  * @group remotedbuser
  */

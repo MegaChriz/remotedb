@@ -44,7 +44,8 @@ abstract class RemotedbFactoryBase {
   /**
    * Throws an exception in case remotedb property is not set.
    *
-   * Methods that require the remotedb property being set, should call this method.
+   * Methods that require the remotedb property being set, should call this
+   * method.
    *
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case the remote database is not set.

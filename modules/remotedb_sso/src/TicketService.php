@@ -11,20 +11,12 @@ use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
  */
 class TicketService implements TicketServiceInterface {
 
-  // ---------------------------------------------------------------------------
-  // PROPERTIES
-  // ---------------------------------------------------------------------------
-
   /**
    * A remote database.
    *
    * @var \Drupal\remotedb\Entity\RemotedbInterface
    */
   private $remotedb;
-
-  // ---------------------------------------------------------------------------
-  // CONSTRUCT
-  // ---------------------------------------------------------------------------
 
   /**
    * Constructs a new TicketService object.
@@ -35,10 +27,6 @@ class TicketService implements TicketServiceInterface {
   public function __construct(RemotedbInterface $remotedb) {
     $this->remotedb = $remotedb;
   }
-
-  // ---------------------------------------------------------------------------
-  // ACTION
-  // ---------------------------------------------------------------------------
 
   /**
    * {@inheritdoc}

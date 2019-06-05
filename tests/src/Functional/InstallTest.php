@@ -96,7 +96,7 @@ class InstallTest extends BrowserTestBase {
    * @param array $params
    *   An array of parameters.
    */
-  public function remotedbCallback($method, $params) {
+  public function remotedbCallback($method, array $params) {
     $this->calledRemotedbCallback++;
     $this->assertSame($method, 'fake_method', 'A fake method was called on the mocked remote database object.');
     $this->assertSame($params, ['alpha', 'beta'], 'The test callback received expected the parameters.');

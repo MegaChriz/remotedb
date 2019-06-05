@@ -4,7 +4,6 @@ namespace Drupal\remotedb;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
-//use Drupal\Core\Url;
 
 /**
  * Defines a class to build a listing of remote database entities.

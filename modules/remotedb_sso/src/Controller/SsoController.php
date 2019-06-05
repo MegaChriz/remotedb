@@ -109,14 +109,14 @@ class SsoController extends ControllerBase {
 
     // Check if the ticket service is available.
     if (empty($this->ticketService)) {
-      // Ticket service is not available, so ignore the attempt and go to the target
-      // url.
+      // Ticket service is not available, so ignore the attempt and go to the
+      // target url.
       return $this->redirect($route_name, $route_parameters, $options);
     }
 
     if ($this->currentUser->isAuthenticated()) {
-      // An user is already logged in, so ignore the attempt and go to the target
-      // url.
+      // An user is already logged in, so ignore the attempt and go to the
+      // target url.
       return $this->redirect($route_name, $route_parameters, $options);
     }
 

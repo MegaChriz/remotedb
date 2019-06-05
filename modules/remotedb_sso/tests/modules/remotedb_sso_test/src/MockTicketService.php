@@ -19,7 +19,11 @@ class MockTicketService implements TicketServiceInterface {
     if (!empty($account->remotedb_uid->value)) {
       $uid = $account->remotedb_uid->value;
     }
-    return implode('/', [$uid, \Drupal::time()->getRequestTime(), user_password()]);
+    return implode('/', [
+      $uid,
+      \Drupal::time()->getRequestTime(),
+      user_password(),
+    ]);
   }
 
   /**

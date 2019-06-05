@@ -6,13 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\remotedb\Entity\RemotedbInterface;
-use Drupal\remotedb_role\Plugin\Action\AssignRoles;
 use Drupal\user\UserInterface;
-
-// ---------------------------------------------------------------------------
-// DRUPAL HOOKS
-// ---------------------------------------------------------------------------
 
 /**
  * Implements hook_help().

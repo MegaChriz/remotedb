@@ -9,10 +9,6 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  */
 interface RemotedbInterface extends ConfigEntityInterface {
 
-  // ---------------------------------------------------------------------------
-  // GETTERS
-  // ---------------------------------------------------------------------------
-
   /**
    * Returns the used url.
    *
@@ -41,10 +37,6 @@ interface RemotedbInterface extends ConfigEntityInterface {
    */
   public function getHeaders();
 
-  // ---------------------------------------------------------------------------
-  // SETTERS
-  // ---------------------------------------------------------------------------
-
   /**
    * Sets a header.
    *
@@ -54,10 +46,6 @@ interface RemotedbInterface extends ConfigEntityInterface {
    *   The header's value.
    */
   public function setHeader($header, $value);
-
-  // ---------------------------------------------------------------------------
-  // ACTION
-  // ---------------------------------------------------------------------------
 
   /**
    * Sends a request to the XML-RPC server.

@@ -42,16 +42,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   }
 
   /**
-   * {@inheritdoc}
-   *
-   * @return \Drupal\authentication\Plugin\authenticationInterface
-   */
-  public function &get($instance_id) {
-    return parent::get($instance_id);
-  }
-
-  /**
-   * Retrieves authentication method definitions and creates an instance for each one.
+   * Retrieves plugin definitions and creates an instance for each one.
    */
   public function getAll() {
     // Retrieve all available authentication plugin definitions.
@@ -61,8 +52,8 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
 
     // Ensure that there is an instance of all available authentication methods.
     // Note that getDefinitions() are keyed by $plugin_id. $instance_id is the
-    // $plugin_id for authentications, since a single authentication plugin can only exist once
-    // in a remote database.
+    // $plugin_id for authentications, since a single authentication plugin can
+    // only exist once in a remote database.
     foreach ($this->definitions as $plugin_id => $definition) {
       if (!isset($this->pluginInstances[$plugin_id])) {
         $this->initializePlugin($plugin_id);
@@ -75,8 +66,8 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
    * {@inheritdoc}
    */
   protected function initializePlugin($instance_id) {
-    // Authentications have a 1:1 relationship to remote databases and can be added and
-    // instantiated at any time.
+    // Authentications have a 1:1 relationship to remote databases and can be
+    // added and instantiated at any time.
     $configuration = $this->manager->getDefinition($instance_id);
     // Merge the actual configuration into the default configuration.
     if (isset($this->configurations[$instance_id])) {
@@ -122,11 +113,12 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   public function getConfiguration() {
     $configuration = parent::getConfiguration();
     // Remove configuration if it matches the defaults. In self::getAll(), we
-    // load all available authentications, in addition to the enabled authentications stored in
-    // configuration. In order to prevent those from bleeding through to the
-    // stored configuration, remove all authentications that match the default values.
-    // Because authentications are disabled by default, this will never remove the
-    // configuration of an enabled authentication.
+    // load all available authentications, in addition to the enabled
+    // authentications stored in configuration. In order to prevent those from
+    // bleeding through to the stored configuration, remove all authentications
+    // that match the default values. Because authentications are disabled by
+    // default, this will never remove the configuration of an enabled
+    // authentication.
     foreach ($configuration as $instance_id => $instance_config) {
       $default_config = [];
       $default_config['id'] = $instance_id;

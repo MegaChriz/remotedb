@@ -41,8 +41,8 @@ abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
   public function setUp() {
     parent::setUp();
 
-    // Create a dummy remote database and set this one as the the one used by remotedbuser
-    // module.
+    // Create a dummy remote database and set this one as the the one used by
+    // the remotedbuser module.
     $remotedb = $this->createRemotedb();
     \Drupal::configFactory()->getEditable('remotedbuser.settings')
       ->set('remotedb', $remotedb->id())

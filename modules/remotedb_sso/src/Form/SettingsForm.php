@@ -4,7 +4,6 @@ namespace Drupal\remotedb_sso\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 
 /**
  * Defines a form that configures remotedb_sso settings.

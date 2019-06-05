@@ -85,7 +85,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
    *
    * @dataProvider dataProviderWithDebug
    */
-  public function _testWithDebug(array $roles, array $subscriptions, array $has_roles, array $not_has_roles, array $texts) {
+  public function testWithDebug(array $roles, array $subscriptions, array $has_roles, array $not_has_roles, array $texts) {
     $this->config('remotedb_role.settings')
       ->set('remotedb', $this->remotedb->id())
       ->set('roles', [

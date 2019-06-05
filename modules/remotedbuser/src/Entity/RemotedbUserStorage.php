@@ -21,20 +21,12 @@ use Drupal\user\UserInterface;
  */
 class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUserStorageInterface {
 
-  // ---------------------------------------------------------------------------
-  // PROPERTIES
-  // ---------------------------------------------------------------------------
-
   /**
    * A remote database.
    *
    * @var \Drupal\remotedb\Entity\RemotedbInterface
    */
   protected $remotedb;
-
-  // ---------------------------------------------------------------------------
-  // CONSTRUCT
-  // ---------------------------------------------------------------------------
 
   /**
    * Constructs a RemotedbUserStorage instance.
@@ -64,10 +56,6 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // GETTERS
-  // ---------------------------------------------------------------------------
-
   /**
    * Returns the remote database that is used.
    *
@@ -77,10 +65,6 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   public function getRemotedb() {
     return $this->remotedb;
   }
-
-  // ---------------------------------------------------------------------------
-  // LOADING/SAVING
-  // ---------------------------------------------------------------------------
 
   /**
    * {@inheritdoc}
@@ -296,8 +280,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       }
     }
 
-    // Check if this account is already linked to a remote account. If so, we should not
-    // suddenly link it to an other account.
+    // Check if this account is already linked to a remote account. If so, we
+    // should not suddenly link it to an other account.
     if (!empty($account->remotedb_uid->value) && $account->remotedb_uid->value != $entity->uid) {
       $vars = [
         '@uid' => $account->id(),
@@ -306,8 +290,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
     }
 
-    // Name and mail must be unique. If an account was found, make sure that no other account
-    // exists that has either the name or the mail address from the remote account.
+    // Name and mail must be unique. If an account was found, make sure that no
+    // other account exists that has either the name or the mail address from
+    // the remote account.
     if (!empty($account)) {
       $search = [
         'name' => $entity->name,
@@ -361,15 +346,12 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     $entity->account = $account;
     $account->remotedb_user = $entity;
 
-    // Set flag that account should *not* be send back to the remote database again.
+    // Set flag that account should *not* be send back to the remote database
+    // again.
     $account->from_remotedb = TRUE;
 
     return $account;
   }
-
-  // ---------------------------------------------------------------------------
-  // ACTION
-  // ---------------------------------------------------------------------------
 
   /**
    * {@inheritdoc}
@@ -393,7 +375,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       return TRUE;
     }
     elseif (empty($account->remotedb_uid->value)) {
-      // This could be a valid case, but only if user name and mail exactly match.
+      // This could be a valid case, but only if user name and mail exactly
+      // match.
       if (isset($account->mail)) {
         if ($name == $remote_account->name && $account->getEmail() == $remote_account->mail) {
           return TRUE;
@@ -424,7 +407,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       return TRUE;
     }
     elseif (empty($account->remotedb_uid->value)) {
-      // This could be a valid case, but only if user name and mail exactly match.
+      // This could be a valid case, but only if user name and mail exactly
+      // match.
       if ($account->getAccountName() == $remote_account->name && $mail == $remote_account->mail) {
         return TRUE;
       }

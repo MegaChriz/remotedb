@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\remotedb_sso\Kernel;
 
-use Drupal\Core\Routing\UrlGenerator;
 use Drupal\remotedb_sso\Url;
 use Drupal\KernelTests\KernelTestBase;
 
@@ -66,7 +65,7 @@ class UrlTest extends KernelTestBase {
       'url with path' => [
         'sites' => $sites,
         'text' => 'Go to <a href="http://www.example.com/lorem"> for Lorem Ipsum.',
-        'Go to <a href="http://localhost/sso/goto?site=www.example.com&path=lorem"> for Lorem Ipsum.',
+        'expected' => 'Go to <a href="http://localhost/sso/goto?site=www.example.com&path=lorem"> for Lorem Ipsum.',
       ],
       'suburl' => [
         'sites' => $sites,

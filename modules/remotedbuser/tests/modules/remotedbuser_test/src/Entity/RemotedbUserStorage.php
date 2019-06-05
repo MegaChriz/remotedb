@@ -15,10 +15,6 @@ use Drupal\remotedbuser\Entity\RemotedbUserStorage as OriginalRemotedbUserStorag
  */
 class RemotedbUserStorage extends OriginalRemotedbUserStorage {
 
-  // ---------------------------------------------------------------------------
-  // CONSTRUCT
-  // ---------------------------------------------------------------------------
-
   /**
    * Constructs a RemotedbUserStorage instance.
    *
@@ -44,10 +40,6 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info, $remotedb);
   }
 
-  // ---------------------------------------------------------------------------
-  // HELPERS
-  // ---------------------------------------------------------------------------
-
   /**
    * Gets all accounts.
    *
@@ -67,10 +59,6 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
   private function setRemoteAccounts(array $accounts) {
     \Drupal::state()->set('remotedbuser_test_accounts', $accounts);
   }
-
-  // ---------------------------------------------------------------------------
-  // REMOTE DATABASE
-  // ---------------------------------------------------------------------------
 
   /**
    * Callback for remote database calls.

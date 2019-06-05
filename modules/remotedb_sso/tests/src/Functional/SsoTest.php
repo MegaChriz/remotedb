@@ -33,7 +33,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
     // Assert that the generated url contains "sso/goto".
     $this->assertContains('sso/goto', $url);
 
-    // Follow url and assert that the user got on his account page.
+    // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
     $this->assertText($remote_account->name);
   }
@@ -70,7 +70,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
     // Generate the url to follow.
     $url = $this->getAbsoluteUrl('sso/login/') . $ticket . '/user';
 
-    // Follow url and assert that the user got on his account page.
+    // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
     $this->assertText($remote_account->name);
   }
@@ -98,7 +98,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
     // Generate the url to follow.
     $url = $this->getAbsoluteUrl('sso/login/') . $ticket . '/user';
 
-    // Follow url and assert that the user got on his account page.
+    // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
     $this->assertText($remote_account->name);
   }

@@ -76,14 +76,15 @@ abstract class RemotedbFormBase extends EntityForm {
       '#prefix' => '<div id="authentication-methods-status-wrapper">',
       '#suffix' => '</div>',
       // This item is used as a pure wrapping container with heading. Ignore its
-      // value, since 'authentication methods' should only contain authentication method definitions.
+      // value, since 'authentication methods' should only contain
+      // authentication method definitions.
       // See https://www.drupal.org/node/1829202.
       '#input' => FALSE,
     ];
     // Order (tabledrag).
     $form['authentication_methods']['order'] = [
       '#type' => 'table',
-      // For remotedb.admin.js
+      // For remotedb.admin.js.
       '#attributes' => ['id' => 'authentication-method-order'],
       '#title' => $this->t('Authentication method processing order'),
       '#tabledrag' => [
