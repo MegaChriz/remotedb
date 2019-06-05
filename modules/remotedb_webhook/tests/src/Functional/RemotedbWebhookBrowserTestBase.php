@@ -4,7 +4,6 @@ namespace Drupal\Tests\remotedb_webhook\Functional;
 
 use Behat\Mink\Driver\GoutteDriver;
 use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a base class for Remotedb Webhook functional tests.

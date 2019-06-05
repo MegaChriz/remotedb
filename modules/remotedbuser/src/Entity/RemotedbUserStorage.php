@@ -433,7 +433,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @return mixed
    *   The result of the method call.
    *
-   * @throws RemotedbException
+   * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case the remote database object was not set.
    */
   protected function sendRequest($method, array $params = []) {
