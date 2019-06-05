@@ -35,6 +35,7 @@ abstract class RemotedbUserKernelTestBase extends EntityKernelTestBase {
     // Install database schemes.
     $this->installSchema('user', ['users_data']);
     $this->installEntitySchema('remotedb');
+    $this->installEntitySchema('user');
     $this->installConfig(['remotedb', 'user', 'remotedbuser']);
   }
 
