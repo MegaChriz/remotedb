@@ -242,7 +242,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
       'mail' => 'ipsum@example.com',
     ]);
 
-    $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 101 conflicts with local user 2.');
+    $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 101 conflicts with local users 1 and 2.');
     $this->remotedbUserStorage->toAccount($remote_user);
   }
 
@@ -271,7 +271,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
       'uid' => 101,
       'name' => 'ipsum',
     ]);
-    $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 101 conflicts with local user 2.');
+    $this->setExpectedException(RemotedbExistingUserException::class, 'Failed to synchronize the remote user. The remote user 101 conflicts with local users 1 and 2.');
     $this->remotedbUserStorage->toAccount($remote_user);
   }
 

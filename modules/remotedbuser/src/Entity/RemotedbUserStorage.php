@@ -305,7 +305,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
           if ($account->id() != $account2->id()) {
             // We have a conflict here.
             $vars = [
-              '@uid1' => $account1->id(),
+              '@uid1' => $account->id(),
               '@uid2' => $account2->id(),
               '@remotedb_uid' => $entity->uid,
             ];
