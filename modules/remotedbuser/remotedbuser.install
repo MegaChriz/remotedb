@@ -19,15 +19,3 @@ function remotedbuser_install() {
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('remotedb_uid', 'user', 'remotedbuser', $storage_definition);
 }
-
-/**
- * Implements hook_uninstall().
- */
-function remotedbuser_uninstall() {
-  // @todo test if base field gets removed.
-  $update_manager = \Drupal::entityDefinitionUpdateManager();
-  $definition = $update_manager->getFieldStorageDefinition('remotedb_uid', 'user');
-  if ($definition) {
-    $update_manager->uninstallFieldStorageDefinition($definition);
-  }
-}

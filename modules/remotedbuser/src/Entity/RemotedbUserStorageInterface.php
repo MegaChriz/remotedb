@@ -88,8 +88,6 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    * @return bool
    *   TRUE if validation passes.
    *   FALSE otherwise.
-   *
-   * @todo Remotedb_uid should probably be send along instead.
    */
   public function validateName($name, UserInterface $account);
 
