@@ -102,7 +102,7 @@ class SettingsForm extends ConfigFormBase {
         case 'uid':
         case 'remotedb_uid':
           // Never sync these properties.
-          continue;
+          break;
 
         default:
           $sync_properties_options[$key] = $definition->getLabel();
