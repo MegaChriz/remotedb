@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Psr\Log\LoggerInterface;
 
@@ -114,8 +115,13 @@ class Webhook implements WebhookInterface {
       return $cache->data;
     }
     else {
-      $index = $remotedb->sendRequest('kkbservices_webhook.index');
-      $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
+      try {
+        $index = $remotedb->sendRequest('kkbservices_webhook.index');
+        $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
+      }
+      catch (RemotedbException $e) {
+        watchdog_exception('remotedb', $e);
+      }
     }
   }
 
