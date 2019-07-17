@@ -17,4 +17,44 @@ remotedb.remotedb.*:
       type: sequence
       label: 'Enabled authentication methods'
       sequence:
-        type: authentication_method
+        type: remotedb.authentication_method
+    dependencies:
+      type: config_dependencies
+      label: 'Dependencies'
+
+remotedb.authentication_method:
+  type: mapping
+  label: 'Authentication method'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    provider:
+      type: string
+      label: 'Provider'
+    status:
+      type: boolean
+      label: 'Status'
+    weight:
+      type: integer
+      label: 'Weight'
+    settings:
+      type: remotedb.authentication_method_settings.[%parent.id]
+
+remotedb.authentication_method_settings.*:
+  type: sequence
+  label: 'Authentication method settings'
+  sequence:
+    type: string
+    label: 'Value'
+
+remotedb.authentication_method_settings.login:
+  type: remotedb.authentication_method
+  label: 'Login'
+  mapping:
+    username:
+      type: string
+      label: 'Username'
+    password:
+      type: string
+      label: 'Password'

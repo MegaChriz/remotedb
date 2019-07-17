@@ -152,4 +152,29 @@ abstract class RemotedbFormBase extends EntityForm {
     return parent::form($form, $form_state);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+
+    // Add the submitted form values to the entity, and save it.
+    $remotedb = $this->entity;
+    foreach ($form_state->getValues() as $key => $value) {
+      switch ($key) {
+        case 'authentication_methods':
+          foreach ($value as $instance_id => $config) {
+            $remotedb->setAuthenticationMethodConfig($instance_id, $config);
+          }
+          break;
+
+        default:
+          $remotedb->set($key, $value);
+      }
+    }
+    $remotedb->save();
+
+    return $this->entity;
+  }
+
 }

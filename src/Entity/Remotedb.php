@@ -109,13 +109,6 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
-  public function getPluginCollections() {
-    return ['authentication_methods' => $this->getAuthenticationMethods()];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getAuthenticationMethods($instance_id = NULL) {
     if (!isset($this->authenticationCollection)) {
       $this->authenticationCollection = new AuthenticationPluginCollection(\Drupal::service('plugin.manager.remotedb.authentication'), $this->authentication_methods, $this);
@@ -125,6 +118,24 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
       return $this->authenticationCollection->get($instance_id);
     }
     return $this->authenticationCollection;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPluginCollections() {
+    return ['authentication_methods' => $this->getAuthenticationMethods()];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAuthenticationMethodConfig($instance_id, array $configuration) {
+    $this->authentication_methods[$instance_id] = $configuration;
+    if (isset($this->authenticationCollection)) {
+      $this->authenticationCollection->setInstanceConfiguration($instance_id, $configuration);
+    }
+    return $this;
   }
 
   /**
