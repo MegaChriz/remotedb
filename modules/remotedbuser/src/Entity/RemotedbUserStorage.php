@@ -203,6 +203,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       }
     }
 
+    if (!empty($entities)) {
+      $this->postLoad($entities);
+    }
     return $entities;
   }
 
