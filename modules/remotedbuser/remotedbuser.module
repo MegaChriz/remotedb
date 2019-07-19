@@ -16,6 +16,31 @@ use Drupal\user\UserInterface;
 
 // @codingStandardsIgnoreStart
 // -----------------------------------------------------------------------------
+// DRUPAL HOOKS
+// -----------------------------------------------------------------------------
+// @codingStandardsIgnoreEnd
+
+/**
+ * Implements hook_hook_info().
+ */
+function remotedbuser_hook_info() {
+  $hooks = [
+    'remotedb_user_load',
+    'remotedb_user_presave',
+    'remotedb_user_insert',
+    'remotedb_user_update',
+  ];
+  $return = [];
+  foreach ($hooks as $hook) {
+    $return[$hook] = [
+      'group' => 'remotedb',
+    ];
+  }
+  return $return;
+}
+
+// @codingStandardsIgnoreStart
+// -----------------------------------------------------------------------------
 // ACCESS
 // -----------------------------------------------------------------------------
 // @codingStandardsIgnoreEnd
