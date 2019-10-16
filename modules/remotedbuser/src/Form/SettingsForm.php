@@ -84,6 +84,13 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('The remote database.'),
       '#default_value' => $config->get('remotedb'),
     ];
+
+    $form['enabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Exchange user information with the remote database.'),
+      '#default_value' => $config->get('enabled'),
+    ];
+
     $form['login'] = [
       '#type' => 'radios',
       '#title' => $this->t('Login settings'),
@@ -94,6 +101,11 @@ class SettingsForm extends ConfigFormBase {
         RemotedbUserAuthenticationInterface::LOCALFIRST => $this->t('Use local user database first, remote is fallback.'),
       ],
       '#default_value' => $config->get('login'),
+      '#states' => [
+        'enabled' => [
+          ':input[name="enabled"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     $sync_properties_options = [];
@@ -118,6 +130,11 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('sync_properties'),
       'name' => ['#disabled' => TRUE, '#value' => 'name'],
       'mail' => ['#disabled' => TRUE, '#value' => 'mail'],
+      '#states' => [
+        'enabled' => [
+          ':input[name="enabled"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     return parent::buildForm($form, $form_state);
@@ -130,6 +147,7 @@ class SettingsForm extends ConfigFormBase {
     $values = $form_state->getValues();
     $this->config('remotedbuser.settings')
       ->set('remotedb', $values['remotedb'])
+      ->set('enabled', $values['enabled'])
       ->set('login', $values['login'])
       ->set('sync_properties', $values['sync_properties'])
       ->save();

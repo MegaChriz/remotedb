@@ -1,4 +1,5 @@
 remotedb: ''
+enabled: true
 login: 0
 sync_properties:
   langcode: langcode

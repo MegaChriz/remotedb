@@ -68,6 +68,11 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
    * {@inheritdoc}
    */
   public function authenticate($name, $password) {
+    // If syncing is disabled, use normal login authentication.
+    if (!$this->config->get('enabled')) {
+      return $this->userAuth->authenticate($name, $password);
+    }
+
     switch ($this->config->get('login')) {
       case static::LOCALFIRST:
         // Authenticate local users first. If authentication fails, perform

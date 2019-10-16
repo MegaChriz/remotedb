@@ -68,6 +68,11 @@ function remotedbuser_get_remote_user_access(AccountInterface $account = NULL) {
  * Implements hook_user_presave().
  */
 function remotedbuser_user_presave(UserInterface $account) {
+  // Check if we should act.
+  if (!\Drupal::config('remotedbuser.settings')->get('enabled')) {
+    return;
+  }
+
   // Check if a remote user was coming from the remote database.
   if (!empty($account->from_remotedb)) {
     // We assume that the local account was updated with information from the

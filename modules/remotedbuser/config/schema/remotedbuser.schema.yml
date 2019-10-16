@@ -5,6 +5,9 @@ remotedbuser.settings:
     remotedb:
       type: string
       label: 'Remote database'
+    enabled:
+      type: boolean
+      label: 'Exchange user information with the remote database.'
     login:
       type: integer
       label: 'Login method'
