@@ -7,11 +7,12 @@
 
 namespace Drupal\remotedbuser\Controller;
 
+use DatabaseTransaction;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
-use \EntityAPIController;
+use EntityAPIController;
 
 /**
  * Remotedb entity controller class.
@@ -148,7 +149,7 @@ class RemotedbUserController extends EntityAPIController {
    *   TRUE if saving succeeded.
    *   FALSE otherwise.
    */
-  public function save($entity) {
+  public function save($entity, DatabaseTransaction $transaction = NULL) {
     // Invoke presave hook.
     $entity->is_new = !empty($entity->is_new) || empty($entity->{$this->idKey});
     $this->invoke('presave', $entity);
