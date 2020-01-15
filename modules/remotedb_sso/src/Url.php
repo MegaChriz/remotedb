@@ -28,7 +28,7 @@ class Url {
     // Make $site regex safe first.
     $site = preg_quote($site, '/');
     // Now replace the URLS.
-    return preg_replace_callback('/http:\/\/(' . $site . ')\/?(.*?)\"/i', array(__CLASS__, 'helper'), $text);
+    return preg_replace_callback('/https?:\/\/(' . $site . ')\/?(.*?)\"/i', array(__CLASS__, 'helper'), $text);
   }
 
   public static function helper($a) {
