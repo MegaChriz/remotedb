@@ -21,7 +21,7 @@ use Drupal\remotedb\Exception\RemotedbException;
  *     plural = "@count remote databases",
  *   ),
  *   handlers = {
- *     "list_builder" = "Drupal\remotedb\RemoteDbListBuilder",
+ *     "list_builder" = "Drupal\remotedb\RemotedbListBuilder",
  *     "storage" = "Drupal\remotedb\Entity\RemotedbStorage",
  *     "access" = "Drupal\remotedb\RemotedbAccessControlHandler",
  *     "form" = {
