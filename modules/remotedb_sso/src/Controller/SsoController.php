@@ -146,6 +146,10 @@ class SsoController extends ControllerBase {
       // Log any remote database exceptions.
       $e->logError();
     }
+    catch (Exception $e) {
+      // Log any other exceptions.
+      watchdog_exception('remotedb', $e);
+    }
 
     // Finally, perform the redirect.
     return $this->redirect($route_name, $route_parameters, $options);
