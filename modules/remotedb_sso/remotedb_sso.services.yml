@@ -8,7 +8,8 @@ services:
   remotedb_sso.url:
     class: Drupal\remotedb_sso\Url
 
-  remotedb_sso.path_processor.sso_login:
-    class: Drupal\remotedb_sso\PathProcessor\PathProcessorSsoLogin
+  # Perform redirect on sso login urls.
+  remotedb_sso.sso_login_redirect:
+    class: Drupal\remotedb_sso\EventSubscriber\SsoLoginRedirect
     tags:
-      - { name: path_processor_inbound, priority: 200 }
+      - { name: 'event_subscriber' }

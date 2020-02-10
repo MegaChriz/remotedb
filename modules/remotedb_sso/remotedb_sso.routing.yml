@@ -1,5 +1,5 @@
 remotedb_sso.login:
-  path: '/sso/login/{remotedb_uid}/{timestamp}/{hashed_pass}'
+  path: '/sso/login2/{remotedb_uid}/{timestamp}/{hashed_pass}'
   defaults:
     _controller: '\Drupal\remotedb_sso\Controller\SsoController::login'
   requirements:
