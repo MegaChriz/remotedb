@@ -45,7 +45,6 @@ update_dependencies: &update_dependencies
     - run:
         working_directory: /var/www/html
         command: |
-          sed -i 's/sqlite\:\/\/localhost\/\/tmp\/drupal\.sqlite/mysql\:\/\/root@127\.0\.0\.1\/drupal8/g' test.sh
           sed -i 's/sqlite\:\/\/localhost\/\/tmp\/drupal\.sqlite/mysql\:\/\/root@127\.0\.0\.1\/drupal8/g' test-functional.sh
           sed -i 's/sqlite\:\/\/localhost\/\/tmp\/drupal\.sqlite/mysql\:\/\/root@127\.0\.0\.1\/drupal8/g' test-functional-js.sh
           sed -i 's/-\-log\-junit artifacts\/phpunit\/phpunit\.xml//g' test.sh
