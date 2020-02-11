@@ -67,9 +67,9 @@ unit_kernel_tests: &unit_kernel_tests
           ./test.sh remotedb_webhook
 
     - store_test_results:
-        path: /var/www/html/artifacts/phpunit
+        path: /tmp/artifacts/phpunit
     - store_artifacts:
-        path: /var/www/html/artifacts
+        path: /tmp/artifacts
 
 # Run Drupal functional and functional JS tests as one job. This command invokes
 # the test-functional.sh and test-functional-js hooks.
@@ -91,9 +91,9 @@ functional_tests: &functional_tests
           ./test-functional.sh remotedb_webhook
 
     - store_test_results:
-        path: /var/www/html/artifacts/phpunit
+        path: /tmp/artifacts/phpunit
     - store_artifacts:
-        path: /var/www/html/artifacts
+        path: /tmp/artifacts
 
 # Run code quality tests. This invokes code-sniffer.sh.
 code_sniffer: &code_sniffer
@@ -110,9 +110,9 @@ code_sniffer: &code_sniffer
           ./code-sniffer.sh $CIRCLE_PROJECT_REPONAME
 
     - store_test_results:
-        path: /var/www/html/artifacts/phpcs
+        path: /tmp/artifacts/phpcs
     - store_artifacts:
-        path: /var/www/html/artifacts
+        path: /tmp/artifacts
 
 # Declare all of the jobs we should run.
 version: 2
