@@ -36,17 +36,17 @@ update_dependencies: &update_dependencies
 
     - restore_cache: *restore_cache
 
+    - run:
+        working_directory: /var/www/html
+        command: |
+          ./update-dependencies.sh $CIRCLE_PROJECT_REPONAME
+
     # Set CircleCI user.
     - run:
         command: |
           sed -i 's/www-data/root/g' test.sh
           sed -i 's/www-data/root/g' test-functional.sh
           sed -i 's/www-data/root/g' test-functional-js.sh
-
-    - run:
-        working_directory: /var/www/html
-        command: |
-          ./update-dependencies.sh $CIRCLE_PROJECT_REPONAME
 
     - save_cache: *save_cache
 
