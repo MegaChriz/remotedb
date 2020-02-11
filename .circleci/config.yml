@@ -34,11 +34,11 @@ update_dependencies: &update_dependencies
   steps:
     - checkout
 
+    - restore_cache: *restore_cache
+
     - run:
         command: |
-          whoami
-
-    - restore_cache: *restore_cache
+          chown -R $USER:$USER /var/www/html
 
     - run:
         working_directory: /var/www/html
