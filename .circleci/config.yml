@@ -36,11 +36,12 @@ update_dependencies: &update_dependencies
 
     - restore_cache: *restore_cache
 
+    # Set CircleCI user.
     - run:
         command: |
-          mkdir /var/www/html/artifacts
-          mkdir /var/www/html/artifacts/phpunit
-          cp /var/www/html/core/phpunit.xml.dist /var/www/html/artifacts/phpunit/phpunit.xml
+          sed -i 's/www-data/root/g' test.sh
+          sed -i 's/www-data/root/g' test-functional.sh
+          sed -i 's/www-data/root/g' test-functional-js.sh
 
     - run:
         working_directory: /var/www/html
