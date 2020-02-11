@@ -43,6 +43,7 @@ update_dependencies: &update_dependencies
 
     # Set CircleCI user.
     - run:
+        working_directory: /var/www/html
         command: |
           sed -i 's/www-data/root/g' test.sh
           sed -i 's/www-data/root/g' test-functional.sh
