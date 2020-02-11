@@ -38,6 +38,8 @@ update_dependencies: &update_dependencies
 
     - run:
         command: |
+          mkdir /var/www/html/artifacts
+          mkdir /var/www/html/artifacts/phpunit
           cp /var/www/html/core/phpunit.xml.dist /var/www/html/artifacts/phpunit/phpunit.xml
 
     - run:
