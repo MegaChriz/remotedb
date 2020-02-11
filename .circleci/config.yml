@@ -34,6 +34,8 @@ update_dependencies: &update_dependencies
   steps:
     - checkout
 
+    - whoami
+
     - restore_cache: *restore_cache
 
     - run:
@@ -121,10 +123,10 @@ jobs:
      <<: *update_dependencies
   run-unit-kernel-tests:
     <<: *unit_kernel_tests
-  run-functional-tests:
-     <<: *functional_tests
-  run-code-sniffer:
-     <<: *code_sniffer
+  #run-functional-tests:
+  #   <<: *functional_tests
+  #run-code-sniffer:
+  #   <<: *code_sniffer
 
 workflows:
   version: 2
@@ -136,9 +138,9 @@ workflows:
       - run-unit-kernel-tests:
           requires:
             - update-dependencies
-      - run-functional-tests:
-          requires:
-            - update-dependencies
-      - run-code-sniffer:
-          requires:
-            - update-dependencies
+      #- run-functional-tests:
+      #    requires:
+      #      - update-dependencies
+      #- run-code-sniffer:
+      #    requires:
+      #      - update-dependencies
