@@ -34,7 +34,9 @@ update_dependencies: &update_dependencies
   steps:
     - checkout
 
-    - whoami
+    - run:
+        command: |
+          whoami
 
     - restore_cache: *restore_cache
 
