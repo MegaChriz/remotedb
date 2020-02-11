@@ -22,6 +22,16 @@ abstract class RemotedbBrowserTestBase extends BrowserTestBase {
   ];
 
   /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+
+    // For easier debugging, enable error logging on screen.
+    \Drupal::configFactory()->getEditable('system.logging')->set('error_level', ERROR_REPORTING_DISPLAY_VERBOSE)->save();
+  }
+
+  /**
    * Reloads the given entity from the storage and returns it.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
