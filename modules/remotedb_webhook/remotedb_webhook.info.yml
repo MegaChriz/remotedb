@@ -2,6 +2,7 @@ name: 'Remote database Webhook'
 description: 'Allows updates via webhooks.'
 package: 'Remote database'
 core: 8.x
+core_version_requirement: ^8 || ^9
 type: module
 dependencies:
   - remotedbuser
