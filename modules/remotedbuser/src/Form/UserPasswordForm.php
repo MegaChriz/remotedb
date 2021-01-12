@@ -44,9 +44,9 @@ class UserPasswordForm extends UserPasswordFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager')->getStorage('user'),
+      $container->get('entity_type.manager')->getStorage('user'),
       $container->get('language_manager'),
-      $container->get('entity.manager')->getStorage('remotedb_user')
+      $container->get('entity_type.manager')->getStorage('remotedb_user')
     );
   }
 

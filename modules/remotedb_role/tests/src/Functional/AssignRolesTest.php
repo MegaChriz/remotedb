@@ -12,7 +12,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->createRole([], 'qux');

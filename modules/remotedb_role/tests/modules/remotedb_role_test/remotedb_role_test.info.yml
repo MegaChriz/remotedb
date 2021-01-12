@@ -2,7 +2,6 @@ name: 'Remote database roles test'
 type: module
 description: 'Test module for Remote database roles.'
 package: Testing
-core: 8.x
 dependencies:
   - remotedb_role
   - remotedb_test

@@ -13,6 +13,8 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
   /**
    * Tests if an authenticated user is redirected to the right page.
+   *
+   * @todo fails when the site is installed in a subdirectory.
    */
   public function testAuthenticatedRedirect() {
     // Create a remote user.
@@ -27,11 +29,11 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
-    $site = preg_replace('/^https?\:\/\/([^\/]+)\/.*/', '\\1', $ext_url);
+    $site = $this->getAbsoluteUrl('');
     $url = $this->urlGenerator->createSsoGotoUrl($site, $ext_url);
 
     // Assert that the generated url contains "sso/goto".
-    $this->assertContains('sso/goto', $url);
+    $this->assertStringContainsString('sso/goto', $url);
 
     // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
@@ -40,11 +42,13 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
   /**
    * Tests if an anonymous user is redirected to the right page.
+   *
+   * @todo fails when the site is installed in a subdirectory.
    */
   public function testAnonymousRedirect() {
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
-    $site = preg_replace('/^https?\:\/\/([^\/]+)\/.*/', '\\1', $ext_url);
+    $site = $this->getAbsoluteUrl('');
     $url = $this->urlGenerator->createSsoGotoUrl($site, $ext_url);
 
     // Follow url.
@@ -108,7 +112,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
    */
   public function testInvalidSso() {
     $this->drupalGet('sso/goto/www.example.com');
-    $this->assertResponse(404);
+    $this->assertSession()->statusCodeEquals(404);
   }
 
 }

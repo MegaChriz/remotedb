@@ -17,7 +17,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'remotedb',
     'remotedb_test',
     'remotedbuser',
@@ -41,7 +41,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->entityTypeManager = \Drupal::entityTypeManager();
@@ -58,7 +58,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
     $account = parent::drupalCreateUser($permissions, $name, $admin, $values);
 
     // Make sure that a remote account exists.
-    $this->assertTrue($account->remotedb_uid->value, 'The account is linked to a remote account.');
+    $this->assertNotEmpty($account->remotedb_uid->value, 'The account is linked to a remote account.');
     $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
     $this->assertNotNull($remote_account, 'The remote account was created.');
     if (!is_null($remote_account)) {

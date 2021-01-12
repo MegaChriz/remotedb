@@ -16,7 +16,12 @@ class InstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [];
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = [];
 
   /**
    * Module handler to ensure installed modules.
@@ -42,7 +47,7 @@ class InstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->moduleHandler = $this->container->get('module_handler');
     $this->moduleInstaller = $this->container->get('module_installer');

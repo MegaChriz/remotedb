@@ -12,7 +12,7 @@ abstract class RemotedbRoleBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'remotedb',
     'remotedb_test',
     'remotedb_role',
@@ -29,7 +29,7 @@ abstract class RemotedbRoleBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create a remote database.

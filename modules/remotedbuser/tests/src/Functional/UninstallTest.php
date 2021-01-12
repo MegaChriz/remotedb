@@ -14,7 +14,12 @@ class UninstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = [
     'remotedbuser',
     'field',
   ];

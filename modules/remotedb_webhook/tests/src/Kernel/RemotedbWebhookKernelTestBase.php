@@ -12,7 +12,7 @@ abstract class RemotedbWebhookKernelTestBase extends RemotedbUserKernelTestBase 
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'user',
     'remotedb',
@@ -25,7 +25,7 @@ abstract class RemotedbWebhookKernelTestBase extends RemotedbUserKernelTestBase 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create user 1.

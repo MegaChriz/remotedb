@@ -2,7 +2,6 @@
 
 namespace Drupal\remotedb\Plugin;
 
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Component\Plugin\DependentPluginInterface;
@@ -10,7 +9,7 @@ use Drupal\Component\Plugin\DependentPluginInterface;
 /**
  * Interface for remote database authentication plugins.
  */
-interface AuthenticationInterface extends ConfigurableInterface, DependentPluginInterface, ConfigurablePluginInterface, PluginInspectionInterface {
+interface AuthenticationInterface extends ConfigurableInterface, DependentPluginInterface, PluginInspectionInterface {
 
   /**
    * Returns the administrative label for this authentication method.

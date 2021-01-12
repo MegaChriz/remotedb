@@ -10,7 +10,7 @@ use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
  *
  * @group remotedbuser
  */
-class UserEditTestCase extends RemotedbUserBrowserTestBase {
+class UserEditTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests that an user cannot choose an username already existing remotely.
@@ -84,7 +84,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests that an user cannot choose a mail address already existing remotely.
+   * Tests that a user cannot choose a mail address already existing remotely.
    */
   public function testMailDuplicates() {
     // Create a remote user.
@@ -103,7 +103,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an user can change its mail address.
+   * Tests if a user can change its mail address.
    */
   public function testLocalMailChange() {
     $account = $this->drupalCreateUser();
@@ -121,7 +121,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an mail address change in the remote database has effect locally.
+   * Tests if a mail address change in the remote database has effect locally.
    */
   public function testRemoteMailChange() {
     // Set logging in via the remote database only.
@@ -146,7 +146,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an user can login remotely after changing its password locally.
+   * Tests if a user can login remotely after changing its password locally.
    */
   public function testLocalPasswordChange() {
     // Set logging in via the remote database only.
@@ -169,7 +169,7 @@ class UserEditTestCase extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an user can still login if their password changed remotely.
+   * Tests if a user can still login if their password changed remotely.
    */
   public function testRemotePasswordChange() {
     // Set logging in via the remote database only.

@@ -22,7 +22,7 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->remotedbAdminUser = $this->drupalCreateUser(['remotedb.administer']);
@@ -33,14 +33,14 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
    */
   public function testNoAccess() {
     $this->drupalGet('admin/config/services/remotedb');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     $this->drupalGet('admin/config/services/remotedb/add');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
 
     $remotedb = $this->createRemotedb();
     $this->drupalGet(sprintf('admin/config/services/remotedb/manage/%s', $remotedb->id()));
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
   }
 
   /**

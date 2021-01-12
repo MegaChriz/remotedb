@@ -79,6 +79,13 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
+  protected function doLoadMultipleRevisionsFieldItems($revision_ids) {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []) {
     // Save remote user into the remote database.
     $uid = $this->sendRequest('dbuser.save', [$entity->toArray()]);

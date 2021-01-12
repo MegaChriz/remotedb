@@ -16,7 +16,12 @@ abstract class RemotedbBrowserTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = [
     'remotedb',
     'remotedb_test',
   ];

@@ -12,7 +12,7 @@ abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'remotedb',
     'remotedb_test',
     'remotedbuser',
@@ -38,7 +38,7 @@ abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Create a dummy remote database and set this one as the the one used by
