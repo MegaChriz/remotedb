@@ -12,7 +12,7 @@ abstract class RemotedbWebhookKernelTestBase extends RemotedbUserKernelTestBase 
   /**
    * {@inheritdoc}
    */
-  protected static $modules = [
+  public static $modules = [
     'system',
     'user',
     'remotedb',

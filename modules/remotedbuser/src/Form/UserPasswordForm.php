@@ -25,29 +25,23 @@ class UserPasswordForm extends UserPasswordFormBase {
   protected $remoteUserStorage;
 
   /**
-   * Constructs a UserPasswordForm object.
-   *
-   * @param \Drupal\user\UserStorageInterface $user_storage
-   *   The user storage.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager.
-   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remote_user_storage
-   *   The remote user storage.
-   */
-  public function __construct(UserStorageInterface $user_storage, LanguageManagerInterface $language_manager, RemotedbUserStorageInterface $remote_user_storage) {
-    parent::__construct($user_storage, $language_manager);
-    $this->remoteUserStorage = $remote_user_storage;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity_type.manager')->getStorage('user'),
-      $container->get('language_manager'),
-      $container->get('entity_type.manager')->getStorage('remotedb_user')
-    );
+    $form_object = parent::create($container);
+    $form_object->setRemoteUserStorage($container->get('entity_type.manager')->getStorage('remotedb_user'));
+
+    return $form_object;
+  }
+
+  /**
+   * Sets the remote user storage.
+   *
+   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remote_user_storage
+   *   The remote user storage.
+   */
+  protected function setRemoteUserStorage(RemotedbUserStorageInterface $remote_user_storage) {
+    $this->remoteUserStorage = $remote_user_storage;
   }
 
   /**

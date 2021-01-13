@@ -48,7 +48,8 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
    */
   public function testGet() {
     $this->drupalGet($this->getWebhookEndpointPath());
-    $this->assertSession()->statusCodeEquals(400, 'Remote database Webhook Endpoint.');
+    $this->assertSession()->statusCodeEquals(400);
+    $this->assertSession()->responseContains('Remote database Webhook Endpoint.');
   }
 
   /**
@@ -61,7 +62,8 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
    */
   public function testPostWithUnsufficientData(array $edit) {
     $this->webhookPost($edit);
-    $this->assertSession()->statusCodeEquals(400, "Remote database Webhook Endpoint, but missing post data for 'type' or 'data'.");
+    $this->assertSession()->statusCodeEquals(400);
+    $this->assertSession()->responseContains("Remote database Webhook Endpoint, but missing post data for \u0027type\u0027 or \u0027data\u0027.");
   }
 
   /**
@@ -95,7 +97,8 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
       'type' => ['foo__bar'],
       'data' => 'bar',
     ]);
-    $this->assertSession()->statusCodeEquals(400, "The parameter 'type' should be a string.");
+    $this->assertSession()->statusCodeEquals(400);
+    $this->assertSession()->responseContains("The parameter \u0027type\u0027 should be a string.");
   }
 
   /**

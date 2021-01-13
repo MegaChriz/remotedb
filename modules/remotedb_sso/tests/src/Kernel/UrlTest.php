@@ -16,7 +16,7 @@ class UrlTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = [
+  public static $modules = [
     'remotedb_sso',
   ];
 
