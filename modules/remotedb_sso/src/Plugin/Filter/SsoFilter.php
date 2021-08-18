@@ -15,7 +15,7 @@ use Drupal\remotedb_sso\UrlInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a filter to limit allowed HTML tags.
+ * Provides a filter to transform external urls into sso links.
  *
  * @Filter(
  *   id = "remotedb_sso",
