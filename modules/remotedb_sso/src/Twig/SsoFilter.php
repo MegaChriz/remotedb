@@ -52,8 +52,13 @@ class SsoFilter extends AbstractExtension {
    */
   public function applyFilter($text) {
     $filter = $this->filterManager->createInstance('remotedb_sso');
-    $result = $filter->process($text, 'nl');
-    return Markup::create($result);
+    $result = $filter->process($text, 'nl')
+      ->getProcessedText();
+
+    if (is_string($result)) {
+      return Markup::create($result);
+    }
+    return $result;
   }
 
 }
