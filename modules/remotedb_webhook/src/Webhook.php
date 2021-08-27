@@ -148,7 +148,7 @@ class Webhook {
             return;
           }
 
-          $this->createAccount($data);
+          static::createAccount($data);
           break;
 
         case 'welcome_email':
@@ -169,7 +169,7 @@ class Webhook {
    * @param int $remotedb_uid
    *   The ID of the user in the remote database.
    */
-  protected function createAccount($remotedb_uid) {
+  protected static function createAccount($remotedb_uid) {
     $rd_controller = entity_get_controller('remotedb_user');
     $remote_account = $rd_controller->loadBy($remotedb_uid, RemotedbUserController::BY_ID);
     if (isset($remote_account->uid)) {
