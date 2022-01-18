@@ -16,10 +16,11 @@ class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
     $remote_account = $this->createRemoteUser();
 
     // Attempt to reset password.
+    $this->drupalGet('user/password');
     $edit = ['name' => $remote_account->name];
-    $this->drupalPostForm('user/password', $edit, 'Submit');
+    $this->submitForm($edit, 'Submit');
     // Confirm the password reset.
-    $this->assertText('Further instructions have been sent to your email address.', 'Password reset instructions mailed message displayed.');
+    $this->assertSession()->pageTextContains('an email will be sent with instructions to reset your password.');
 
     // Assert that the remote account now exists locally and has a remotedb_uid.
     $this->assertLocalUser($remote_account->uid);
@@ -32,10 +33,11 @@ class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
     $remote_account = $this->createRemoteUser();
 
     // Attempt to reset password.
+    $this->drupalGet('user/password');
     $edit = ['name' => $remote_account->mail];
-    $this->drupalPostForm('user/password', $edit, 'Submit');
+    $this->submitForm($edit, 'Submit');
     // Confirm the password reset.
-    $this->assertText('Further instructions have been sent to your email address.', 'Password reset instructions mailed message displayed.');
+    $this->assertSession()->pageTextContains('an email will be sent with instructions to reset your password.');
 
     // Assert that the remote account now exists locally and has a remotedb_uid.
     $this->assertLocalUser($remote_account->uid);
