@@ -335,6 +335,12 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     if (empty($account)) {
       // No account found, create a new user.
       $account = $user_storage->create($values);
+
+      // Special case for password.
+      if (!empty($values['pass'])) {
+        $account->pass->value = $values['pass'];
+        $account->pass->pre_hashed = TRUE;
+      }
     }
     else {
       // Update user account.
@@ -344,7 +350,14 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
           continue;
         }
         if (isset($values[$key])) {
-          $account->$key = $values[$key];
+          if ($key == 'pass') {
+            // Setting the hashed password requires a special case.
+            $account->pass->value = $values['pass'];
+            $account->pass->pre_hashed = TRUE;
+          }
+          else {
+            $account->$key = $values[$key];
+          }
         }
       }
 
