@@ -2,6 +2,7 @@
 
 namespace Drupal\remotedb_sso\Controller;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -191,7 +192,15 @@ class SsoController extends ControllerBase {
     $url_parts = array_filter($url_parts);
     $url = implode('/', $url_parts);
 
-    return new TrustedRedirectResponse($url, 307);
+    $response = new TrustedRedirectResponse($url, 307);
+    $build = [
+      '#cache' => [
+        'max-age' => 0,
+      ],
+    ];
+    $cache_metadata = CacheableMetadata::createFromRenderArray($build);
+    $response->addCacheableDependency($cache_metadata);
+    return $response;
   }
 
 }
