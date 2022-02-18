@@ -106,8 +106,9 @@ class WebhookController extends ControllerBase {
     ]);
 
     // Log event.
-    $this->logger->info('Webhook type @type has been processed.', [
+    $this->logger->info('Webhook type @type has been processed with the following data: @data.', [
       '@type' => $type,
+      '@data' => print_r($data, TRUE),
     ]);
 
     return new JsonResponse();
