@@ -1,9 +1,9 @@
 name: 'Remote database Single Sign-on'
 description: 'Provides Single Sign-on functionality for remote users.'
 package: 'Remote database'
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 type: module
 configure: remotedb_sso.settings_form
 dependencies:
   - remotedbuser
+  - drupal:filter

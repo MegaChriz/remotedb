@@ -1,8 +1,7 @@
 name: 'Remote database Base'
 description: 'Base module for connection with remote database.'
 package: 'Remote database'
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 type: module
 configure: entity.remotedb.collection
 dependencies:
