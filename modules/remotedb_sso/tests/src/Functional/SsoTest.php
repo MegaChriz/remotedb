@@ -23,7 +23,8 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
       'name' => $remote_account->name,
       'pass' => $remote_account->pass_raw,
     ];
-    $this->drupalPostForm('user', $edit, t('Log in'));
+    $this->drupalGet('user');
+    $this->submitForm($edit, t('Log in'));
 
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
@@ -37,7 +38,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
     // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
-    $this->assertText($remote_account->name);
+    $this->assertSession()->pageTextContains($remote_account->name);
   }
 
   /**
@@ -53,8 +54,8 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
     // Follow url.
     $this->drupalGet($url);
-    $this->assertText('Username');
-    $this->assertText('Password');
+    $this->assertSession()->pageTextContains('Username');
+    $this->assertSession()->pageTextContains('Password');
   }
 
   /**
@@ -76,7 +77,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
     // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
-    $this->assertText($remote_account->name);
+    $this->assertSession()->pageTextContains($remote_account->name);
   }
 
   /**
@@ -104,7 +105,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
 
     // Follow url and assert that the user got on their account page.
     $this->drupalGet($url);
-    $this->assertText($remote_account->name);
+    $this->assertSession()->pageTextContains($remote_account->name);
   }
 
   /**

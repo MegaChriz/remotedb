@@ -25,10 +25,7 @@ class AssignRolesTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->account = $this
-      ->getMockBuilder('Drupal\user\Entity\User')
-      ->disableOriginalConstructor()
-      ->getMock();
+    $this->account = $this->createMock('Drupal\user\Entity\User');
   }
 
   /**

@@ -78,7 +78,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
     $account = $this->reloadEntity($account);
     $this->assertEquals(0, $account->remotedb_uid->value, 'The account is not linked to a remote account yet.');
     // Verify that this user has still its local username.
-    $this->assertNotEqual($remote_account->name, $account->getAccountName(), 'The local username does not equal the remote username.');
+    $this->assertNotEquals($remote_account->name, $account->getAccountName(), 'The local username does not equal the remote username.');
 
     // Try to login as this user using remote login data.
     $dummy_account = $this->createDummyAccount($remote_account->name);
@@ -88,8 +88,8 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
     // Verify the username and mail address from the local user are equal to
     // that of the remote user.
     $account = $this->reloadEntity($account);
-    $this->assertEqual($remote_account->name, $account->getAccountName(), 'The local username has changed.');
-    $this->assertEqual($remote_account->mail, $account->getEmail(), 'The local users mail address still equals the remote users mail address.');
+    $this->assertEquals($remote_account->name, $account->getAccountName(), 'The local username has changed.');
+    $this->assertEquals($remote_account->mail, $account->getEmail(), 'The local users mail address still equals the remote users mail address.');
   }
 
   /**
@@ -135,8 +135,9 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
       'name' => $remote_account->name,
       'pass' => $remote_account->pass_raw,
     ];
-    $this->drupalPostForm('user/login', $edit, t('Log in'));
-    $this->assertText('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.');
+    $this->drupalGet('user/login');
+    $this->submitForm($edit, t('Log in'));
+    $this->assertSession()->pageTextContains('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.');
 
     // Ensure the two local accounts don't have the same mail address.
     $account1 = $this->reloadEntity($account1);
@@ -200,8 +201,9 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
 
     // Now, try to edit the profile.
     $edit = [];
-    $this->drupalPostForm('user/' . $account1->id() . '/edit', $edit, 'Save');
-    $this->assertRaw('The changes have been saved.');
+    $this->drupalGet('user/' . $account1->id() . '/edit');
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->responseContains('The changes have been saved.');
 
     // Login with the second user now.
     $dummy_account = $this->createDummyAccount($account2->getAccountName());
@@ -210,8 +212,9 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
 
     // Try to edit the profile of this user too.
     $edit = [];
-    $this->drupalPostForm('user/' . $account2->id() . '/edit', $edit, 'Save');
-    $this->assertRaw('The changes have been saved.');
+    $this->drupalGet('user/' . $account2->id() . '/edit');
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->responseContains('The changes have been saved.');
 
     // Check that there are remote accounts for each local user now.
     $account1_found = FALSE;

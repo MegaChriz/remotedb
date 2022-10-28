@@ -21,7 +21,7 @@ class InstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [];
+  protected static $modules = [];
 
   /**
    * Module handler to ensure installed modules.
@@ -90,7 +90,7 @@ class InstallTest extends BrowserTestBase {
     // Ensure that the callback method for test purposes works.
     $remotedb->setCallback([$this, 'remotedbCallback']);
     $remotedb->sendRequest('fake_method', ['alpha', 'beta']);
-    $this->assertEqual(1, $this->calledRemotedbCallback, 'The test callback function was called once.');
+    $this->assertEquals(1, $this->calledRemotedbCallback, 'The test callback function was called once.');
   }
 
   /**

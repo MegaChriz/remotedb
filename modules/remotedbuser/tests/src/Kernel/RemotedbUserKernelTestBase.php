@@ -17,7 +17,7 @@ abstract class RemotedbUserKernelTestBase extends EntityKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'user',
     'remotedb',

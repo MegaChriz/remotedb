@@ -4,6 +4,7 @@ namespace Drupal\remotedb_role\Form;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -23,16 +24,26 @@ class SettingsForm extends ConfigFormBase {
   protected $remotedbStorage;
 
   /**
+   * Module information provider.
+   *
+   * @var \Drupal\Core\Extension\ExtensionList
+   */
+  protected $extensionList;
+
+  /**
    * Constructs a SettingsForm object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
    * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
    *   The storage class for remote database entities.
+   * @param \Drupal\Core\Extension\ExtensionList $extension_list
+   *   Module information provider.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, RemotedbStorageInterface $remotedb_storage) {
+  public function __construct(ConfigFactoryInterface $config_factory, RemotedbStorageInterface $remotedb_storage, ExtensionList $extension_list) {
     parent::__construct($config_factory);
     $this->remotedbStorage = $remotedb_storage;
+    $this->extensionList = $extension_list;
   }
 
   /**
@@ -41,7 +52,8 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('entity_type.manager')->getStorage('remotedb')
+      $container->get('entity_type.manager')->getStorage('remotedb'),
+      $container->get('extension.list.module')
     );
   }
 
@@ -88,8 +100,8 @@ class SettingsForm extends ConfigFormBase {
         'library' => ['remotedb_role/remote_role_settings'],
         'drupalSettings' => [
           'remotedb_roles' => $role_names,
-          'remotedb_role_image_enabled' => drupal_get_path('module', 'remotedb_role') . '/images/enabled.svg',
-          'remotedb_role_image_disabled' => drupal_get_path('module', 'remotedb_role') . '/images/disabled.svg',
+          'remotedb_role_image_enabled' => $this->extensionList->getPath('remotedb_role') . '/images/enabled.svg',
+          'remotedb_role_image_disabled' => $this->extensionList->getPath('remotedb_role') . '/images/disabled.svg',
         ],
       ],
     ];

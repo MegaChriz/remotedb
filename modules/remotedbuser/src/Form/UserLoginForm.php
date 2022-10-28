@@ -15,10 +15,11 @@ class UserLoginForm extends UserLoginFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('flood'),
+      $container->get('user.flood_control'),
       $container->get('entity_type.manager')->getStorage('user'),
       $container->get('remotedbuser.authentication'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('bare_html_page_renderer')
     );
   }
 

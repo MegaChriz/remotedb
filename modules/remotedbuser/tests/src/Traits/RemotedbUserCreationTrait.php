@@ -36,7 +36,7 @@ trait RemotedbUserCreationTrait {
     $values += [
       'mail' => $values['name'] . '@example.com',
       'status' => 1,
-      'pass' => user_password(),
+      'pass' => \Drupal::service('password_generator')->generate(),
     ];
 
     // Hash password.

@@ -21,7 +21,7 @@ abstract class RemotedbBrowserTestBase extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'remotedb',
     'remotedb_test',
   ];

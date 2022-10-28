@@ -19,7 +19,7 @@ class UninstallTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['remotedb'];
+  protected static $modules = ['remotedb'];
 
   /**
    * Tests module uninstallation.

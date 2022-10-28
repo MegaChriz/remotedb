@@ -55,7 +55,8 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
       'label' => 'Foo',
       'name' => 'foo',
     ];
-    $this->drupalPostForm('admin/config/services/remotedb/add', $edit, 'Save');
+    $this->drupalGet('admin/config/services/remotedb/add');
+    $this->submitForm($edit, 'Save');
 
     $expected += [
       'label' => 'Foo',
@@ -180,7 +181,8 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
     ]);
 
     // Post form without changing anything.
-    $this->drupalPostForm('admin/config/services/remotedb/manage/foo', [], 'Save');
+    $this->drupalGet('admin/config/services/remotedb/manage/foo');
+    $this->submitForm([], 'Save');
 
     $expected = [
       'label' => 'Foo',

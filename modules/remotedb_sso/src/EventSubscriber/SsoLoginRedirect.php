@@ -3,9 +3,9 @@
 namespace Drupal\remotedb_sso\EventSubscriber;
 
 use Drupal\Core\Url;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -28,10 +28,10 @@ class SsoLoginRedirect implements EventSubscriberInterface {
    * It invokes a rabbit hole behavior on an entity in the request if
    * applicable.
    *
-   * @param \Symfony\Component\EventDispatcher\Event $event
+   * @param \Symfony\Component\HttpKernel\Event\RequestEvent $event
    *   The event triggered by the request.
    */
-  public function onRequest(Event $event) {
+  public function onRequest(RequestEvent $event) {
     $request = $event->getRequest();
 
     // Don't process events with HTTP exceptions - those have either been thrown

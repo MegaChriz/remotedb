@@ -27,8 +27,9 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
     $edit = [
       'name' => $remote_account->name,
     ];
-    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
-    $this->assertRaw(new FormattableMarkup('The name %name is already taken.', ['%name' => $edit['name']]));
+    $this->drupalGet('user/' . $account->id() . '/edit');
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->responseContains(new FormattableMarkup('The name %name is already taken.', ['%name' => $edit['name']]));
   }
 
   /**
@@ -41,8 +42,9 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['current_pass'] = $account->passRaw;
     $edit['name'] = $this->randomMachineName();
-    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
-    $this->assertRaw('The changes have been saved.');
+    $this->drupalGet('user/' . $account->id() . '/edit');
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->responseContains('The changes have been saved.');
 
     // Assert that the change is reflected in the remote database.
     $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
@@ -71,8 +73,9 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
       'name' => $account->getAccountName(),
       'pass' => $account->passRaw,
     ];
-    $this->drupalPostForm('user', $edit, 'Log in');
-    $this->assertText('Unrecognized username or password. Forgot your password?');
+    $this->drupalGet('user');
+    $this->submitForm($edit, 'Log in');
+    $this->assertSession()->pageTextContains('Unrecognized username or password. Forgot your password?');
 
     // Test if the user can login using the new username.
     $account->name->value = $remote_account->name;
@@ -98,8 +101,9 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['current_pass'] = $account->passRaw;
     $edit['mail'] = $remote_account->mail;
-    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
-    $this->assertRaw(t('The e-mail address %email is already taken.', ['%email' => $remote_account->mail]));
+    $this->drupalGet('user/' . $account->id() . '/edit');
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->responseContains(t('The e-mail address %email is already taken.', ['%email' => $remote_account->mail]));
   }
 
   /**
@@ -112,8 +116,9 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['current_pass'] = $account->passRaw;
     $edit['mail'] = $this->randomMachineName() . '@example.com';
-    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
-    $this->assertRaw('The changes have been saved.');
+    $this->drupalGet('user/' . $account->id() . '/edit');
+    $this->submitForm($edit, 'Save');
+    $this->assertSession()->responseContains('The changes have been saved.');
 
     // Assert that the change is reflected in the remote database.
     $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
@@ -160,7 +165,8 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
     $edit['current_pass'] = $account->passRaw;
     $edit['pass[pass1]'] = $new_pass = $this->randomMachineName();
     $edit['pass[pass2]'] = $new_pass;
-    $this->drupalPostForm('user/' . $account->id() . '/edit', $edit, 'Save');
+    $this->drupalGet('user/' . $account->id() . '/edit');
+    $this->submitForm($edit, 'Save');
 
     // Make sure the user can log in with its new password.
     $this->drupalLogout();
@@ -182,7 +188,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
 
     // Change password from remote user.
     $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
-    $new_pass = user_password();
+    $new_pass = \Drupal::service('password_generator')->generate();
     $remote_account->pass = $this->hashPassword($new_pass);
     $remote_account->save();
 
@@ -191,8 +197,9 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
       'name' => $account->getAccountName(),
       'pass' => $account->passRaw,
     ];
-    $this->drupalPostForm('user', $edit, 'Log in');
-    $this->assertText('Unrecognized username or password. Forgot your password?');
+    $this->drupalGet('user');
+    $this->submitForm($edit, 'Log in');
+    $this->assertSession()->pageTextContains('Unrecognized username or password. Forgot your password?');
 
     // Test if the user can login using the new password.
     $account->passRaw = $new_pass;

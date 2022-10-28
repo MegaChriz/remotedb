@@ -39,7 +39,8 @@ class SettingsFormTest extends RemotedbRoleBrowserTestBase {
       'roles[foo_bar][status]' => 1,
       'roles[foo_bar][subscriptions]' => "123\n\r456",
     ];
-    $this->drupalPostForm('admin/config/services/remotedb/roles', $edit, 'Save configuration');
+    $this->drupalGet('admin/config/services/remotedb/roles');
+    $this->submitForm($edit, 'Save configuration');
 
     // Assert the created configuration.
     $expected = [
@@ -84,8 +85,8 @@ class SettingsFormTest extends RemotedbRoleBrowserTestBase {
         ],
       ])
       ->save();
-
-    $this->drupalPostForm('admin/config/services/remotedb/roles', [], 'Save configuration');
+    $this->drupalGet('admin/config/services/remotedb/roles');
+    $this->submitForm([], 'Save configuration');
 
     // Assert that the configuration stayed the same.
     $expected = [

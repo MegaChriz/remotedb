@@ -22,7 +22,7 @@ class MockTicketService implements TicketServiceInterface {
     return implode('/', [
       $uid,
       \Drupal::time()->getRequestTime(),
-      user_password(),
+      \Drupal::service('password_generator')->generate(),
     ]);
   }
 

@@ -10,6 +10,7 @@ use Drupal\remotedb_sso\TicketServiceInterface;
 use Drupal\remotedb_sso\UrlInterface;
 use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Test if the SSO Filter works as expected.
@@ -18,6 +19,8 @@ use Prophecy\Argument;
  * @group remotedb_sso
  */
 class SsoFilterTest extends UnitTestCase {
+
+  use ProphecyTrait;
 
   /**
    * The text to filter.

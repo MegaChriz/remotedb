@@ -12,7 +12,7 @@ use Drupal\user\UserInterface;
 class UserRegistrationTest extends RemotedbUserBrowserTestBase {
 
   /**
-   * Tests if user is saved to remote database on a succesful register.
+   * Tests if user is saved to remote database on a successful register.
    */
   public function testRegistration() {
     // Don't require e-mail verification and allow registration by site visitors
@@ -28,8 +28,9 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $edit['pass[pass1]'] = $new_pass = $this->randomMachineName();
     $edit['pass[pass2]'] = $new_pass;
-    $this->drupalPostForm('user/register', $edit, t('Create new account'));
-    $this->assertText(t('Registration successful. You are now logged in.'), 'User registered successfully.');
+    $this->drupalGet('user/register');
+    $this->submitForm($edit, t('Create new account'));
+    $this->assertSession()->pageTextContains(t('Registration successful. You are now logged in.'));
 
     // Assert that the local account exists.
     /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
@@ -67,8 +68,9 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit = [];
     $edit['name'] = $remote_account->name;
     $edit['mail'] = $this->randomMachineName() . '@example.com';
-    $this->drupalPostForm('user/register', $edit, 'Create new account');
-    $this->assertRaw(t('The name %name is already taken.', ['%name' => $remote_account->name]));
+    $this->drupalGet('user/register');
+    $this->submitForm($edit, 'Create new account');
+    $this->assertSession()->pageTextContains(strtr('The name %name is already taken.', ['%name' => $remote_account->name]));
   }
 
   /**
@@ -90,15 +92,16 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit['mail'] = $remote_account->mail;
 
     // Attempt to create a new account using an existing e-mail address.
-    $this->drupalPostForm('user/register', $edit, t('Create new account'));
-    $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying an exact duplicate email address displays an error message.');
+    $this->drupalGet('user/register');
+    $this->submitForm($edit, t('Create new account'));
+    $this->assertSession()->pageTextContains(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]));
 
     // Attempt to bypass duplicate email registration validation by adding
     // spaces.
     $edit['mail'] = '   ' . $remote_account->mail . '   ';
-
-    $this->drupalPostForm('user/register', $edit, t('Create new account'));
-    $this->assertText(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]), 'Supplying a duplicate email address with added whitespace displays an error message.');
+    $this->drupalGet('user/register');
+    $this->submitForm($edit, t('Create new account'));
+    $this->assertSession()->pageTextContains(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]));
   }
 
 }

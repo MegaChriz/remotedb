@@ -76,8 +76,8 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
     $this->assertTrue($account->hasRole('foo_bar'));
     $this->assertFalse($account->hasRole('foo'));
 
-    $this->assertNoText('Assigned');
-    $this->assertNoText('Unassigned');
+    $this->assertSession()->pageTextNotContains('Assigned');
+    $this->assertSession()->pageTextNotContains('Unassigned');
   }
 
   /**
@@ -128,7 +128,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
 
     // Assert debug texsts.
     foreach ($texts as $text) {
-      $this->assertText($text);
+      $this->assertSession()->pageTextContains($text);
     }
   }
 
