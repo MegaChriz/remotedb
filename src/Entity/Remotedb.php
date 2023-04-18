@@ -37,8 +37,8 @@ use Drupal\remotedb\Exception\RemotedbException;
  *     "label" = "label"
  *   },
  *   links = {
- *     "edit-form" = "/admin/config/services/remotedb/manage/{userprotect_rule}",
- *     "delete-form" = "/admin/config/services/remotedb/manage/{userprotect_rule}/delete"
+ *     "edit-form" = "/admin/config/services/remotedb/manage/{remotedb}",
+ *     "delete-form" = "/admin/config/services/remotedb/manage/{remotedb}/delete"
  *   },
  *   config_export = {
  *     "name",
