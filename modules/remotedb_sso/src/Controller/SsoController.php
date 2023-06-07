@@ -177,17 +177,30 @@ class SsoController extends ControllerBase {
     // Get path, if there is one.
     $path = $request->query->get('path');
 
-    // Get ticket.
-    $ticket = $this->ticketService->getTicket($this->currentUser);
+    // Check if the current user is authenticated.
+    if ($this->currentUser->isAuthenticated()) {
+      // Get ticket.
+      $ticket = $this->ticketService->getTicket($this->currentUser);
 
-    // Generate url to redirect to.
-    $url_parts = [
-      'http:/',
-      $site,
-      'sso/login',
-      $ticket,
-      $path,
-    ];
+      // Generate url to redirect to.
+      $url_parts = [
+        'http:/',
+        $site,
+        'sso/login',
+        $ticket,
+        $path,
+      ];
+    }
+    else {
+      // Not authenticated. Skip requesting a ticket. Instead redirect to the
+      // plain url.
+      $url_parts = [
+        'http:/',
+        $site,
+        $path,
+      ];
+    }
+
     // Filter out empty parts.
     $url_parts = array_filter($url_parts);
     $url = implode('/', $url_parts);
