@@ -6,6 +6,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\remotedb\AuthenticationPluginCollection;
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb\Plugin\ClientInterface;
 
 /**
  * Defines the remote database entity type.
@@ -185,6 +186,17 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   }
 
   /**
+   * Returns a client that can send a request to a server.
+   *
+   * @return \Drupal\remotedb\Client\ClientInterface
+   *   A client that can talk to a server.
+   */
+  public function getClient(): ClientInterface {
+    // @todo make this configurable.
+    return \Drupal::service('plugin.manager.remotedb.client')->createInstance('xmlrpc');
+  }
+
+  /**
    * Sends a request to the XML-RPC server.
    *
    * @param string $method
@@ -204,16 +216,8 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
     }
 
     $args = [$method => $params];
-    // Call XML-RPC.
-    $result = xmlrpc($this->url, $args, $this->headers);
-    if ($result === FALSE) {
-      $error = xmlrpc_error();
-      // Throw exception in case of errors.
-      if (is_object($error) && !empty($error->is_error)) {
-        throw new RemotedbException($error->message, $error->code);
-      }
-    }
-    return $result;
+
+    return $this->getClient()->sendRequest($this->url, $args, $this->headers);
   }
 
 }

@@ -23,7 +23,8 @@ class CSRF extends AuthenticationBase {
       'user.token' => [],
     ];
     $this->remotedb->setHeader('X-CSRF-Token', NULL);
-    $token = xmlrpc($this->remotedb->getUrl(), $params, $this->remotedb->getHeaders());
+    $client = $this->remotedb->getClient();
+    $token = $client->sendRequest($this->remotedb->getUrl(), $params, $this->remotedb->getHeaders());
     if (!empty($token) && isset($token['token'])) {
       $this->remotedb->setHeader('X-CSRF-Token', $token['token']);
       return TRUE;
