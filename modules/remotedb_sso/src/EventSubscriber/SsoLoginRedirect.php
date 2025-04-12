@@ -16,7 +16,7 @@ class SsoLoginRedirect implements EventSubscriberInterface {
   /**
    * {@inheritdoc}
    */
-  public static function getSubscribedEvents() {
+  public static function getSubscribedEvents(): array {
     $events = [];
     $events[KernelEvents::REQUEST][] = ['onRequest', 400];
     return $events;

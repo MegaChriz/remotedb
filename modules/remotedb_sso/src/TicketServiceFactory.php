@@ -22,7 +22,7 @@ class TicketServiceFactory extends RemotedbFactoryBase implements TicketServiceF
    */
   public function get() {
     $this->requireRemotedb();
-    return new TicketService($this->remotedb);
+    return new TicketService($this->remotedb, $this->entityTypeManager->getStorage('remotedb_user'));
   }
 
 }

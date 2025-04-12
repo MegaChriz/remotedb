@@ -3,9 +3,11 @@
 namespace Drupal\Tests\remotedbuser\Functional;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
 use Drupal\Tests\remotedbuser\Traits\RemotedbUserCreationTrait;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 
 /**
  * Provides a base class for Remote database User functional tests.
@@ -23,6 +25,11 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
     'remotedbuser',
     'remotedbuser_test',
   ];
+
+  /**
+   * The entity type manager.
+   */
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The remote database user storage.
@@ -44,17 +51,17 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->entityTypeManager = \Drupal::entityTypeManager();
+    $this->entityTypeManager = $this->container->get('entity_type.manager');
     $this->remotedbUserStorage = $this->entityTypeManager->getStorage('remotedb_user');
     $this->roleId = $this->createRole(['change own username', 'cancel account']);
   }
 
   /**
-   * Overrides DrupalWebTestCase::drupalCreateUser().
+   * Overrides UserCreationTrait::drupalCreateUser().
    *
    * Checks also if a remote account was created for this user.
    */
-  protected function drupalCreateUser(array $permissions = [], $name = NULL, $admin = FALSE, array $values = []) {
+  protected function drupalCreateUser(array $permissions = [], $name = NULL, $admin = FALSE, array $values = []): UserInterface|false {
     $account = parent::drupalCreateUser($permissions, $name, $admin, $values);
 
     // Make sure that a remote account exists.

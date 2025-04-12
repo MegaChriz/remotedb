@@ -2,6 +2,7 @@
 
 namespace Drupal\remotedb_sso;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
@@ -19,13 +20,21 @@ class TicketService implements TicketServiceInterface {
   private $remotedb;
 
   /**
+   * The storage for remotedbuser entities.
+   */
+  protected RemotedbUserStorageInterface $remotedbUserStorage;
+
+  /**
    * Constructs a new TicketService object.
    *
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   The remote database to use.
+   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remotedb_user_storage
+   *   The storage for remotedbuser entities.
    */
-  public function __construct(RemotedbInterface $remotedb) {
+  public function __construct(RemotedbInterface $remotedb, RemotedbUserStorageInterface $remotedb_user_storage) {
     $this->remotedb = $remotedb;
+    $this->remotedbUserStorage = $remotedb_user_storage;
   }
 
   /**
@@ -41,8 +50,7 @@ class TicketService implements TicketServiceInterface {
   public function validateTicket($remotedb_uid, $timestamp, $hash) {
     if ($this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
       // Get account details from the remote database.
-      return \Drupal::entityTypeManager()->getStorage('remotedb_user')
-        ->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
+      return $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
     }
   }
 

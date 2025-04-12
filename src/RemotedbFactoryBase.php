@@ -19,6 +19,13 @@ abstract class RemotedbFactoryBase {
   protected $remotedb;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * Constructs a new RemotedbFactoryBase object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -31,6 +38,7 @@ abstract class RemotedbFactoryBase {
     if ($remotedb_id) {
       $this->remotedb = $entity_type_manager->getStorage('remotedb')->load($remotedb_id);
     }
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
