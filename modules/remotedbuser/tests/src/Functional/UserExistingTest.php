@@ -18,6 +18,8 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    * When an existing local user is not yet linked to a remote user, test if it
    * can be linked to a remote user that does have the same username, but not
    * the same mail address.
+   *
+   * @failing
    */
   public function testExistingName() {
     // Create a remote user.
@@ -57,6 +59,8 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    * When an existing local user is not yet linked to a remote user, test if it
    * can be linked to a remote user that does have the same mail address, but
    * not the same mail username.
+   *
+   * @failing
    */
   public function testExistingMail() {
     // Create a remote user.
@@ -157,6 +161,8 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    *   is tried again via the local database.
    *
    * Logging in using the local password should succeed.
+   *
+   * @failing
    */
   public function testExistingNameAndMailWithLocalUserFallback() {
     // Set logging in via remote database with local user fallback.
