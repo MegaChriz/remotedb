@@ -135,7 +135,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
   /**
    * Data provider for ::testWithDebug().
    */
-  public function dataProviderWithDebug() {
+  public static function dataProviderWithDebug(): array {
     return [
       'role_removed_role_added' => [
         'roles' => ['foo', 'qux'],

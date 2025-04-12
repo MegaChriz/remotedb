@@ -77,7 +77,7 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
   /**
    * Data provider for ::testAddRemotedb().
    */
-  public function remotedbDataProvider() {
+  public static function remotedbDataProvider(): array {
     return [
       'url_only' => [
         ['url' => 'http://www.example.com'],

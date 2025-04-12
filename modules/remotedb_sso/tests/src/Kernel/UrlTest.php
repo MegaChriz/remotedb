@@ -46,7 +46,7 @@ class UrlTest extends KernelTestBase {
    *
    * @see ::testCreateSsoGotoUrl()
    */
-  public function urlDataProvider() {
+  public static function urlDataProvider(): array {
     $sites = [
       'www.example.com',
       'www.example2.com/subsite',

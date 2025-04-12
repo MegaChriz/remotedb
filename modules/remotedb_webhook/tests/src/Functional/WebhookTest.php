@@ -32,7 +32,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
   /**
    * Data provider for ::testPostWithUnsufficientData().
    */
-  public function dataProviderWebhookPost() {
+  public static function dataProviderWebhookPost(): array {
     return [
       'data-as-string' => [
         ['type' => 'foo__bar', 'data' => 'baz'],
@@ -69,7 +69,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
   /**
    * Data provider for ::testPostWithUnsufficientData().
    */
-  public function dataProviderPostWithUnsufficientData() {
+  public static function dataProviderPostWithUnsufficientData(): array {
     return [
       'empty' => [
         [],
