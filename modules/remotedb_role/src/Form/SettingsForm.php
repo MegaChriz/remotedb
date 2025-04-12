@@ -4,11 +4,13 @@ namespace Drupal\remotedb_role\Form;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -35,13 +37,15 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   The typed config manager.
    * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
    *   The storage class for remote database entities.
    * @param \Drupal\Core\Extension\ExtensionList $extension_list
    *   Module information provider.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, RemotedbStorageInterface $remotedb_storage, ExtensionList $extension_list) {
-    parent::__construct($config_factory);
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager, RemotedbStorageInterface $remotedb_storage, ExtensionList $extension_list) {
+    parent::__construct($config_factory, $typedConfigManager);
     $this->remotedbStorage = $remotedb_storage;
     $this->extensionList = $extension_list;
   }
@@ -52,6 +56,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('entity_type.manager')->getStorage('remotedb'),
       $container->get('extension.list.module')
     );
@@ -86,8 +91,9 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('remotedb'),
     ];
 
-    $roles = user_roles(TRUE);
-    unset($roles[AccountInterface::AUTHENTICATED_ROLE]);
+    $roles = Role::loadMultiple();
+    unset($roles[RoleInterface::ANONYMOUS_ID]);
+    unset($roles[RoleInterface::AUTHENTICATED_ID]);
 
     $role_names = [];
     foreach ($roles as $rid => $role) {
