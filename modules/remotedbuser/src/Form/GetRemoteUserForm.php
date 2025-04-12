@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Utility\Error;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\remotedbuser\Exception\RemotedbException;
 use Psr\Log\LoggerInterface;
@@ -71,7 +72,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
     return new static(
       $container->get('entity_type.manager')->getStorage('remotedb_user'),
       $container->get('messenger'),
-      $container->get('logger.channel')->get('remotedb')
+      $container->get('logger.factory')->get('remotedb')
     );
   }
 
