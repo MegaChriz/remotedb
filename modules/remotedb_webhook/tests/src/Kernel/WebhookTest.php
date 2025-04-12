@@ -58,8 +58,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
     $remote_user = $this->createRemoteUser();
 
     // Create an account linked to this remote user.
-    $account = $this->createUser([
-      'name' => 'ipsum',
+    $account = $this->createUser([], 'ipsum', FALSE, [
       'remotedb_uid' => $remote_user->uid,
     ]);
 
@@ -115,8 +114,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
     $remote_user = $this->createRemoteUser();
 
     // Create an account linked to this remote user.
-    $account = $this->createUser([
-      'name' => 'ipsum',
+    $account = $this->createUser([], 'ipsum', FALSE, [
       'remotedb_uid' => $remote_user->uid,
     ]);
 
