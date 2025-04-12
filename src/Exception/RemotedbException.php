@@ -2,14 +2,14 @@
 
 namespace Drupal\remotedb\Exception;
 
-use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Messenger\MessengerTrait;
-use Exception;
+use Drupal\Core\Utility\Error;
+use Psr\Log\LogLevel;
 
 /**
  * Base class for remotedb exceptions.
  */
-class RemotedbException extends Exception {
+class RemotedbException extends \Exception {
 
   use MessengerTrait;
 
@@ -22,9 +22,13 @@ class RemotedbException extends Exception {
 
   /**
    * Logs error in watchdog.
+   *
+   * @param string $level
+   *   The PSR log level. Must be valid constant in \Psr\Log\LogLevel.
    */
-  public function logError($severity = RfcLogLevel::ERROR) {
-    watchdog_exception('remotedb', $this, NULL, [], $severity);
+  public function logError($level = LogLevel::ERROR) {
+    $logger = \Drupal::logger('remotedb');
+    Error::logException($logger, $this, Error::DEFAULT_ERROR_MESSAGE, [], $level);
   }
 
 }

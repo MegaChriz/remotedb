@@ -9,6 +9,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\Core\Utility\Error;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
@@ -120,7 +121,7 @@ class Webhook implements WebhookInterface {
         $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
       }
       catch (RemotedbException $e) {
-        watchdog_exception('remotedb', $e);
+        $e->logError();
       }
     }
   }

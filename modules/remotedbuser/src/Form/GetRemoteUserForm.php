@@ -2,15 +2,19 @@
 
 namespace Drupal\remotedbuser\Form;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\remotedbuser\Exception\RemotedbException;
-use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a form to copy an user from the remote database.
+ * Provides a form to copy a user from the remote database.
  */
-class GetRemoteUserForm extends FormBase {
+class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface {
 
   /**
    * The minimum number of users to copy over to use a batch for.
@@ -18,6 +22,58 @@ class GetRemoteUserForm extends FormBase {
    * @var int
    */
   const USER_BATCH_MINIMUM = 3;
+
+  /**
+   * The remote DB user storage.
+   *
+   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
+   */
+  protected $remotedbUserStorage;
+
+  /**
+   * Messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * Logger service.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
+   * Constructs a new GetRemoteUserForm.
+   *
+   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remotedb_user_storage
+   *   The remote DB user storage.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   * @param \Psr\Log\LoggerInterface $logger
+   *   The logger for the 'remotedb' channel.
+   */
+  public function __construct(
+    RemotedbUserStorageInterface $remotedb_user_storage,
+    MessengerInterface $messenger,
+    LoggerInterface $logger
+  ) {
+    $this->remotedbUserStorage = $remotedb_user_storage;
+    $this->messenger = $messenger;
+    $this->logger = $logger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager')->getStorage('remotedb_user'),
+      $container->get('messenger'),
+      $container->get('logger.channel')->get('remotedb')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -72,19 +128,19 @@ class GetRemoteUserForm extends FormBase {
    */
   public function getRemoteUser($user_id) {
     try {
-      $remote_account = \Drupal::entityTypeManager()->getStorage('remotedb_user')->loadByAny($user_id);
+      $remote_account = $this->remotedbUserStorage->loadByAny($user_id);
       if ($remote_account) {
         // Copy over account data.
         $account = $remote_account->toAccount();
         $account->save();
 
-        \Drupal::messenger()->addStatus($this->t('User account <a href="@url">%name</a> copied over from the remote database.', [
+        $this->messenger->addStatus($this->t('User account <a href="@url">%name</a> copied over from the remote database.', [
           '@url' => $account->toUrl()->toString(),
           '%name' => $account->getAccountName(),
         ]));
       }
       else {
-        \Drupal::messenger()->addStatus($this->t('No remote user found for %user.', [
+        $this->messenger->addStatus($this->t('No remote user found for %user.', [
           '%user' => $user_id,
         ]));
       }
@@ -93,9 +149,9 @@ class GetRemoteUserForm extends FormBase {
       $e->logError();
       $e->printMessage();
     }
-    catch (Exception $e) {
-      watchdog_exception('remotedb', $e);
-      \Drupal::messenger()->addError($e->getMessage());
+    catch (\Exception $e) {
+      Error::logException($this->logger, $e);
+      $this->messenger->addError($e->getMessage());
     }
   }
 
@@ -110,17 +166,13 @@ class GetRemoteUserForm extends FormBase {
    *   Defaults to 10.
    */
   protected function getRemoteUserBatch(array $user_ids, $limit_per_batch = 10) {
-    $operations = [];
     $operations[] = [
       [$this, 'getRemoteUserBatchOperation'],
-      [
-        $user_ids,
-        $limit_per_batch,
-      ],
+      [$user_ids, $limit_per_batch],
     ];
 
     $batch = [
-      'title' => t('Importing users from the remote database...'),
+      'title' => $this->t('Importing users from the remote database...'),
       'operations' => $operations,
       'progress_message' => '',
     ];
@@ -139,10 +191,11 @@ class GetRemoteUserForm extends FormBase {
    */
   public function getRemoteUserBatchOperation(array $user_ids, $limit_per_batch, array &$context) {
     if (empty($context['sandbox'])) {
-      $context['sandbox'] = [];
-      $context['sandbox']['progress'] = 0;
-      $context['sandbox']['max'] = count($user_ids);
-      $context['sandbox']['user_ids'] = $user_ids;
+      $context['sandbox'] = [
+        'progress' => 0,
+        'max' => count($user_ids),
+        'user_ids' => $user_ids,
+      ];
     }
 
     $group = array_slice($context['sandbox']['user_ids'], 0, $limit_per_batch);
@@ -156,7 +209,7 @@ class GetRemoteUserForm extends FormBase {
       $this->getRemoteUser($user_id);
 
       $context['sandbox']['progress']++;
-      $context['message'] = t('Imported @current users out of @total.', [
+      $context['message'] = $this->t('Imported @current users out of @total.', [
         '@current' => $context['sandbox']['progress'],
         '@total' => $context['sandbox']['max'],
       ]);

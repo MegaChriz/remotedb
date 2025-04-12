@@ -7,9 +7,11 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Utility\Error;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedb_sso\TicketServiceInterface;
 use Drupal\user\UserStorageInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -41,18 +43,26 @@ class SsoController extends ControllerBase {
   protected $ticketService;
 
   /**
+   * The remotedb logger channel.
+   */
+  protected LoggerInterface $logger;
+
+  /**
    * Constructs a new SsoController object.
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current active user.
    * @param \Drupal\user\UserStorageInterface $user_storage
    *   The user storage.
+   * @param \Psr\Log\LoggerInterface $logger
+   *   he remotedb logger channel.
    * @param \Drupal\remotedb_sso\TicketServiceInterface $ticket_service
    *   (optional) The service for requesting tickets from the remote database.
    */
-  public function __construct(AccountProxyInterface $current_user, UserStorageInterface $user_storage, TicketServiceInterface $ticket_service = NULL) {
+  public function __construct(AccountProxyInterface $current_user, UserStorageInterface $user_storage, LoggerInterface $logger, ?TicketServiceInterface $ticket_service = NULL) {
     $this->currentUser = $current_user;
     $this->userStorage = $user_storage;
+    $this->logger = $logger;
     $this->ticketService = $ticket_service;
   }
 
@@ -72,6 +82,7 @@ class SsoController extends ControllerBase {
     return new static(
       $container->get('current_user'),
       $container->get('entity_type.manager')->getStorage('user'),
+      $container->get('logger.factory')->get('remotedb'),
       $ticket_service
     );
   }
@@ -149,7 +160,7 @@ class SsoController extends ControllerBase {
     }
     catch (Exception $e) {
       // Log any other exceptions.
-      watchdog_exception('remotedb', $e);
+      Error::logException($this->logger, $e);
     }
 
     // Finally, perform the redirect.
