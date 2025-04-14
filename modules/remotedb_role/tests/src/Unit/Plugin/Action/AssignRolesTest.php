@@ -72,7 +72,7 @@ class AssignRolesTest extends UnitTestCase {
     $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
-      ->will($this->returnValue(FALSE));
+      ->willReturn(FALSE);
 
     // Mock a subscription service.
     $subscription_service = $this->createSubscriptionServiceMock(['1001' => 'Foo']);
@@ -109,7 +109,7 @@ class AssignRolesTest extends UnitTestCase {
     $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
-      ->will($this->returnValue(TRUE));
+      ->willReturn(TRUE);
 
     // Mock a subscription service.
     $subscription_service = $this->createSubscriptionServiceMock(['1001' => 'Foo']);
@@ -146,7 +146,7 @@ class AssignRolesTest extends UnitTestCase {
     $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
-      ->will($this->returnValue(TRUE));
+      ->willReturn(TRUE);
 
     // Mock a subscription service.
     $subscription_service = $this->createSubscriptionServiceMock([]);
@@ -183,7 +183,7 @@ class AssignRolesTest extends UnitTestCase {
     $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
-      ->will($this->returnValue(FALSE));
+      ->willReturn(FALSE);
 
     // Mock a subscription service.
     $subscription_service = $this->createSubscriptionServiceMock([]);
@@ -224,7 +224,7 @@ class AssignRolesTest extends UnitTestCase {
     $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
-      ->will($this->returnValue(FALSE));
+      ->willReturn(FALSE);
 
     // Mock a subscription service.
     $subscription_service = $this->createSubscriptionServiceMock([
