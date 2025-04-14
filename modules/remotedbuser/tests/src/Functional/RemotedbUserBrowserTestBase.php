@@ -54,6 +54,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
     $this->entityTypeManager = $this->container->get('entity_type.manager');
     $this->remotedbUserStorage = $this->entityTypeManager->getStorage('remotedb_user');
     $this->roleId = $this->createRole(['change own username', 'cancel account']);
+    $this->useOneTimeLoginLinks = FALSE;
   }
 
   /**

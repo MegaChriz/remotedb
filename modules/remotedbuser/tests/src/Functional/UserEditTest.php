@@ -53,8 +53,6 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests if an user can login with their remotely changed username.
-   *
-   * @failing
    */
   public function testRemoteNameChange() {
     // Set logging in via the remote database only.
@@ -129,8 +127,6 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
 
   /**
    * Tests if a mail address change in the remote database has effect locally.
-   *
-   * @failing
    */
   public function testRemoteMailChange() {
     // Set logging in via the remote database only.
