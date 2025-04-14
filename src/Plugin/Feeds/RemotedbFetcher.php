@@ -2,24 +2,20 @@
 
 namespace Drupal\remotedb\Plugin\Feeds;
 
-use FeedsFetcher;
-use FeedsSource;
-use FeedsNotExistingException;
-
 /**
  * Fetches data via HTTP.
  */
-class RemotedbFetcher extends FeedsFetcher {
+class RemotedbFetcher extends \FeedsFetcher {
 
   /**
    * Implements FeedsFetcher::fetch().
    */
-  public function fetch(FeedsSource $source) {
+  public function fetch(\FeedsSource $source) {
     $source_config = $source->getConfigFor($this);
     $config = $source_config + $this->config;
     $remotedb = entity_load_single('remotedb', $config['remotedb']);
     if (empty($remotedb)) {
-      throw new FeedsNotExistingException(t('Source configuration not valid.'));
+      throw new \FeedsNotExistingException(t('Source configuration not valid.'));
     }
     return new RemotedbFetcherResult($remotedb, $config);
   }

@@ -51,7 +51,7 @@ function remotedbuser_hook_info() {
  * @param \Drupal\Core\Session\AccountInterface $account
  *   (optional) The account to check access for.
  */
-function remotedbuser_get_remote_user_access(AccountInterface $account = NULL) {
+function remotedbuser_get_remote_user_access(?AccountInterface $account = NULL) {
   if (empty($account)) {
     $account = \Drupal::currentUser();
   }
@@ -82,7 +82,10 @@ function remotedbuser_user_presave(UserInterface $account) {
   $result = $remote_account->save();
   if (!$result) {
     \Drupal::messenger()->addError('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.');
-    \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', ['%username' => $account->getAccountName(), '%uid' => $account->id()]);
+    \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', [
+      '%username' => $account->getAccountName(),
+      '%uid' => $account->id(),
+    ]);
   }
   elseif (empty($account->remotedb_uid->value) || $remote_account->uid != $account->remotedb_uid->value) {
     // Save remote account uid on local account.
@@ -204,7 +207,7 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
   $admin_create = $register && $account->access('create');
 
   $name = $form_state->getValue('name');
-  $mail = $form_state->getValue('mail');;
+  $mail = $form_state->getValue('mail');
 
   if ($admin_create && \Drupal::currentUser()->hasPermission('remotedbuser.create')) {
     // An administrator is creating an account.
@@ -260,7 +263,10 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
         $form_state->setErrorByName('mail', $message);
       }
       else {
-        $form_state->setErrorByName('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', ['%email' => $mail, '@password' => Url::fromRoute('user.pass')->toString()]));
+        $form_state->setErrorByName('mail', t('The e-mail address %email is already registered. <a href="@password">Have you forgotten your password?</a>', [
+          '%email' => $mail,
+          '@password' => Url::fromRoute('user.pass')->toString(),
+        ]));
       }
     }
   }

@@ -312,7 +312,7 @@ class MockAccount implements AccountInterface {
    *   The value of the property, or null if it doesn't exist.
    */
   public function __get(string $name): mixed {
-    return property_exists($this, $name) ? $this->$name : null;
+    return property_exists($this, $name) ? $this->$name : NULL;
   }
 
   /**

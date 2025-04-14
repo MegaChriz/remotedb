@@ -31,7 +31,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   The remote database in which the remote users are stored.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, RemotedbInterface $remotedb = NULL) {
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, ?MemoryCacheInterface $memory_cache = NULL, ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, ?RemotedbInterface $remotedb = NULL) {
 
     // Set remotedb mock.
     $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create([]);

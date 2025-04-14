@@ -46,7 +46,7 @@ interface WebhookInterface {
    *   TRUE if the url already exists.
    *   FALSE otherwise.
    */
-  public function exists(RemotedbInterface $remotedb, Url $url = NULL);
+  public function exists(RemotedbInterface $remotedb, ?Url $url = NULL);
 
   /**
    * Gets existing webhooks from the remote database.
@@ -72,7 +72,7 @@ interface WebhookInterface {
    *   TRUE if the webhook was added with success.
    *   FALSE otherwise.
    */
-  public function add(RemotedbInterface $remotedb, Url $url = NULL);
+  public function add(RemotedbInterface $remotedb, ?Url $url = NULL);
 
   /**
    * Removes a webhook from the remote database.
@@ -83,7 +83,7 @@ interface WebhookInterface {
    *   (optional) The webhook url to remove.
    *   Defaults to default webhook url.
    */
-  public function delete(RemotedbInterface $remotedb, Url $url = NULL);
+  public function delete(RemotedbInterface $remotedb, ?Url $url = NULL);
 
   /**
    * Clears cache.

@@ -44,7 +44,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   The remote database in which the remote users are stored.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, RemotedbInterface $remotedb = NULL) {
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, ?MemoryCacheInterface $memory_cache = NULL, ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, ?RemotedbInterface $remotedb = NULL) {
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
 
     if (is_null($remotedb)) {
@@ -161,7 +161,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  protected function doLoadMultiple(array $ids = NULL) {
+  protected function doLoadMultiple(?array $ids = NULL) {
     // Attempt to load entities from the static cache. This will remove IDs
     // that were loaded from $ids.
     $entities_from_cache = $this->getFromStaticCache($ids);
@@ -187,7 +187,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface[]
    *   Array of entities from the storage.
    */
-  protected function getFromStorage(array $ids = NULL, $load_by = NULL) {
+  protected function getFromStorage(?array $ids = NULL, $load_by = NULL) {
     $entities = [];
 
     switch ($load_by) {

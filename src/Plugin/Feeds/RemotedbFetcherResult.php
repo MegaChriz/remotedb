@@ -2,15 +2,14 @@
 
 namespace Drupal\remotedb\Plugin\Feeds;
 
+use Drupal\remotedb\Component\StringLib;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
-use Drupal\remotedb\Component\StringLib;
-use FeedsFetcherResult;
 
 /**
  * Result of FeedsHTTPFetcher::fetch().
  */
-class RemotedbFetcherResult extends FeedsFetcherResult {
+class RemotedbFetcherResult extends \FeedsFetcherResult {
   /**
    * The remote database to fetch data from.
    *

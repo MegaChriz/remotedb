@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\remotedbuser\Kernel\Entity;
 
+use Drupal\Tests\remotedbuser\Kernel\RemotedbUserKernelTestBase;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
-use Drupal\Tests\remotedbuser\Kernel\RemotedbUserKernelTestBase;
 
 /**
  * @coversDefaultClass \Drupal\remotedbuser\Entity\RemotedbUserStorage

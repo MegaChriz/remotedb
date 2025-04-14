@@ -30,7 +30,7 @@ function remotedbuser_feeds_processor_targets_alter(&$targets, $entity_type, $bu
  * @see remotedbuser_feeds_processor_targets_alter()
  */
 function remotedbuser_feeds_set_user($source, $entity, $target, array $values, $mapping) {
-  list($property_key, $field) = explode(':', $target);
+  [$property_key, $field] = explode(':', $target);
 
   // Get value.
   $user_id = reset($values);

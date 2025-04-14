@@ -2,10 +2,10 @@
 
 namespace Drupal\remotedbuser\Form;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Utility\Error;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\remotedbuser\Exception\RemotedbException;
@@ -58,7 +58,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
   public function __construct(
     RemotedbUserStorageInterface $remotedb_user_storage,
     MessengerInterface $messenger,
-    LoggerInterface $logger
+    LoggerInterface $logger,
   ) {
     $this->remotedbUserStorage = $remotedb_user_storage;
     $this->messenger = $messenger;

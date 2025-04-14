@@ -9,7 +9,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
-use Drupal\Core\Utility\Error;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
@@ -97,7 +96,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function exists(RemotedbInterface $remotedb, Url $url = NULL) {
+  public function exists(RemotedbInterface $remotedb, ?Url $url = NULL) {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
@@ -129,7 +128,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function add(RemotedbInterface $remotedb, Url $url = NULL) {
+  public function add(RemotedbInterface $remotedb, ?Url $url = NULL) {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
@@ -146,7 +145,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function delete(RemotedbInterface $remotedb, Url $url = NULL) {
+  public function delete(RemotedbInterface $remotedb, ?Url $url = NULL) {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
@@ -172,7 +171,7 @@ class Webhook implements WebhookInterface {
    * {@inheritdoc}
    */
   public function process($type, $data) {
-    list($entity_type, $hook) = explode('__', $type);
+    [$entity_type, $hook] = explode('__', $type);
 
     if ($entity_type == 'user') {
       switch ($hook) {

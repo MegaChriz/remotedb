@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\remotedb_sso\Kernel;
 
-use Drupal\remotedb_sso\Url;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\remotedb_sso\Url;
 
 /**
  * Test if SSO urls are handled as expected.

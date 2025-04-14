@@ -13,7 +13,6 @@ class Url implements UrlInterface {
    * {@inheritdoc}
    */
   public function createSsoGotoUrl($site, $text) {
-//    d(get_defined_vars());
     // Remove whitespace.
     $site = trim($site);
     // Make $site regex safe first.

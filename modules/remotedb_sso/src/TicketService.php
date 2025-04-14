@@ -2,7 +2,6 @@
 
 namespace Drupal\remotedb_sso;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;

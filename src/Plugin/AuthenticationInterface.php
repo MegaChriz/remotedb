@@ -2,9 +2,9 @@
 
 namespace Drupal\remotedb\Plugin;
 
-use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Component\Plugin\DependentPluginInterface;
+use Drupal\Component\Plugin\PluginInspectionInterface;
 
 /**
  * Interface for remote database authentication plugins.

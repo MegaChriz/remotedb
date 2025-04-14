@@ -55,7 +55,7 @@ class SsoController extends ControllerBase {
    * @param \Drupal\user\UserStorageInterface $user_storage
    *   The user storage.
    * @param \Psr\Log\LoggerInterface $logger
-   *   he remotedb logger channel.
+   *   The remotedb logger channel.
    * @param \Drupal\remotedb_sso\TicketServiceInterface $ticket_service
    *   (optional) The service for requesting tickets from the remote database.
    */

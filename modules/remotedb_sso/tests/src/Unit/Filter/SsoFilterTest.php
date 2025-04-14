@@ -4,11 +4,11 @@ namespace Drupal\Tests\remotedb_sso\Unit\Filter;
 
 use Drupal\Core\Config\ConfigBase;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Tests\UnitTestCase;
 use Drupal\filter\FilterProcessResult;
 use Drupal\remotedb_sso\Plugin\Filter\SsoFilter;
 use Drupal\remotedb_sso\TicketServiceInterface;
 use Drupal\remotedb_sso\UrlInterface;
-use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 

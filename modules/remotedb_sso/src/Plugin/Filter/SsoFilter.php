@@ -74,7 +74,7 @@ class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
    * @param \Drupal\remotedb_sso\TicketServiceInterface $ticket_service
    *   (optional) The service for requesting tickets from the remote database.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, AccountProxyInterface $current_user, ConfigBase $config, UrlInterface $url_generator, TicketServiceInterface $ticket_service = NULL) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, AccountProxyInterface $current_user, ConfigBase $config, UrlInterface $url_generator, ?TicketServiceInterface $ticket_service = NULL) {
     $this->currentUser = $current_user;
     $this->config = $config;
     $this->urlGenerator = $url_generator;

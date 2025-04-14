@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\remotedb_role\Unit\Plugin\Action;
 
+use Drupal\Tests\UnitTestCase;
 use Drupal\remotedb_role\Plugin\Action\AssignRoles;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
-use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\remotedb_role\Plugin\Action\AssignRoles

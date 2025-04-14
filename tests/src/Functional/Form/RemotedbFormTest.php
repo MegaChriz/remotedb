@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\remotedb\Functional\Form;
 
-use Drupal\remotedb\Entity\Remotedb;
 use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
+use Drupal\remotedb\Entity\Remotedb;
 
 /**
  * Tests adding and editing remote database entities.
