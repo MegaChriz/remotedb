@@ -29,8 +29,7 @@ class UninstallTest extends BrowserTestBase {
    */
   public function testUninstall() {
     // Confirm that the remotedbuser module has been installed.
-    $module_handler = $this->container->get('module_handler');
-    $this->assertTrue($module_handler->moduleExists('remotedbuser'));
+    $this->assertTrue($this->container->get('module_handler')->moduleExists('remotedbuser'));
 
     // Assert that the user entity type now has a field called 'remotedb_uid'.
     $definitions = $this->container->get('entity_field.manager')->getBaseFieldDefinitions('user');
@@ -38,7 +37,12 @@ class UninstallTest extends BrowserTestBase {
 
     // Uninstall remotedbuser.
     $this->container->get('module_installer')->uninstall(['remotedbuser']);
-    $this->assertFalse($module_handler->moduleExists('remotedbuser'));
+
+    // Rebuild container to clear previously cached field definitions.
+    $this->rebuildContainer();
+
+    // Assert that remotedbuser is uninstalled.
+    $this->assertFalse($this->container->get('module_handler')->moduleExists('remotedbuser'));
 
     // Assert that the user entity type no longer has the remotedb_uid field.
     $definitions = $this->container->get('entity_field.manager')->getBaseFieldDefinitions('user');
