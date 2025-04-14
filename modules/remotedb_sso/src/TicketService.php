@@ -4,6 +4,7 @@ namespace Drupal\remotedb_sso;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
@@ -39,18 +40,19 @@ class TicketService implements TicketServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTicket(AccountInterface $account) {
+  public function getTicket(AccountInterface $account): string {
     return $this->sendRequest('ticket.retrieve', [$account->getEmail(), 'mail']);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateTicket($remotedb_uid, $timestamp, $hash) {
+  public function validateTicket($remotedb_uid, $timestamp, $hash): ?RemotedbUserInterface {
     if ($this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
       // Get account details from the remote database.
       return $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
     }
+    return NULL;
   }
 
   /**
@@ -64,7 +66,7 @@ class TicketService implements TicketServiceInterface {
    * @return mixed
    *   The result of the method call.
    */
-  protected function sendRequest($method, array $params = []) {
+  protected function sendRequest(string $method, array $params = []) {
     return $this->remotedb->sendRequest($method, $params);
   }
 

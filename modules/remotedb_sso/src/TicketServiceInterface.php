@@ -3,6 +3,7 @@
 namespace Drupal\remotedb_sso;
 
 use Drupal\Core\Session\AccountInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 
 /**
  * Interface for the sso ticket service.
@@ -18,7 +19,7 @@ interface TicketServiceInterface {
    * @return string
    *   The ticket.
    */
-  public function getTicket(AccountInterface $account);
+  public function getTicket(AccountInterface $account): string;
 
   /**
    * Validate a ticket.
@@ -30,10 +31,10 @@ interface TicketServiceInterface {
    * @param string $hash
    *   The generated ticket hash.
    *
-   * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface
+   * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface|null
    *   An instance of RemotedbUserInterface, if the ticket was valid.
    *   NULL otherwise.
    */
-  public function validateTicket($remotedb_uid, $timestamp, $hash);
+  public function validateTicket($remotedb_uid, $timestamp, $hash): ?RemotedbUserInterface;
 
 }

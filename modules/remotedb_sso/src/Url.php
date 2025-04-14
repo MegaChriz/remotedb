@@ -86,11 +86,4 @@ class Url implements UrlInterface {
     return CoreUrl::fromRoute('remotedb_sso.goto', [], $options)->toString();
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function generateSsoLoginLink($site, $path = NULL) {
-    return 'http://' . $site . '/sso/login/' . $ticket . '/' . $path;
-  }
-
 }

@@ -20,17 +20,4 @@ interface UrlInterface {
    */
   public function createSsoGotoUrl($site, $text);
 
-  /**
-   * Generates a SSO Login link.
-   *
-   * @param string $site
-   *   The site to generate an Url for.
-   * @param string $path
-   *   The path for the website.
-   *
-   * @return string
-   *   The generated SSO Url.
-   */
-  public function generateSsoLoginLink($site, $path = NULL);
-
 }

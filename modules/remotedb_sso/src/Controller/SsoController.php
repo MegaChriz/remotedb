@@ -158,7 +158,7 @@ class SsoController extends ControllerBase {
       // Log any remote database exceptions.
       $e->logError();
     }
-    catch (Exception $e) {
+    catch (\Exception $e) {
       // Log any other exceptions.
       Error::logException($this->logger, $e);
     }
