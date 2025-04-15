@@ -79,6 +79,11 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   protected $authentication_methods = [];
 
   /**
+   * A collection of authentications.
+   */
+  protected ?AuthenticationPluginCollection $authenticationCollection;
+
+  /**
    * An array of headers to send along with the HTTP Request.
    *
    * @var array

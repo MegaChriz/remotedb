@@ -263,7 +263,7 @@ class AssignRolesTest extends UnitTestCase {
 
     $this->account->expects($this->any())
       ->method('hasRole')
-      ->will($this->returnCallback(function ($rid) {
+      ->willReturnCallback(function ($rid) {
         switch ($rid) {
           case 'test_role_1':
             return TRUE;
@@ -274,7 +274,7 @@ class AssignRolesTest extends UnitTestCase {
           case 'test_role_3':
             return FALSE;
         }
-      }));
+      });
 
     // Mock a subscription service.
     $subscription_service = $this->createSubscriptionServiceMock(['1003' => 'Qux']);

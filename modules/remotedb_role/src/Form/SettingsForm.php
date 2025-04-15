@@ -137,7 +137,6 @@ class SettingsForm extends ConfigFormBase {
         $form['roles'][$rid]['subscriptions'] = [
           '#type' => 'textarea',
           '#title' => $this->t('Subscriptions'),
-          '#default_value' => NULL,
           '#description' => $this->t('Specify which subscriptions should give the user the role %role. Enter one per line.', [
             '%role' => $role->label(),
           ]),

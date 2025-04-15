@@ -69,7 +69,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  protected function readFieldItemsToPurge(FieldDefinitionInterface $field_definition, $batch_size) {}
+  protected function readFieldItemsToPurge(FieldDefinitionInterface $field_definition, $batch_size) {
+    return [];
+  }
 
   /**
    * {@inheritdoc}
@@ -233,7 +235,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function countFieldData($storage_definition, $as_bool = FALSE) {}
+  public function countFieldData($storage_definition, $as_bool = FALSE) {
+    return 0;
+  }
 
   /**
    * {@inheritdoc}

@@ -81,9 +81,6 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
    *
    * @var int $remotedb_uid
    *   The expected remote user uid.
-   *
-   * @return bool
-   *   TRUE on pass, FALSE on fail.
    */
   protected function assertLocalUser($remotedb_uid) {
     $account = NULL;
@@ -91,7 +88,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
     if (!empty($users)) {
       $account = reset($users);
     }
-    return $this->assertNotNull($account, 'The remote user exists on the local database.');
+    $this->assertNotNull($account, 'The remote user exists on the local database.');
   }
 
   /**

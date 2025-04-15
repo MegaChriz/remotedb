@@ -3,6 +3,7 @@
 namespace Drupal\remotedbuser\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -34,13 +35,15 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   The typed config manager.
    * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
    *   The storage class for remote database entities.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $field_manager
    *   The entity field manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, RemotedbStorageInterface $remotedb_storage, EntityFieldManagerInterface $field_manager) {
-    parent::__construct($config_factory);
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager, RemotedbStorageInterface $remotedb_storage, EntityFieldManagerInterface $field_manager) {
+    parent::__construct($config_factory, $typedConfigManager);
     $this->remotedbStorage = $remotedb_storage;
     $this->fieldManager = $field_manager;
   }

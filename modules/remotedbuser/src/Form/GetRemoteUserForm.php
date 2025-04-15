@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Utility\Error;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
-use Drupal\remotedbuser\Exception\RemotedbException;
+use Drupal\remotedb\Exception\RemotedbException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

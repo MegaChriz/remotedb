@@ -118,11 +118,13 @@ class Webhook implements WebhookInterface {
       try {
         $index = $remotedb->sendRequest('kkbservices_webhook.index');
         $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
+        return $index;
       }
       catch (RemotedbException $e) {
         $e->logError();
       }
     }
+    return [];
   }
 
   /**
