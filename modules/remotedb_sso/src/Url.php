@@ -10,6 +10,23 @@ use Drupal\Core\Url as CoreUrl;
 class Url implements UrlInterface {
 
   /**
+   * The allowed protocols.
+   *
+   * @var array
+   */
+  protected $protocols;
+
+  /**
+   * Constructs a new Url object.
+   *
+   * @param array $protocols
+   *   The allowed protocols, typically from the 'filter_protocols' parameter.
+   */
+  public function __construct(array $protocols) {
+    $this->protocols = $protocols;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function createSsoGotoUrl($site, $text) {
@@ -25,8 +42,7 @@ class Url implements UrlInterface {
     // cleanly differ between protocols here without hard-coding MAILTO, so '//'
     // is optional for all protocols.
     // @see \Drupal\Component\Utility\UrlHelper::stripDangerousProtocols()
-    $protocols = \Drupal::getContainer()->getParameter('filter_protocols');
-    $protocols = implode(':(?://)?|', $protocols) . ':(?://)?';
+    $protocols = implode(':(?://)?|', $this->protocols) . ':(?://)?';
 
     $valid_url_path_characters = "[\p{L}\p{M}\p{N}!\*\';:=\+,\.\$\/%#\[\]\-_~@&]";
 

@@ -3,7 +3,6 @@
 namespace Drupal\Tests\remotedb_sso\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\remotedb_sso\Url;
 
 /**
  * Test if SSO urls are handled as expected.
@@ -35,7 +34,7 @@ class UrlTest extends KernelTestBase {
    */
   public function testCreateSsoGotoUrl(array $sites, $text, $expected) {
     foreach ($sites as $site) {
-      $url = new Url();
+      $url = $this->container->get('remotedb_sso.url');
       $text = $url->createSsoGotoUrl($site, $text);
     }
     $this->assertEquals($expected, $text);

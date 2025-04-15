@@ -2,6 +2,9 @@
 
 namespace Drupal\remotedb_sso_test;
 
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Password\PasswordGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb_sso\TicketServiceInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserInterface;
@@ -13,6 +16,43 @@ use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 class MockTicketService implements TicketServiceInterface {
 
   /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
+   * The password generator.
+   *
+   * @var \Drupal\Core\Password\PasswordGeneratorInterface
+   */
+  protected $passwordGenerator;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Constructs a new MockTicketService object.
+   *
+   * @param \Drupal\Core\Datetime\TimeInterface $time
+   *   The time service.
+   * @param \Drupal\Core\Password\PasswordGeneratorInterface $password_generator
+   *   The password generator.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   */
+  public function __construct(TimeInterface $time, PasswordGeneratorInterface $password_generator, EntityTypeManagerInterface $entity_type_manager) {
+    $this->time = $time;
+    $this->passwordGenerator = $password_generator;
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getTicket(AccountInterface $account): string {
@@ -20,10 +60,11 @@ class MockTicketService implements TicketServiceInterface {
     if (!empty($account->remotedb_uid->value)) {
       $uid = $account->remotedb_uid->value;
     }
+
     return implode('/', [
       $uid,
-      \Drupal::time()->getRequestTime(),
-      \Drupal::service('password_generator')->generate(),
+      $this->time->getRequestTime(),
+      $this->passwordGenerator->generate(),
     ]);
   }
 
@@ -31,8 +72,8 @@ class MockTicketService implements TicketServiceInterface {
    * {@inheritdoc}
    */
   public function validateTicket($remotedb_uid, $timestamp, $hash): ?RemotedbUserInterface {
-    // Get account details from the remote database.
-    return \Drupal::entityTypeManager()->getStorage('remotedb_user')
+    return $this->entityTypeManager
+      ->getStorage('remotedb_user')
       ->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
   }
 

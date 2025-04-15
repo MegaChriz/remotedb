@@ -9,6 +9,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\Core\PrivateKey;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
@@ -55,6 +56,13 @@ class Webhook implements WebhookInterface {
   protected $logger;
 
   /**
+   * The private key service.
+   *
+   * @var \Drupal\Core\PrivateKey
+   */
+  protected $privateKey;
+
+  /**
    * Constructs a new Webhook object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -65,13 +73,16 @@ class Webhook implements WebhookInterface {
    *   The time service.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger service.
+   * @param \Drupal\Core\PrivateKey $private_key
+   *   The private key service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time, LoggerInterface $logger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time, LoggerInterface $logger, PrivateKey $private_key) {
     $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedb_user');
     $this->userStorage = $entity_type_manager->getStorage('user');
     $this->cache = $cache;
     $this->time = $time;
     $this->logger = $logger;
+    $this->privateKey = $private_key;
   }
 
   /**
@@ -81,7 +92,7 @@ class Webhook implements WebhookInterface {
     $base_url = Url::fromRoute('<front>', [], ['absolute' => TRUE])
       ->toString();
 
-    return Crypt::hashBase64($base_url . \Drupal::service('private_key')->get() . Settings::getHashSalt());
+    return Crypt::hashBase64($base_url . $this->privateKey->get() . Settings::getHashSalt());
   }
 
   /**

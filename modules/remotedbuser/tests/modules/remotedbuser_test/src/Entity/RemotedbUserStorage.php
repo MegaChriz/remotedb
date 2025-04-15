@@ -4,11 +4,13 @@ namespace Drupal\remotedbuser_test\Entity;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorage as OriginalRemotedbUserStorage;
+use Drupal\user\UserStorageInterface;
 
 /**
  * Overrides default storage class for remotedb_user entity type.
@@ -24,6 +26,10 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The entity field manager.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    *   The cache backend to be used.
+   * @param \Drupal\user\UserStorageInterface $user_storage
+   *   The user entity storage.
+   * @param \Drupal\Core\Config\ImmutableConfig $config
+   *   The remotedbuser settings.
    * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
    *   The memory cache backend.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
@@ -31,13 +37,13 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
    *   The remote database in which the remote users are stored.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, ?MemoryCacheInterface $memory_cache = NULL, ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, ?RemotedbInterface $remotedb = NULL) {
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, UserStorageInterface $user_storage, ImmutableConfig $config, ?MemoryCacheInterface $memory_cache = NULL, ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, ?RemotedbInterface $remotedb = NULL) {
 
     // Set remotedb mock.
     $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create([]);
     $remotedb->setCallback([$this, 'remotedbCallback']);
 
-    parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info, $remotedb);
+    parent::__construct($entity_type, $entity_field_manager, $cache, $user_storage, $config, $memory_cache, $entity_type_bundle_info, $remotedb);
   }
 
   /**

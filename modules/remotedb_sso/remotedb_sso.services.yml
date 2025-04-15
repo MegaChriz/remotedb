@@ -7,6 +7,7 @@ services:
     arguments: ['@config.factory', '@entity_type.manager']
   remotedb_sso.url:
     class: Drupal\remotedb_sso\Url
+    arguments: ['%filter_protocols%']
 
   # Perform redirect on sso login urls.
   remotedb_sso.sso_login_redirect:
