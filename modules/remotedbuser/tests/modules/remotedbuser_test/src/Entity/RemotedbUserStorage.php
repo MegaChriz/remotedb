@@ -8,14 +8,39 @@ use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Password\PasswordInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorage as OriginalRemotedbUserStorage;
 use Drupal\user\UserStorageInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Overrides default storage class for remotedb_user entity type.
  */
 class RemotedbUserStorage extends OriginalRemotedbUserStorage {
+
+  /**
+   * State service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * Password service.
+   *
+   * @var \Drupal\Core\Password\PasswordInterface
+   */
+  protected $password;
+
+  /**
+   * The Remotedb entity storage.
+   *
+   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
+   */
+  protected $remotedbStorage;
 
   /**
    * Constructs a RemotedbUserStorage instance.
@@ -30,20 +55,60 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The user entity storage.
    * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The remotedbuser settings.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   * @param \Drupal\Core\Password\PasswordInterface $password
+   *   The password checking service.
+   * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
+   *   The Remotedb entity storage.
    * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
-   *   The memory cache backend.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   *   The entity type bundle info.
-   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
-   *   The remote database in which the remote users are stored.
+   *   (optional) The memory cache backend.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|null $entity_type_bundle_info
+   *   (optional) The entity type bundle info.
+   * @param \Drupal\remotedb\Entity\RemotedbInterface|null $remotedb
+   *   (optional) The remote database in which the remote users are stored.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, UserStorageInterface $user_storage, ImmutableConfig $config, ?MemoryCacheInterface $memory_cache = NULL, ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, ?RemotedbInterface $remotedb = NULL) {
+  public function __construct(
+    EntityTypeInterface $entity_type,
+    EntityFieldManagerInterface $entity_field_manager,
+    CacheBackendInterface $cache,
+    UserStorageInterface $user_storage,
+    ImmutableConfig $config,
+    StateInterface $state,
+    PasswordInterface $password,
+    RemotedbStorageInterface $remotedb_storage,
+    ?MemoryCacheInterface $memory_cache = NULL,
+    ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL,
+    ?RemotedbInterface $remotedb = NULL,
+  ) {
+    $this->state = $state;
+    $this->password = $password;
+    $this->remotedbStorage = $remotedb_storage;
 
     // Set remotedb mock.
-    $remotedb = \Drupal::entityTypeManager()->getStorage('remotedb')->create([]);
+    $remotedb = $this->remotedbStorage->create([]);
     $remotedb->setCallback([$this, 'remotedbCallback']);
 
     parent::__construct($entity_type, $entity_field_manager, $cache, $user_storage, $config, $memory_cache, $entity_type_bundle_info, $remotedb);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+    return new static(
+      $entity_type,
+      $container->get('entity_field.manager'),
+      $container->get('cache.entity'),
+      $container->get('entity_type.manager')->getStorage('user'),
+      $container->get('config.factory')->get('remotedbuser.settings'),
+      $container->get('state'),
+      $container->get('password'),
+      $container->get('entity_type.manager')->getStorage('remotedb'),
+      $container->get('entity.memory_cache'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('remotedbuser.configuration')->getDefault()
+    );
   }
 
   /**
@@ -53,7 +118,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   An array of accounts.
    */
   public function getRemoteAccounts() {
-    return \Drupal::state()->get('remotedbuser_test_accounts', []);
+    return $this->state->get('remotedbuser_test_accounts', []);
   }
 
   /**
@@ -63,7 +128,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The accounts to save in database.
    */
   private function setRemoteAccounts(array $accounts) {
-    \Drupal::state()->set('remotedbuser_test_accounts', $accounts);
+    $this->state->set('remotedbuser_test_accounts', $accounts);
   }
 
   /**
@@ -103,9 +168,8 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @param string $by
    *   The key to load the user by.
    *
-   * @return array
-   *   An array of user data if found.
-   *   NULL otherwise.
+   * @return array|null
+   *   An array of user data if found, NULL otherwise.
    */
   private function dbuserRetrieve($id, $by) {
     foreach ($this->getRemoteAccounts() as $account) {
@@ -122,8 +186,8 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @param array $user_data
    *   The user data.
    *
-   * @return int
-   *   The remote user uid.
+   * @return int|false
+   *   The remote user uid or FALSE if saving failed.
    */
   private function dbuserSave(array $user_data) {
     // First check if this account already exists.
@@ -198,7 +262,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
       return FALSE;
     }
 
-    if (\Drupal::service('password')->check($password, $user_data['pass'])) {
+    if ($this->password->check($password, $user_data['pass'])) {
       return $user_data['uid'];
     }
 

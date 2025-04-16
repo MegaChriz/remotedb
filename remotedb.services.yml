@@ -5,3 +5,6 @@ services:
   logger.channel.remotedb:
     parent: logger.channel_base
     arguments: ['remotedb']
+  remotedb.string_lib:
+    class: Drupal\remotedb\Component\StringLib
+    arguments: []

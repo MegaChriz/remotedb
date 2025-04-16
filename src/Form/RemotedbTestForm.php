@@ -2,8 +2,11 @@
 
 namespace Drupal\remotedb\Form;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\devel\DevelDumperManagerInterface;
 use Drupal\remotedb\Component\StringLib;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedb\Exception\RemotedbException;
@@ -12,31 +15,66 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a form for manually performing a request to the remote database.
  */
-class RemotedbTestForm extends FormBase {
+class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
 
   /**
    * The remote database storage.
    *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
+   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
    */
   protected $storage;
 
   /**
-   * Construct a new RemotedbTestForm object.
+   * The string utility library.
    *
-   * @param \Drupal\Core\Entity\RemotedbStorageInterface $storage
-   *   The remote database storage.
+   * @var \Drupal\remotedb\Component\StringLib
    */
-  public function __construct(RemotedbStorageInterface $storage) {
+  protected $stringLib;
+
+  /**
+   * Optional devel dumper service.
+   *
+   * @var \Drupal\devel\DevelDumperManagerInterface|null
+   */
+  protected $dumper;
+
+  /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * Constructs a new RemotedbTestForm object.
+   *
+   * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $storage
+   *   The remote database storage.
+   * @param \Drupal\remotedb\Component\StringLib $stringLib
+   *   The string utility.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   * @param \Drupal\devel\DevelDumperManagerInterface|null $dumper
+   *   The optional devel dumper service.
+   */
+  public function __construct(RemotedbStorageInterface $storage, StringLib $stringLib, MessengerInterface $messenger, ?DevelDumperManagerInterface $dumper = NULL) {
     $this->storage = $storage;
+    $this->stringLib = $stringLib;
+    $this->messenger = $messenger;
+    $this->dumper = $dumper;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
+    $dumper = $container->has('devel.dumper') ? $container->get('devel.dumper') : NULL;
+
     return new static(
-      $container->get('entity_type.manager')->getStorage('remotedb')
+      $container->get('entity_type.manager')->getStorage('remotedb'),
+      $container->get('remotedb.string_lib'),
+      $container->get('messenger'),
+      $dumper
     );
   }
 
@@ -59,25 +97,25 @@ class RemotedbTestForm extends FormBase {
     $form['remotedb'] = [
       '#type' => 'select',
       '#options' => $this->storage->options(),
-      '#title' => t('Database'),
+      '#title' => $this->t('Database'),
       '#required' => TRUE,
-      '#description' => t('The remote database.'),
+      '#description' => $this->t('The remote database.'),
     ];
 
     $form['method'] = [
       '#type' => 'textfield',
-      '#title' => t('Method'),
+      '#title' => $this->t('Method'),
       '#required' => TRUE,
-      '#description' => t('The method to call.'),
+      '#description' => $this->t('The method to call.'),
     ];
     $form['params'] = [
       '#type' => 'textarea',
-      '#title' => t('Parameters'),
-      '#description' => t('Specify the parameters to use, one on each line.'),
+      '#title' => $this->t('Parameters'),
+      '#description' => $this->t('Specify the parameters to use, one on each line.'),
     ];
     $form['execute'] = [
       '#type' => 'submit',
-      '#value' => t('Send request'),
+      '#value' => $this->t('Send request'),
     ];
 
     return $form;
@@ -88,14 +126,12 @@ class RemotedbTestForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $method = $form_state->getValue(['method']);
-    $string = new StringLib();
-    $params = $string->textToArray($form_state->getValue(['params']));
+    $params = $this->stringLib->textToArray($form_state->getValue(['params']));
     $remotedb = $this->storage->load($form_state->getValue(['remotedb']));
     if ($remotedb) {
       try {
         $form_state->set(['remotedb_result'], $remotedb->sendRequest($method, $params));
       }
-
       catch (RemotedbException $e) {
         $e->printMessage();
       }
@@ -110,13 +146,13 @@ class RemotedbTestForm extends FormBase {
    *   The data to dump.
    */
   protected function dump(&$data) {
-    if (\Drupal::hasService('devel.dumper')) {
-      return \Drupal::service('devel.dumper')->exportAsRenderable($data);
+    if ($this->dumper instanceof DevelDumperManagerInterface) {
+      return $this->dumper->exportAsRenderable($data);
     }
-    $this->messenger()->addMessage($this->t('Enable the Devel module to get a more human readable representation of the response from the remote database.'));
+    $this->messenger->addMessage($this->t('Enable the Devel module to get a more human readable representation of the response from the remote database.'));
     return [
       '#type' => 'textarea',
-      '#title' => t('Result'),
+      '#title' => $this->t('Result'),
       '#value' => print_r($data, TRUE),
     ];
   }
