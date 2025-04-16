@@ -39,7 +39,7 @@ class MockTicketService implements TicketServiceInterface {
   /**
    * Constructs a new MockTicketService object.
    *
-   * @param \Drupal\Core\Datetime\TimeInterface $time
+   * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
    * @param \Drupal\Core\Password\PasswordGeneratorInterface $password_generator
    *   The password generator.

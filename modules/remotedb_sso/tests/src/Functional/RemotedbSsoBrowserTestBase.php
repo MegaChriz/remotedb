@@ -31,7 +31,7 @@ abstract class RemotedbSsoBrowserTestBase extends RemotedbUserBrowserTestBase {
   /**
    * The SSO ticket service.
    *
-   * @var \Drupal\remotedb_sso\TicketInterface
+   * @var \Drupal\remotedb_sso\TicketServiceInterface
    */
   protected $ticketService;
 
