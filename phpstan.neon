@@ -10,3 +10,38 @@ parameters:
   ignoreErrors:
     # new static() is a best practice in Drupal, so we cannot fix that.
     - "#^Unsafe usage of new static#"
+
+    -
+      message: "#^Class Behat\\\\Mink\\\\Driver\\\\GoutteDriver not found\\.$#"
+      count: 1
+      path: modules/remotedb_webhook/tests/src/Functional/RemotedbWebhookBrowserTestBase.php
+
+    -
+      message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
+      count: 1
+      path: modules/remotedbuser/src/Entity/RemotedbUserStorage.php
+
+    -
+      message: "#^Class Drupal\\\\remotedbuser\\\\Form\\\\UserLoginForm extends @internal class Drupal\\\\user\\\\Form\\\\UserLoginForm\\.$#"
+      count: 1
+      path: modules/remotedbuser/src/Form/UserLoginForm.php
+
+    -
+      message: "#^Class Drupal\\\\remotedbuser\\\\Form\\\\UserPasswordForm extends @internal class Drupal\\\\user\\\\Form\\\\UserPasswordForm\\.$#"
+      count: 1
+      path: modules/remotedbuser/src/Form/UserPasswordForm.php
+
+    -
+      message: "#^Function xmlrpc_error not found\\.$#"
+      count: 1
+      path: src/Entity/Remotedb.php
+
+    -
+      message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
+      count: 1
+      path: src/Exception/RemotedbException.php
+
+    -
+      message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
+      count: 1
+      path: src/Plugin/Factory/RemotedbPluginFactory.php
