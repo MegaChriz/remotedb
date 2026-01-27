@@ -26,7 +26,14 @@ class AuthenticationPluginManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/RemotedbAuthentication', $namespaces, $module_handler, 'Drupal\remotedb\Plugin\AuthenticationInterface', 'Drupal\remotedb\Annotation\RemotedbAuthentication');
+    parent::__construct(
+      'Plugin/RemotedbAuthentication',
+      $namespaces,
+      $module_handler,
+      'Drupal\remotedb\Plugin\AuthenticationInterface',
+      'Drupal\remotedb\Attribute\RemotedbAuthentication',
+      'Drupal\remotedb\Annotation\RemotedbAuthentication',
+    );
     $this->factory = new RemotedbPluginFactory($this, 'Drupal\remotedb\Plugin\AuthenticationInterface');
     $this->alterInfo('remotedb_authentication_info');
     $this->setCacheBackend($cache_backend, 'remotedb_authentication_plugins');

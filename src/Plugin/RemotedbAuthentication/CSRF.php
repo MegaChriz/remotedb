@@ -2,18 +2,19 @@
 
 namespace Drupal\remotedb\Plugin\RemotedbAuthentication;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\remotedb\Attribute\RemotedbAuthentication;
 use Drupal\remotedb\Plugin\AuthenticationBase;
 
 /**
  * Authenticates by requesting a CSRF token.
- *
- * @RemotedbAuthentication(
- *   id = "csrf",
- *   title = @Translation("CSRF"),
- *   description = @Translation("Authenticates by requesting a CSRF token.")
- * )
  */
-class CSRF extends AuthenticationBase {
+#[RemotedbAuthentication(
+  id: 'csrf',
+  title: new TranslatableMarkup('CSRF'),
+  description: new TranslatableMarkup('Authenticates by requesting a CSRF token.')
+)]
+class Csrf extends AuthenticationBase {
 
   /**
    * Implements AuthenticationInterface::authenticate().

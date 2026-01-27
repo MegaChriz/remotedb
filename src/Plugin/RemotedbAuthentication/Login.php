@@ -3,21 +3,22 @@
 namespace Drupal\remotedb\Plugin\RemotedbAuthentication;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\remotedb\Attribute\RemotedbAuthentication;
 use Drupal\remotedb\Plugin\AuthenticationBase;
 
 /**
- * Logs in an user on the remote database.
- *
- * @RemotedbAuthentication(
- *   id = "login",
- *   title = @Translation("Login"),
- *   description = @Translation("Logs in an user on the remote database."),
- *   settings = {
- *     "username" = "",
- *     "password" = ""
- *   }
- * )
+ * Logs in a user on the remote database.
  */
+#[RemotedbAuthentication(
+  id: 'login',
+  title: new TranslatableMarkup('Login'),
+  description: new TranslatableMarkup('Logs in an user on the remote database.'),
+  settings: [
+    'username' => '',
+    'password' => '',
+  ]
+)]
 class Login extends AuthenticationBase {
 
   /**
