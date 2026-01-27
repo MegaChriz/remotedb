@@ -7,8 +7,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\filter\Attribute\Filter;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\filter\Plugin\FilterInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedb_sso\TicketServiceInterface;
 use Drupal\remotedb_sso\UrlInterface;
@@ -16,16 +19,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a filter to transform external urls into sso links.
- *
- * @Filter(
- *   id = "remotedb_sso",
- *   title = @Translation("SSO Link filter"),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
- *   settings = {
- *     "websites" = ""
- *   }
- * )
  */
+#[Filter(
+  id: 'remotedb_sso',
+  title: new TranslatableMarkup('SSO Link filter'),
+  type: FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
+  settings: [
+    'websites' => '',
+  ]
+)]
 class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
 
   /**

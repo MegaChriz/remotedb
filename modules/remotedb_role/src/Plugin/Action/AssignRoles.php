@@ -4,20 +4,21 @@ namespace Drupal\remotedb_role\Plugin\Action;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Action\ActionBase;
+use Drupal\Core\Action\Attribute\Action;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Assigns or unassigns roles based on the subscriptions the user has.
- *
- * @Action(
- *   id = "remotedb_role_assign_roles",
- *   label = @Translation("Assign and unassign roles"),
- *   type = "user"
- * )
  */
+#[Action(
+  id: 'remotedb_role_assign_roles',
+  label: new TranslatableMarkup('Assign and unassign roles'),
+  type: 'user'
+)]
 class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface {
 
   /**
