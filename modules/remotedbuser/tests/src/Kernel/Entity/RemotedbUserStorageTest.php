@@ -34,7 +34,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
   /**
    * @covers ::fromAccount
    */
-  public function testFromAccount() {
+  public function testFromAccount(): void {
     // Create a local account.
     $account = $this->createUser([], 'lorem', FALSE, [
       'from_remotedb' => TRUE,
@@ -61,7 +61,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
   /**
    * @covers ::fromAccount
    */
-  public function testFromAccountWithExistingRemoteUser() {
+  public function testFromAccountWithExistingRemoteUser(): void {
     // Create a local account.
     $account = $this->createUser([], NULL, FALSE, [
       'remotedb_uid' => 101,
@@ -83,7 +83,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::fromAccount
    */
-  public function testFailWithoutMail() {
+  public function testFailWithoutMail(): void {
     // Create a local account without mail address.
     $account = $this->createUser([], NULL, FALSE, [
       'mail' => NULL,
@@ -101,7 +101,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::toAccount
    */
-  public function testRemoteUserToNewAccount() {
+  public function testRemoteUserToNewAccount(): void {
     // Create a remote account.
     $remote_user = $this->createRemoteUser();
 
@@ -126,7 +126,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::toAccount
    */
-  public function testRemoteUserToExistingAccount() {
+  public function testRemoteUserToExistingAccount(): void {
     // Create an account.
     $account = $this->createUser([], 'lorem', FALSE, [
       'from_remotedb' => TRUE,
@@ -161,7 +161,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::toAccount
    */
-  public function testNameAndMailUpdateLocalAccount() {
+  public function testNameAndMailUpdateLocalAccount(): void {
     // Create a remote user with a certain name.
     $remote_user = $this->createRemoteUser([
       'name' => 'lorem',
@@ -199,7 +199,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::toAccount
    */
-  public function testRemoteUidConflict() {
+  public function testRemoteUidConflict(): void {
     // Create a local user linked to a certain remote user.
     $account = $this->createUser([], 'lorem', FALSE, [
       'remotedb_uid' => 101,
@@ -224,7 +224,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::toAccount
    */
-  public function testFailedMailAddressUpdateLocalAccount() {
+  public function testFailedMailAddressUpdateLocalAccount(): void {
     // Create two local users.
     $account1 = $this->createUser([], 'lorem', FALSE, [
       'from_remotedb' => TRUE,
@@ -253,7 +253,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
    *
    * @covers ::toAccount
    */
-  public function testFailedUsernameUpdateLocalAccount() {
+  public function testFailedUsernameUpdateLocalAccount(): void {
     // Create two local users.
     $account1 = $this->createUser([], 'lorem', FALSE, [
       'remotedb_uid' => 101,

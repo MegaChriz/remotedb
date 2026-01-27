@@ -14,7 +14,7 @@ use Drupal\remotedb_webhook\Form\WebhookEnable;
 /**
  * Implements hook_entity_type_build().
  */
-function remotedb_webhook_entity_type_build(array &$entity_types) {
+function remotedb_webhook_entity_type_build(array &$entity_types): void {
   if (!isset($entity_types['remotedb'])) {
     return;
   }
@@ -27,7 +27,7 @@ function remotedb_webhook_entity_type_build(array &$entity_types) {
 /**
  * Implements hook_ENTITY_TYPE_access() for 'remotedb'.
  */
-function remotedb_webhook_remotedb_access(EntityInterface $remotedb, $operation, AccountInterface $account) {
+function remotedb_webhook_remotedb_access(EntityInterface $remotedb, string $operation, AccountInterface $account): AccessResult {
   $has_perm = $account->hasPermission('remotedb.administer');
 
   switch ($operation) {

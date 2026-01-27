@@ -40,7 +40,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
    *
    * @covers ::process
    */
-  public function testProcessNonExistingUserAccount() {
+  public function testProcessNonExistingUserAccount(): void {
     // Create a remote user.
     $remote_user = $this->createRemoteUser();
 
@@ -55,7 +55,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
    *
    * @covers ::process
    */
-  public function testProcessUserAccountUpdate() {
+  public function testProcessUserAccountUpdate(): void {
     // Create a remote user.
     $remote_user = $this->createRemoteUser();
 
@@ -91,7 +91,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
    *
    * @covers ::process
    */
-  public function testProcessNewUserWelcomeEmail() {
+  public function testProcessNewUserWelcomeEmail(): void {
     // Create a remote user.
     $remote_user = $this->createRemoteUser();
 
@@ -111,7 +111,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
    *
    * @covers ::process
    */
-  public function testProcessExistingUserWelcomeEmail() {
+  public function testProcessExistingUserWelcomeEmail(): void {
     // Create a remote user.
     $remote_user = $this->createRemoteUser();
 

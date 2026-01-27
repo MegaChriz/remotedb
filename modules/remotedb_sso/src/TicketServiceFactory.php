@@ -13,14 +13,14 @@ class TicketServiceFactory extends RemotedbFactoryBase implements TicketServiceF
   /**
    * {@inheritdoc}
    */
-  protected function getRemotedbId(ConfigFactoryInterface $config_factory) {
+  protected function getRemotedbId(ConfigFactoryInterface $config_factory): ?string {
     return $config_factory->get('remotedbuser.settings')->get('remotedb');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function get() {
+  public function get(): TicketServiceInterface {
     $this->requireRemotedb();
     return new TicketService($this->remotedb, $this->entityTypeManager->getStorage('remotedb_user'));
   }

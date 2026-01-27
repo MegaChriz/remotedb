@@ -94,7 +94,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   /**
    * {@inheritdoc}
    */
-  public function remoteAuthenticate($name, $password) {
+  public function remoteAuthenticate(string $name, string $password): int|false {
     $remotedb_uid = $this->remotedbUserStorage->authenticate($name, $password);
     if (!$remotedb_uid) {
       // Authentication failed.

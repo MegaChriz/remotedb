@@ -13,7 +13,7 @@ class UserLoginForm extends UserLoginFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('user.flood_control'),
       $container->get('entity_type.manager')->getStorage('user'),

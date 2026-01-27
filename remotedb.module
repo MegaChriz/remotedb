@@ -5,9 +5,12 @@
  * Hook implementations.
  */
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Session\AccountInterface;
+
 /**
  * Access callback for remotedb entity.
  */
-function remotedb_access($op, $entity, $account) {
+function remotedb_access(string $op, EntityInterface $entity, AccountInterface $account): bool {
   return $account->hasPermission('remotedb.administer');
 }

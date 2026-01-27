@@ -15,7 +15,7 @@ class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests password reset using username.
    */
-  public function testUserPasswordResetByName() {
+  public function testUserPasswordResetByName(): void {
     $remote_account = $this->createRemoteUser();
 
     // Attempt to reset password.
@@ -32,7 +32,7 @@ class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests password reset using mail.
    */
-  public function testUserPasswordResetByMail() {
+  public function testUserPasswordResetByMail(): void {
     $remote_account = $this->createRemoteUser();
 
     // Attempt to reset password.

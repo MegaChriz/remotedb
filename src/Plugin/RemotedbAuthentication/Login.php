@@ -24,7 +24,7 @@ class Login extends AuthenticationBase {
   /**
    * Implements AuthenticationInterface::authenticate().
    */
-  public function authenticate() {
+  public function authenticate(): bool {
     $username = $this->settings['username'];
     $password = $this->settings['password'];
 
@@ -53,7 +53,7 @@ class Login extends AuthenticationBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
     $form['username'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Username'),

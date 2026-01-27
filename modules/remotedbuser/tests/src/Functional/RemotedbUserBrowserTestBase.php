@@ -79,10 +79,10 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * Asserts that a remote user exists as a local user.
    *
-   * @var int $remotedb_uid
+   * @param int $remotedb_uid
    *   The expected remote user uid.
    */
-  protected function assertLocalUser($remotedb_uid) {
+  protected function assertLocalUser(int $remotedb_uid): void {
     $account = NULL;
     $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['remotedb_uid' => $remotedb_uid]);
     if (!empty($users)) {
@@ -97,7 +97,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
    * @param int $uid
    *   The ID of the user that we expect to be logged in.
    */
-  protected function assertLoggedIn($uid) {
+  protected function assertLoggedIn(int $uid): void {
     $account = User::load($uid);
     $account->sessionId = $this->getSession()->getCookie(\Drupal::service('session_configuration')->getOptions(\Drupal::request())['name']);
     $this->assertTrue($this->drupalUserIsLoggedIn($account), new FormattableMarkup('User %name successfully logged in.', ['%name' => $account->getAccountName()]));

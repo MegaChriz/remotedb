@@ -34,7 +34,7 @@ class UrlTest extends KernelTestBase {
    *
    * @dataProvider urlDataProvider
    */
-  public function testCreateSsoGotoUrl(array $sites, $text, $expected) {
+  public function testCreateSsoGotoUrl(array $sites, string $text, string $expected): void {
     foreach ($sites as $site) {
       $url = $this->container->get('remotedb_sso.url');
       $text = $url->createSsoGotoUrl($site, $text);

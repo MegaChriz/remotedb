@@ -4,6 +4,7 @@ namespace Drupal\Tests\remotedbuser\Traits;
 
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedbuser\Entity\RemotedbUser;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 
 /**
  * Provides methods to create remote databases with default settings.
@@ -21,7 +22,7 @@ trait RemotedbUserCreationTrait {
    * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface
    *   The created remote user entity.
    */
-  protected function createRemoteUser(array $values = []) {
+  protected function createRemoteUser(array $values = []): RemotedbUserInterface {
     $uid = &drupal_static(__METHOD__, 2);
 
     // Generate uid.
@@ -60,7 +61,7 @@ trait RemotedbUserCreationTrait {
    * @return string
    *   The hashed password.
    */
-  protected function hashPassword($pass) {
+  protected function hashPassword(string $pass): string {
     return $this->container->get('password')->hash($pass);
   }
 
@@ -75,7 +76,7 @@ trait RemotedbUserCreationTrait {
    * @return \Drupal\Core\Session\AccountInterface
    *   A mocked account object.
    */
-  protected function createDummyAccount($name): AccountInterface {
+  protected function createDummyAccount(string $name): AccountInterface {
     return new MockAccount([
       'name' => $name,
     ]);
@@ -204,14 +205,14 @@ class MockAccount implements AccountInterface {
   /**
    * {@inheritdoc}
    */
-  public function id() {
+  public function id(): int {
     return $this->id;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRoles($exclude_locked_roles = FALSE) {
+  public function getRoles($exclude_locked_roles = FALSE): array {
     if ($exclude_locked_roles) {
       return array_filter($this->roles, fn($role) => !in_array($role, [self::ANONYMOUS_ROLE, self::AUTHENTICATED_ROLE]));
     }
@@ -221,70 +222,70 @@ class MockAccount implements AccountInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasPermission(/* string */$permission) {
+  public function hasPermission(/* string */ $permission): bool {
     return in_array($permission, $this->permissions);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function isAuthenticated() {
+  public function isAuthenticated(): bool {
     return $this->isAuthenticated;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function isAnonymous() {
+  public function isAnonymous(): bool {
     return $this->isAnonymous;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPreferredLangcode($fallback_to_default = TRUE) {
+  public function getPreferredLangcode($fallback_to_default = TRUE): string {
     return $this->preferredLangcode;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPreferredAdminLangcode($fallback_to_default = TRUE) {
+  public function getPreferredAdminLangcode($fallback_to_default = TRUE): string {
     return $this->preferredAdminLangcode;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAccountName() {
+  public function getAccountName(): string {
     return $this->name;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDisplayName() {
+  public function getDisplayName(): string {
     return $this->displayName;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getEmail() {
+  public function getEmail(): ?string {
     return $this->email;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTimezone() {
+  public function getTimezone(): string {
     return $this->timezone;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLastAccessedTime() {
+  public function getLastAccessedTime(): int {
     return $this->lastAccessedTime;
   }
 

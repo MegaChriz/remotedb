@@ -31,7 +31,7 @@ class SsoLoginRedirect implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\RequestEvent $event
    *   The event triggered by the request.
    */
-  public function onRequest(RequestEvent $event) {
+  public function onRequest(RequestEvent $event): void {
     $request = $event->getRequest();
 
     // Don't process events with HTTP exceptions - those have either been thrown

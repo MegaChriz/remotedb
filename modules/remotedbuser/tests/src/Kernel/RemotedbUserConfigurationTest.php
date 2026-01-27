@@ -16,7 +16,7 @@ class RemotedbUserConfigurationTest extends RemotedbUserKernelTestBase {
   /**
    * @covers ::getDefault
    */
-  public function testGetDefault() {
+  public function testGetDefault(): void {
     // Create a remote database.
     $remotedb = $this->createRemotedb();
 
@@ -32,7 +32,7 @@ class RemotedbUserConfigurationTest extends RemotedbUserKernelTestBase {
   /**
    * @covers ::getDefault
    */
-  public function testGetDefaultWithoutRemoteDatabase() {
+  public function testGetDefaultWithoutRemoteDatabase(): void {
     $remotedb_user_configuration = new RemotedbUserConfiguration($this->container->get('config.factory'), $this->container->get('entity_type.manager'));
     $this->assertNull($remotedb_user_configuration->getDefault());
   }

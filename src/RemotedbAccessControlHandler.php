@@ -3,6 +3,7 @@
 namespace Drupal\remotedb;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -17,7 +18,7 @@ class RemotedbAccessControlHandler extends EntityAccessControlHandler {
   /**
    * {@inheritdoc}
    */
-  protected function checkAccess(EntityInterface $remotedb, $operation, AccountInterface $account) {
+  protected function checkAccess(EntityInterface $remotedb, $operation, AccountInterface $account): AccessResultInterface {
     $has_perm = $account->hasPermission('remotedb.administer');
 
     switch ($operation) {
@@ -34,7 +35,7 @@ class RemotedbAccessControlHandler extends EntityAccessControlHandler {
   /**
    * {@inheritdoc}
    */
-  protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
+  protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL): AccessResultInterface {
     $has_perm = $account->hasPermission('remotedb.administer');
     return AccessResult::allowedIf($has_perm);
   }

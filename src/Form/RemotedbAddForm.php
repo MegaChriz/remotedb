@@ -12,7 +12,7 @@ class RemotedbAddForm extends RemotedbFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     parent::submitForm($form, $form_state);
     $this->messenger()->addStatus($this->t('Added remote database %name.', ['%name' => $this->entity->label()]));
   }
@@ -20,10 +20,9 @@ class RemotedbAddForm extends RemotedbFormBase {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state) {
-    $result = parent::save($form, $form_state);
+  public function save(array $form, FormStateInterface $form_state): void {
+    parent::save($form, $form_state);
     $form_state->setRedirect('entity.remotedb.collection');
-    return $result;
   }
 
 }

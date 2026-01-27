@@ -13,14 +13,14 @@ class SubscriptionServiceFactory extends RemotedbFactoryBase implements Subscrip
   /**
    * {@inheritdoc}
    */
-  protected function getRemotedbId(ConfigFactoryInterface $config_factory) {
+  protected function getRemotedbId(ConfigFactoryInterface $config_factory): ?string {
     return $config_factory->get('remotedb_role.settings')->get('remotedb');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function get() {
+  public function get(): SubscriptionServiceInterface {
     $this->requireRemotedb();
     return new SubscriptionService($this->remotedb);
   }

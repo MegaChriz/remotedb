@@ -33,7 +33,7 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
   /**
    * Ensure anonymous users cannot add/edit remote databases.
    */
-  public function testNoAccess() {
+  public function testNoAccess(): void {
     $this->drupalGet('admin/config/services/remotedb');
     $this->assertSession()->statusCodeEquals(403);
 
@@ -50,7 +50,7 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
    *
    * @dataProvider remotedbDataProvider
    */
-  public function testAddRemotedb($expected, $edit) {
+  public function testAddRemotedb(array $expected, array $edit): void {
     $this->drupalLogin($this->remotedbAdminUser);
 
     $edit += [
@@ -159,7 +159,7 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
   /**
    * Tests editing a remote database.
    */
-  public function testEditRemotedb() {
+  public function testEditRemotedb(): void {
     $this->drupalLogin($this->remotedbAdminUser);
 
     $remotedb = $this->createRemotedb([

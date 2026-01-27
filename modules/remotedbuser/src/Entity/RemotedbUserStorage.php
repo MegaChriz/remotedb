@@ -98,7 +98,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @return \Drupal\remotedb\Entity\RemotedbInterface|null
    *   A remote database object.
    */
-  public function getRemotedb() {
+  public function getRemotedb(): ?RemotedbInterface {
     return $this->remotedb;
   }
 
@@ -112,7 +112,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  protected function doLoadRevisionFieldItems($revision_id) {}
+  protected function doLoadRevisionFieldItems(int|string $revision_id): void {}
 
   /**
    * {@inheritdoc}
@@ -124,7 +124,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []) {
+  protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []): void {
     // Save remote user into the remote database.
     $uid = $this->sendRequest('dbuser.save', [$entity->toArray()]);
     if ($uid) {
@@ -135,17 +135,17 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  protected function doDeleteFieldItems($entities) {}
+  protected function doDeleteFieldItems($entities): void {}
 
   /**
    * {@inheritdoc}
    */
-  protected function purgeFieldItems(ContentEntityInterface $entity, FieldDefinitionInterface $field_definition) {}
+  protected function purgeFieldItems(ContentEntityInterface $entity, FieldDefinitionInterface $field_definition): void {}
 
   /**
    * {@inheritdoc}
    */
-  protected function doDeleteRevisionFieldItems(ContentEntityInterface $revision) {}
+  protected function doDeleteRevisionFieldItems(ContentEntityInterface $revision): void {}
 
   /**
    * {@inheritdoc}
@@ -166,21 +166,21 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function loadBy($id, $load_by) {
+  public function loadBy($id, string $load_by): ?RemotedbUserInterface {
     $entities = $this->getFromStorage([$id], $load_by);
-    return reset($entities);
+    return !empty($entities) ? reset($entities) : NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function loadByAny($id) {
+  public function loadByAny($id): ?RemotedbUserInterface {
     // Remove extra spaces.
     $id = trim($id);
 
     if (empty($id)) {
       // Skip "empty" users.
-      return;
+      return NULL;
     }
 
     $load_by_methods = [
@@ -194,6 +194,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
         return $remote_account;
       }
     }
+    return NULL;
   }
 
   /**
@@ -278,7 +279,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function fromAccount(UserInterface $account) {
+  public function fromAccount(UserInterface $account): RemotedbUserInterface {
     if (!$account->getEmail()) {
       throw new RemotedbException(t("The account cannot be saved in the remote database, because it doesn't have a mail address."));
     }
@@ -312,7 +313,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function toAccount(RemotedbUserInterface $entity) {
+  public function toAccount(RemotedbUserInterface $entity): UserInterface {
     // First, get account from local database, if it exists.
     // First find by remotedb_uid, then by name and finally by mail.
     $search = [
@@ -417,14 +418,14 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function authenticate($name, $pass) {
+  public function authenticate(string $name, string $pass): int|bool {
     return $this->sendRequest('dbuser.authenticate', [$name, $pass]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateName($name, UserInterface $account) {
+  public function validateName(string $name, UserInterface $account): bool {
     if ($account->getAccountName() == $name) {
       // The username did not change. No need to validate.
       return TRUE;
@@ -456,7 +457,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   /**
    * {@inheritdoc}
    */
-  public function validateMail($mail, UserInterface $account) {
+  public function validateMail(string $mail, UserInterface $account): bool {
     if ($account->getEmail() == $mail) {
       // The mail address did not change. No need to validate.
       return TRUE;

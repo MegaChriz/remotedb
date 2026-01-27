@@ -10,7 +10,7 @@
 /**
  * Implements hook_views_data().
  */
-function remotedbuser_views_data() {
+function remotedbuser_views_data(): array {
   $data['users']['remotedb_uid'] = [
     'title' => t('Remote database user ID'),
     'help' => t('ID of the user in the remote database.'),

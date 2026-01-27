@@ -16,7 +16,7 @@ class StringLib {
    * @return array
    *   An array of parameters that can be used.
    */
-  public function textToArray($text) {
+  public function textToArray(string $text): array {
     $explode = explode("\n", $text);
     $array = [];
     // Trim all params.
@@ -30,8 +30,13 @@ class StringLib {
 
   /**
    * Parses a single array value.
+   *
+   * @param int|string $key
+   *   The key (passed by reference).
+   * @param mixed $value
+   *   The value (passed by reference).
    */
-  private function textToArrayParse(&$key, &$value) {
+  private function textToArrayParse(int|string &$key, mixed &$value): void {
     $value = trim($value);
     if (strpos($value, '|') !== FALSE) {
       $paramparts = explode('|', $value);

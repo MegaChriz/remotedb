@@ -27,7 +27,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
    *
    * @dataProvider dataProviderWebhookPost
    */
-  public function testWebhookPost(array $edit) {
+  public function testWebhookPost(array $edit): void {
     $this->webhookPost($edit);
     $this->assertSession()->statusCodeEquals(200);
   }
@@ -49,7 +49,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
   /**
    * Tests accessing the webhook endpoint url with no post data.
    */
-  public function testGet() {
+  public function testGet(): void {
     $this->drupalGet($this->getWebhookEndpointPath());
     $this->assertSession()->statusCodeEquals(400);
     $this->assertSession()->responseContains('Remote database Webhook Endpoint.');
@@ -63,7 +63,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
    *
    * @dataProvider dataProviderPostWithUnsufficientData
    */
-  public function testPostWithUnsufficientData(array $edit) {
+  public function testPostWithUnsufficientData(array $edit): void {
     $this->webhookPost($edit);
     $this->assertSession()->statusCodeEquals(400);
     $this->assertSession()->responseContains("Remote database Webhook Endpoint, but missing post data for \u0027type\u0027 or \u0027data\u0027.");
@@ -95,7 +95,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
   /**
    * Tests with malformed type parameter.
    */
-  public function testMalformedTypeParameter() {
+  public function testMalformedTypeParameter(): void {
     $this->webhookPost([
       'type' => ['foo__bar'],
       'data' => 'bar',
@@ -107,7 +107,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
   /**
    * Tests posting with an invalid key.
    */
-  public function testPostWithInvalidKey() {
+  public function testPostWithInvalidKey(): void {
     $this->webhookKey = 'foo';
     $this->webhookPost([
       'type' => 'foo__bar',
@@ -119,7 +119,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function getWebhookEndpointPath() {
+  protected function getWebhookEndpointPath(): string {
     if (empty($this->webhookKey)) {
       return parent::getWebhookEndpointPath();
     }

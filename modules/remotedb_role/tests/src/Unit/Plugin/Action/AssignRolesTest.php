@@ -37,7 +37,7 @@ class AssignRolesTest extends UnitTestCase {
    * @return \Drupal\remotedb_role\SubscriptionServiceInterface
    *   The mocked subscription service.
    */
-  protected function createSubscriptionServiceMock(array $subscriptions) {
+  protected function createSubscriptionServiceMock(array $subscriptions): SubscriptionServiceInterface {
     $return = [];
     foreach ($subscriptions as $id => $title) {
       $return[$id] = [
@@ -60,7 +60,7 @@ class AssignRolesTest extends UnitTestCase {
    *
    * @covers ::execute
    */
-  public function testExecuteAddNonExistingRole() {
+  public function testExecuteAddNonExistingRole(): void {
     $this->account->expects($this->once())
       ->method('addRole')
       ->with('test_role_1');
@@ -98,7 +98,7 @@ class AssignRolesTest extends UnitTestCase {
    *
    * @covers ::execute
    */
-  public function testExecuteAddExistingRole() {
+  public function testExecuteAddExistingRole(): void {
     $this->account->expects($this->never())
       ->method('addRole');
     $this->account->expects($this->never())
@@ -135,7 +135,7 @@ class AssignRolesTest extends UnitTestCase {
    *
    * @covers ::execute
    */
-  public function testExecuteRemoveExistingRole() {
+  public function testExecuteRemoveExistingRole(): void {
     $this->account->expects($this->once())
       ->method('removeRole');
     $this->account->expects($this->never())
@@ -172,7 +172,7 @@ class AssignRolesTest extends UnitTestCase {
    *
    * @covers ::execute
    */
-  public function testExecuteRemoveNonExistingRole() {
+  public function testExecuteRemoveNonExistingRole(): void {
     $this->account->expects($this->never())
       ->method('removeRole');
     $this->account->expects($this->never())
@@ -212,7 +212,7 @@ class AssignRolesTest extends UnitTestCase {
    *
    * @covers ::execute
    */
-  public function testExecuteWithTwoSubscriptionsForSameRole() {
+  public function testExecuteWithTwoSubscriptionsForSameRole(): void {
     $this->account->expects($this->once())
       ->method('addRole')
       ->with('test_role_1');
@@ -251,7 +251,7 @@ class AssignRolesTest extends UnitTestCase {
   /**
    * Tests adding/removing roles at the same time.
    */
-  public function testExecuteWithMultipleSubscriptions() {
+  public function testExecuteWithMultipleSubscriptions(): void {
     $this->account->expects($this->once())
       ->method('removeRole')
       ->with('test_role_1');

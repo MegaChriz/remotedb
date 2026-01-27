@@ -26,6 +26,6 @@ class Condition extends ConditionBase {
   /**
    * {@inheritdoc}
    */
-  public function compile($query) {}
+  public function compile($query): void {}
 
 }

@@ -10,7 +10,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 /**
  * Implements hook_install().
  */
-function remotedbuser_install() {
+function remotedbuser_install(): void {
   $storage_definition = BaseFieldDefinition::create('integer')
     ->setLabel(t('Remote database UID'))
     ->setDescription(t('The ID of the user in the remote database.'))

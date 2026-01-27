@@ -23,7 +23,7 @@ use Drupal\user\UserInterface;
 /**
  * Implements hook_hook_info().
  */
-function remotedbuser_hook_info() {
+function remotedbuser_hook_info(): array {
   $hooks = [
     'remotedb_user_load',
     'remotedb_user_presave',
@@ -51,7 +51,7 @@ function remotedbuser_hook_info() {
  * @param \Drupal\Core\Session\AccountInterface $account
  *   (optional) The account to check access for.
  */
-function remotedbuser_get_remote_user_access(?AccountInterface $account = NULL) {
+function remotedbuser_get_remote_user_access(?AccountInterface $account = NULL): bool {
   if (empty($account)) {
     $account = \Drupal::currentUser();
   }
@@ -67,7 +67,7 @@ function remotedbuser_get_remote_user_access(?AccountInterface $account = NULL) 
 /**
  * Implements hook_user_presave().
  */
-function remotedbuser_user_presave(UserInterface $account) {
+function remotedbuser_user_presave(UserInterface $account): void {
   // Check if a remote user was coming from the remote database.
   if (!empty($account->from_remotedb)) {
     // We assume that the local account was updated with information from the
@@ -98,7 +98,7 @@ function remotedbuser_user_presave(UserInterface $account) {
  *
  * Shows remote database user ID.
  */
-function _remotedbuser_user_view(array &$build, UserInterface $account) {
+function _remotedbuser_user_view(array &$build, UserInterface $account): void {
   // Add ID details (if available).
   if (!empty($account->remotedb_uid)) {
     $account->content['remotedb'] = [
@@ -124,7 +124,7 @@ function _remotedbuser_user_view(array &$build, UserInterface $account) {
 /**
  * Implements hook_entity_base_field_info_alter().
  */
-function remotedbuser_entity_base_field_info_alter(array &$fields, EntityTypeInterface $entity_type) {
+function remotedbuser_entity_base_field_info_alter(array &$fields, EntityTypeInterface $entity_type): void {
   if ($entity_type->id() == 'user') {
     $fields['remotedb_uid'] = BaseFieldDefinition::create('integer')
       ->setName('remotedb_uid')
@@ -134,7 +134,7 @@ function remotedbuser_entity_base_field_info_alter(array &$fields, EntityTypeInt
       ->setDescription(t('The ID of the user in the remote database.'))
       ->setDefaultValue(0);
 
-    return $fields;
+    return;
   }
 }
 
@@ -147,7 +147,7 @@ function remotedbuser_entity_base_field_info_alter(array &$fields, EntityTypeInt
 /**
  * Implements hook_views_api().
  */
-function _remotedbuser_views_api() {
+function _remotedbuser_views_api(): array {
   return [
     'api' => 3,
   ];
@@ -162,7 +162,7 @@ function _remotedbuser_views_api() {
 /**
  * Implements hook_form_FORM_ID_alter() for form user_register_form().
  */
-function remotedbuser_form_user_register_form_alter(array &$form, FormStateInterface $form_state) {
+function remotedbuser_form_user_register_form_alter(array &$form, FormStateInterface $form_state): void {
   // Add validation functions for checking existing mail and username.
   $form['#validate'][] = 'remotedbuser_account_form_validate';
 }
@@ -172,7 +172,7 @@ function remotedbuser_form_user_register_form_alter(array &$form, FormStateInter
  *
  * Makes Remote database user ID editable.
  */
-function remotedbuser_form_user_form_alter(array &$form, FormStateInterface $form_state) {
+function remotedbuser_form_user_form_alter(array &$form, FormStateInterface $form_state): void {
   $account = $form_state->getBuildInfo()['callback_object']->getEntity();
 
   // Add field for remote database user.
@@ -196,7 +196,7 @@ function remotedbuser_form_user_form_alter(array &$form, FormStateInterface $for
 /**
  * Form validation handler for user_form().
  */
-function remotedbuser_account_form_validate(array $form, FormStateInterface $form_state) {
+function remotedbuser_account_form_validate(array $form, FormStateInterface $form_state): void {
   /** @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $storage */
   $storage = \Drupal::entityTypeManager()->getStorage('remotedb_user');
   /** @var \Drupal\user\UserInterface $account */

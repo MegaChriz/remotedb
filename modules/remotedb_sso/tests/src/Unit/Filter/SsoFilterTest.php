@@ -75,7 +75,7 @@ class SsoFilterTest extends UnitTestCase {
    * @param array $configuration
    *   (optional) The filter's configuration.
    */
-  protected function createFilter(array $configuration = []) {
+  protected function createFilter(array $configuration = []): SsoFilter {
     $filter = new SsoFilter($configuration, 'remotedb_sso', ['provider' => 'test'], $this->currentUser->reveal(), $this->config->reveal(), $this->urlGenerator->reveal(), $this->ticketService->reveal());
     $filter->setStringTranslation($this->getStringTranslationStub());
 
@@ -85,7 +85,7 @@ class SsoFilterTest extends UnitTestCase {
   /**
    * @covers ::process
    */
-  public function testProcess() {
+  public function testProcess(): void {
     $this->currentUser->isAnonymous()->willReturn(FALSE);
     $this->config->get()->shouldNotBeCalled();
     $this->urlGenerator->createSsoGotoUrl(Argument::type('string'), Argument::type('string'))->will(function ($args) {
@@ -105,7 +105,7 @@ class SsoFilterTest extends UnitTestCase {
    *
    * @covers ::process
    */
-  public function testProcessWithSsoConfig() {
+  public function testProcessWithSsoConfig(): void {
     $this->currentUser->isAnonymous()->willReturn(FALSE);
     $this->config->get('websites')->willReturn([
       'www.example.com',
@@ -126,7 +126,7 @@ class SsoFilterTest extends UnitTestCase {
    *
    * @covers ::process
    */
-  public function testProcessWithAnonymousUser() {
+  public function testProcessWithAnonymousUser(): void {
     $this->currentUser->isAnonymous()->willReturn(TRUE);
     $this->config->get()->shouldNotBeCalled();
     $this->urlGenerator->createSsoGotoUrl()->shouldNotBeCalled();
@@ -141,7 +141,7 @@ class SsoFilterTest extends UnitTestCase {
    *
    * @covers ::process
    */
-  public function testProcessWithoutTicketService() {
+  public function testProcessWithoutTicketService(): void {
     $this->currentUser->isAnonymous()->shouldNotBeCalled();
     $this->config->get()->shouldNotBeCalled();
     $this->urlGenerator->createSsoGotoUrl()->shouldNotBeCalled();

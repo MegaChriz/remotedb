@@ -26,8 +26,11 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    *   A remote user's identifier.
    * @param string $load_by
    *   The key to load the remote user by.
+   *
+   * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface|null
+   *   The remote user or NULL.
    */
-  public function loadBy($id, $load_by);
+  public function loadBy($id, string $load_by): ?RemotedbUserInterface;
 
   /**
    * Tries to load an entity based on any unique property.
@@ -36,8 +39,14 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    * 1. By mail address;
    * 2. By name;
    * 3. By remote user ID.
+   *
+   * @param int|string $id
+   *   The identifier.
+   *
+   * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface|null
+   *   The remote user or NULL.
    */
-  public function loadByAny($id);
+  public function loadByAny($id): ?RemotedbUserInterface;
 
   /**
    * Creates a remote user from a user account object.
@@ -45,24 +54,24 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    * @param \Drupal\user\UserInterface $account
    *   The local user account.
    *
-   * @return \Drupal\remotedb\Entity\RemotedbUserInterface
+   * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface
    *   A remote user object.
    *
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   If the passed in account does not have a mail address.
    */
-  public function fromAccount(UserInterface $account);
+  public function fromAccount(UserInterface $account): RemotedbUserInterface;
 
   /**
    * Sets data from a remote account to the local account.
    *
-   * @param \Drupal\remotedb\Entity\RemotedbUserInterface $entity
+   * @param \Drupal\remotedbuser\Entity\RemotedbUserInterface $entity
    *   The remote user.
    *
-   * @return object
+   * @return \Drupal\user\UserInterface
    *   The unsaved account, filled with values from the remote user.
    */
-  public function toAccount(RemotedbUserInterface $entity);
+  public function toAccount(RemotedbUserInterface $entity): UserInterface;
 
   /**
    * Authenticates a user via the remote database.
@@ -75,7 +84,7 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    * @return int|bool
    *   The remotedb user's uid on success, or FALSE on failure to authenticate.
    */
-  public function authenticate($name, $pass);
+  public function authenticate(string $name, string $pass): int|bool;
 
   /**
    * Validates name.
@@ -89,7 +98,7 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    *   TRUE if validation passes.
    *   FALSE otherwise.
    */
-  public function validateName($name, UserInterface $account);
+  public function validateName(string $name, UserInterface $account): bool;
 
   /**
    * Validates mail address.
@@ -103,6 +112,6 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
    *   TRUE if validation passes.
    *   FALSE otherwise.
    */
-  public function validateMail($mail, UserInterface $account);
+  public function validateMail(string $mail, UserInterface $account): bool;
 
 }

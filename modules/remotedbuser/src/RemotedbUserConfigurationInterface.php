@@ -2,6 +2,8 @@
 
 namespace Drupal\remotedbuser;
 
+use Drupal\remotedb\Entity\RemotedbInterface;
+
 /**
  * Interface for the remotedbuser.configuration service.
  */
@@ -13,6 +15,6 @@ interface RemotedbUserConfigurationInterface {
    * @return \Drupal\remotedb\Entity\RemotedbInterface|null
    *   A remote database, if configured. Null otherwise.
    */
-  public function getDefault();
+  public function getDefault(): ?RemotedbInterface;
 
 }

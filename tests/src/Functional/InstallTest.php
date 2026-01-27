@@ -58,7 +58,7 @@ class InstallTest extends BrowserTestBase {
   /**
    * Reloads services used by this test.
    */
-  protected function reloadServices() {
+  protected function reloadServices(): void {
     $this->rebuildContainer();
     $this->moduleHandler = $this->container->get('module_handler');
     $this->moduleInstaller = $this->container->get('module_installer');
@@ -67,7 +67,7 @@ class InstallTest extends BrowserTestBase {
   /**
    * Tests that the module is installable.
    */
-  public function testInstallation() {
+  public function testInstallation(): void {
     $this->assertFalse($this->moduleHandler->moduleExists('remotedb'));
     $this->assertTrue($this->moduleInstaller->install(['remotedb']));
     $this->reloadServices();
@@ -77,7 +77,7 @@ class InstallTest extends BrowserTestBase {
   /**
    * Tests that the module is installable.
    */
-  public function testInstallationWithTestModule() {
+  public function testInstallationWithTestModule(): void {
     $this->assertFalse($this->moduleHandler->moduleExists('remotedb'));
     $this->assertTrue($this->moduleInstaller->install(['remotedb', 'remotedb_test']));
     $this->reloadServices();
@@ -103,7 +103,7 @@ class InstallTest extends BrowserTestBase {
    * @param array $params
    *   An array of parameters.
    */
-  public function remotedbCallback($method, array $params) {
+  public function remotedbCallback(string $method, array $params): void {
     $this->calledRemotedbCallback++;
     $this->assertSame($method, 'fake_method', 'A fake method was called on the mocked remote database object.');
     $this->assertSame($params, ['alpha', 'beta'], 'The test callback received expected the parameters.');

@@ -35,7 +35,7 @@ class SettingsFormTest extends RemotedbRoleBrowserTestBase {
   /**
    * Tests filling in settings form for the first time.
    */
-  public function testNew() {
+  public function testNew(): void {
     $edit = [
       'remotedb' => $this->remotedb->id(),
       'roles[foo_bar][status]' => 1,
@@ -73,7 +73,7 @@ class SettingsFormTest extends RemotedbRoleBrowserTestBase {
   /**
    * Tests editing existing configuration.
    */
-  public function testEditSettings() {
+  public function testEditSettings(): void {
     // Create config.
     $this->config('remotedb_role.settings')
       ->set('remotedb', $this->remotedb->id())

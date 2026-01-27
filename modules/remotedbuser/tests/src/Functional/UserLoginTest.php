@@ -15,7 +15,7 @@ class UserLoginTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests a user login.
    */
-  public function testUserLogin() {
+  public function testUserLogin(): void {
     $remote_account = $this->createRemoteUser();
 
     // Login using information from remote account.
@@ -36,7 +36,7 @@ class UserLoginTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests logging in a user imported from the remote database.
    */
-  public function testLoginAfterUserImport() {
+  public function testLoginAfterUserImport(): void {
     // Create a remote account.
     $remote_account = $this->createRemoteUser([
       'pass' => 'foo',
@@ -69,7 +69,7 @@ class UserLoginTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests logging in a user after the remote user's password changed.
    */
-  public function testLoginExistingUserWithUpdatedPassword() {
+  public function testLoginExistingUserWithUpdatedPassword(): void {
     // Create a remote account.
     $remote_account = $this->createRemoteUser([
       'pass' => 'foo',

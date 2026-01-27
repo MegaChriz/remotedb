@@ -3,6 +3,7 @@
 namespace Drupal\remotedb\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\remotedb\Plugin\AuthenticationInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\remotedb\AuthenticationPluginCollection;
 use Drupal\remotedb\Exception\RemotedbException;
@@ -100,21 +101,21 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
-  public function id() {
+  public function id(): string|int|null {
     return $this->name;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getUrl() {
+  public function getUrl(): ?string {
     return $this->url;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAuthenticationMethods($instance_id = NULL) {
+  public function getAuthenticationMethods(?string $instance_id = NULL): AuthenticationPluginCollection|AuthenticationInterface {
     if (!isset($this->authenticationCollection)) {
       $this->authenticationCollection = new AuthenticationPluginCollection(\Drupal::service('plugin.manager.remotedb.authentication'), $this->authentication_methods, $this);
       $this->authenticationCollection->sort();
@@ -128,14 +129,14 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
-  public function getPluginCollections() {
+  public function getPluginCollections(): array {
     return ['authentication_methods' => $this->getAuthenticationMethods()];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setAuthenticationMethodConfig($instance_id, array $configuration) {
+  public function setAuthenticationMethodConfig(string $instance_id, array $configuration): static {
     $this->authentication_methods[$instance_id] = $configuration;
     if (isset($this->authenticationCollection)) {
       $this->authenticationCollection->setInstanceConfiguration($instance_id, $configuration);
@@ -146,7 +147,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
-  public function getHeader($header) {
+  public function getHeader(string $header): mixed {
     if (isset($this->headers[$header])) {
       return $this->headers[$header];
     }
@@ -156,14 +157,14 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
-  public function getHeaders() {
+  public function getHeaders(): array {
     return $this->headers;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setHeader($header, $value) {
+  public function setHeader(string $header, mixed $value): void {
     if (!is_null($value)) {
       $this->headers[$header] = $value;
     }
@@ -175,7 +176,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * Authenticates to the XML-RPC server.
    */
-  public function authenticate() {
+  public function authenticate(): bool {
     $this->authenticated = FALSE;
     $methods = $this->getAuthenticationMethods();
     foreach ($methods as $method) {
@@ -187,6 +188,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
       }
     }
     $this->authenticated = TRUE;
+    return TRUE;
   }
 
   /**
@@ -203,7 +205,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case of errors during the request.
    */
-  public function sendRequest($method, array $params = []) {
+  public function sendRequest(string $method, array $params = []): mixed {
     if (!$this->authenticated) {
       $this->authenticate();
     }

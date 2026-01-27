@@ -31,7 +31,7 @@ abstract class OperationActionBase extends EntityConfirmFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('remotedb_webhook.webhook')
     );

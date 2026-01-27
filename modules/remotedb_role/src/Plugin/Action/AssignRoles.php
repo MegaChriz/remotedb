@@ -9,6 +9,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
+use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -88,7 +89,7 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
   /**
    * {@inheritdoc}
    */
-  public function execute($account = NULL) {
+  public function execute(?UserInterface $account = NULL): void {
     if (empty($account)) {
       // No account given. Abort.
       return;

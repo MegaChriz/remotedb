@@ -25,7 +25,7 @@ class UserPasswordForm extends UserPasswordFormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     $form_object = parent::create($container);
     $form_object->setRemoteUserStorage($container->get('entity_type.manager')->getStorage('remotedb_user'));
 
@@ -38,14 +38,14 @@ class UserPasswordForm extends UserPasswordFormBase {
    * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remote_user_storage
    *   The remote user storage.
    */
-  protected function setRemoteUserStorage(RemotedbUserStorageInterface $remote_user_storage) {
+  protected function setRemoteUserStorage(RemotedbUserStorageInterface $remote_user_storage): void {
     $this->remoteUserStorage = $remote_user_storage;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
     $name = trim($form_state->getValue('name'));
     // Try to load by email.
     $users = $this->userStorage->loadByProperties(['mail' => $name, 'status' => '1']);
@@ -71,7 +71,7 @@ class UserPasswordForm extends UserPasswordFormBase {
         $account->save();
       }
       // Follow the usual validation.
-      return parent::validateForm($form, $form_state);
+      parent::validateForm($form, $form_state);
     }
   }
 

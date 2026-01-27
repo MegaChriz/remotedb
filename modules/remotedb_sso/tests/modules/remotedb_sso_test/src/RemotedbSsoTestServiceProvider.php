@@ -14,7 +14,7 @@ class RemotedbSsoTestServiceProvider extends ServiceProviderBase {
   /**
    * {@inheritdoc}
    */
-  public function alter(ContainerBuilder $container) {
+  public function alter(ContainerBuilder $container): void {
     // Overrides 'remotedb_sso.ticket' class with the test mock.
     $definition = $container->getDefinition('remotedb_sso.ticket');
     $definition->setClass(MockTicketService::class);

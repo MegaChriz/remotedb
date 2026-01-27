@@ -22,18 +22,19 @@ class MockRemotedb extends Remotedb {
    * @param callable $callback
    *   A callable to use for method calls.
    */
-  public function setCallback(callable $callback) {
+  public function setCallback(callable $callback): void {
     $this->callback = $callback;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function sendRequest($method, array $params = []) {
+  public function sendRequest(string $method, array $params = []): mixed {
     if (isset($this->callback)) {
       $callback_args = [$method, $params];
       return call_user_func_array($this->callback, $callback_args);
     }
+    return NULL;
   }
 
 }

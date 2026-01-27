@@ -29,7 +29,7 @@ class UninstallTest extends BrowserTestBase {
   /**
    * Tests module uninstallation.
    */
-  public function testUninstall() {
+  public function testUninstall(): void {
     // Confirm that the remotedbuser module has been installed.
     $this->assertTrue($this->container->get('module_handler')->moduleExists('remotedbuser'));
 

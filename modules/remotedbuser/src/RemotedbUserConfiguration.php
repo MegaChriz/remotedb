@@ -4,6 +4,7 @@ namespace Drupal\remotedbuser;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
 
 /**
  * Default implementation of the remotedbuser.configuration service.
@@ -40,11 +41,12 @@ class RemotedbUserConfiguration implements RemotedbUserConfigurationInterface {
   /**
    * {@inheritdoc}
    */
-  public function getDefault() {
+  public function getDefault(): ?RemotedbInterface {
     $default_remotedb_id = $this->config->get('remotedb');
     if ($default_remotedb_id) {
       return $this->remotedbStorage->load($default_remotedb_id);
     }
+    return NULL;
   }
 
 }

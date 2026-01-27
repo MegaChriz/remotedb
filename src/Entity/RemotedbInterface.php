@@ -12,10 +12,11 @@ interface RemotedbInterface extends ConfigEntityInterface {
   /**
    * Returns the used url.
    *
-   * @return string
-   *   The url of the remote database connection.
+   * @return string|null
+   *   The url of the remote database connection or null if the url is not yet
+   *   defined.
    */
-  public function getUrl();
+  public function getUrl(): ?string;
 
   /**
    * Gets a header.
@@ -27,7 +28,7 @@ interface RemotedbInterface extends ConfigEntityInterface {
    *   The header's value if it exists.
    *   NULL otherwise.
    */
-  public function getHeader($header);
+  public function getHeader(string $header): mixed;
 
   /**
    * Returns all headers.
@@ -35,7 +36,7 @@ interface RemotedbInterface extends ConfigEntityInterface {
    * @return array
    *   An array of set headers.
    */
-  public function getHeaders();
+  public function getHeaders(): array;
 
   /**
    * Sets a header.
@@ -45,7 +46,7 @@ interface RemotedbInterface extends ConfigEntityInterface {
    * @param mixed $value
    *   The header's value.
    */
-  public function setHeader($header, $value);
+  public function setHeader(string $header, mixed $value): void;
 
   /**
    * Sends a request to the XML-RPC server.
@@ -55,9 +56,9 @@ interface RemotedbInterface extends ConfigEntityInterface {
    * @param array $params
    *   An array of parameters.
    *
-   * @return string
+   * @return mixed
    *   The XML-RPC Result.
    */
-  public function sendRequest($method, array $params = []);
+  public function sendRequest(string $method, array $params = []): mixed;
 
 }

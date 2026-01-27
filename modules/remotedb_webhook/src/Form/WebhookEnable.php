@@ -28,7 +28,7 @@ class WebhookEnable extends OperationActionBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $this->webhookService->add($this->entity);
 
     $success = $this->webhookService->exists($this->entity);

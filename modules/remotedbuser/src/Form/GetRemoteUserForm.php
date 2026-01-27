@@ -68,7 +68,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('entity_type.manager')->getStorage('remotedb_user'),
       $container->get('messenger'),
@@ -107,7 +107,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $user_ids = explode("\n", $form_state->getValue(['user']));
     if (count($user_ids) >= static::USER_BATCH_MINIMUM) {
       // Use batch.
@@ -127,7 +127,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    * @param mixed $user_id
    *   The user to import from the remote database.
    */
-  public function getRemoteUser($user_id) {
+  public function getRemoteUser($user_id): void {
     try {
       $remote_account = $this->remotedbUserStorage->loadByAny($user_id);
       if ($remote_account) {
@@ -166,7 +166,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    *   (optional) How many users should be imported per batch.
    *   Defaults to 10.
    */
-  protected function getRemoteUserBatch(array $user_ids, $limit_per_batch = 10) {
+  protected function getRemoteUserBatch(array $user_ids, $limit_per_batch = 10): void {
     $operations[] = [
       [$this, 'getRemoteUserBatchOperation'],
       [$user_ids, $limit_per_batch],
@@ -190,7 +190,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    * @param array $context
    *   The batch context array, passed by reference.
    */
-  public function getRemoteUserBatchOperation(array $user_ids, $limit_per_batch, array &$context) {
+  public function getRemoteUserBatchOperation(array $user_ids, $limit_per_batch, array &$context): void {
     if (empty($context['sandbox'])) {
       $context['sandbox'] = [
         'progress' => 0,

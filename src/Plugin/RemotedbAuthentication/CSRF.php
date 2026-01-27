@@ -19,7 +19,7 @@ class Csrf extends AuthenticationBase {
   /**
    * Implements AuthenticationInterface::authenticate().
    */
-  public function authenticate() {
+  public function authenticate(): bool {
     $params = [
       'user.token' => [],
     ];

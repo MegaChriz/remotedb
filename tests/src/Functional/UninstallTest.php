@@ -26,7 +26,7 @@ class UninstallTest extends BrowserTestBase {
   /**
    * Tests module uninstallation.
    */
-  public function testUninstall() {
+  public function testUninstall(): void {
     // Confirm that the Remote database module has been installed.
     $module_handler = $this->container->get('module_handler');
     $this->assertTrue($module_handler->moduleExists('remotedb'));

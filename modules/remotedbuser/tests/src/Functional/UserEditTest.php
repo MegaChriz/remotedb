@@ -17,7 +17,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests that a user cannot choose a username already existing remotely.
    */
-  public function testNameDuplicates() {
+  public function testNameDuplicates(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -37,7 +37,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if a user can change its username.
    */
-  public function testLocalNameChange() {
+  public function testLocalNameChange(): void {
     $account = $this->drupalCreateUser(['change own username']);
     $this->drupalLogin($account);
 
@@ -56,7 +56,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if a user can login with their remotely changed username.
    */
-  public function testRemoteNameChange() {
+  public function testRemoteNameChange(): void {
     // Set logging in via the remote database only.
     \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
@@ -91,7 +91,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests that a user cannot choose a mail address already existing remotely.
    */
-  public function testMailDuplicates() {
+  public function testMailDuplicates(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -111,7 +111,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if a user can change its mail address.
    */
-  public function testLocalMailChange() {
+  public function testLocalMailChange(): void {
     $account = $this->drupalCreateUser();
     $this->drupalLogin($account);
 
@@ -130,7 +130,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if a mail address change in the remote database has effect locally.
    */
-  public function testRemoteMailChange() {
+  public function testRemoteMailChange(): void {
     // Set logging in via the remote database only.
     \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
@@ -155,7 +155,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if a user can login remotely after changing its password locally.
    */
-  public function testLocalPasswordChange() {
+  public function testLocalPasswordChange(): void {
     // Set logging in via the remote database only.
     \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 
@@ -179,7 +179,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if a user can still login if their password changed remotely.
    */
-  public function testRemotePasswordChange() {
+  public function testRemotePasswordChange(): void {
     // Set logging in via the remote database only.
     \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEONLY)->save();
 

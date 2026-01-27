@@ -46,8 +46,11 @@ abstract class RemotedbFactoryBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   *
+   * @return string|null
+   *   The remotedb ID or NULL.
    */
-  abstract protected function getRemotedbId(ConfigFactoryInterface $config_factory);
+  abstract protected function getRemotedbId(ConfigFactoryInterface $config_factory): ?string;
 
   /**
    * Throws an exception in case remotedb property is not set.
@@ -58,7 +61,7 @@ abstract class RemotedbFactoryBase {
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case the remote database is not set.
    */
-  protected function requireRemotedb() {
+  protected function requireRemotedb(): void {
     if (!$this->remotedb) {
       throw new RemotedbException('Can not perform request to the remote database, because ' . get_class($this) . ' did not receive a remote database object.');
     }

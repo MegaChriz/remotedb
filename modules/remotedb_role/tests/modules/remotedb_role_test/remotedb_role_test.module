@@ -8,7 +8,7 @@
 /**
  * Implements hook_ENTITY_TYPE_load() for 'remotedb'.
  */
-function remotedb_role_test_remotedb_load(array $entities) {
+function remotedb_role_test_remotedb_load(array $entities): void {
   foreach ($entities as $remotedb) {
     $remotedb->setCallback('remotedb_role_test_remotedb_callback');
   }

@@ -21,7 +21,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    * can be linked to a remote user that does have the same username, but not
    * the same mail address.
    */
-  public function testExistingName() {
+  public function testExistingName(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -60,7 +60,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    * can be linked to a remote user that does have the same mail address, but
    * not the same mail username.
    */
-  public function testExistingMail() {
+  public function testExistingMail(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -106,7 +106,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    * Logging in via the remote database should fail as the system doesn't know
    * to which local account the remote account should be linked.
    */
-  public function testExistingNameAndMail() {
+  public function testExistingNameAndMail(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -160,7 +160,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
    *
    * Logging in using the local password should succeed.
    */
-  public function testExistingNameAndMailWithLocalUserFallback() {
+  public function testExistingNameAndMailWithLocalUserFallback(): void {
     // Set logging in via remote database with local user fallback.
     \Drupal::configFactory()->getEditable('remotedbuser.settings')->set('login', RemotedbUserAuthenticationInterface::REMOTEFIRST)->save();
 

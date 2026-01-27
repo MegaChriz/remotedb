@@ -23,9 +23,14 @@ interface RemotedbUserAuthenticationInterface extends UserAuthInterface {
    *
    * Copies over the remote user if needed.
    *
+   * @param string $name
+   *   The username.
+   * @param string $password
+   *   The password.
+   *
    * @return int|false
    *   The user's uid on success, or FALSE on failure to authenticate.
    */
-  public function remoteAuthenticate($name, $password);
+  public function remoteAuthenticate(string $name, string $password): int|false;
 
 }

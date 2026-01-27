@@ -16,7 +16,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if an authenticated user is redirected to the right page.
    */
-  public function testAuthenticatedRedirect() {
+  public function testAuthenticatedRedirect(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -46,7 +46,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if an anonymous user is redirected to the right page.
    */
-  public function testAnonymousRedirect() {
+  public function testAnonymousRedirect(): void {
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');
     $site = $this->getAbsoluteUrl('');
@@ -63,7 +63,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if an authenticated user gets logged in when following a SSO link.
    */
-  public function testSsoLogin() {
+  public function testSsoLogin(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -88,7 +88,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
    * When a user that only exists remotely, a user account is expected to be
    * created locally and a login should be successful.
    */
-  public function testSsoLoginNewUser() {
+  public function testSsoLoginNewUser(): void {
     // Create a remote user.
     $remote_account = $this->createRemoteUser();
 
@@ -113,7 +113,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests if the user is redirected to a 404 page in case of a invalid SSO url.
    */
-  public function testInvalidSso() {
+  public function testInvalidSso(): void {
     $this->drupalGet('sso/goto/www.example.com');
     $this->assertSession()->statusCodeEquals(404);
   }

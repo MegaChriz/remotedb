@@ -10,7 +10,7 @@ use Drupal\remotedb_test\Entity\MockRemotedb;
 /**
  * Implements hook_entity_type_build().
  */
-function remotedb_test_entity_type_build(&$entity_types) {
+function remotedb_test_entity_type_build(array &$entity_types): void {
   if (isset($entity_types['remotedb'])) {
     $entity_types['remotedb']->setClass(MockRemotedb::class);
   }

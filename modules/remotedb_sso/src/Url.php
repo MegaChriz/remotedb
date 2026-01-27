@@ -29,7 +29,7 @@ class Url implements UrlInterface {
   /**
    * {@inheritdoc}
    */
-  public function createSsoGotoUrl($site, $text) {
+  public function createSsoGotoUrl(string $site, string $text): string {
     // Remove whitespace.
     $site = trim($site);
     // Make $site regex safe first.

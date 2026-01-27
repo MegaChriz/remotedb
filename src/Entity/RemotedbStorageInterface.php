@@ -12,13 +12,13 @@ interface RemotedbStorageInterface extends ConfigEntityStorageInterface {
   /**
    * Returns a list of entities as options.
    *
-   * @param array $entities
+   * @param array|null $entities
    *   (optional) A list of entities.
    *   Defaults to all entities.
    *
    * @return array
    *   A list of choosable options in forms.
    */
-  public function options(?array $entities = NULL);
+  public function options(?array $entities = NULL): array;
 
 }

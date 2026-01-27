@@ -28,7 +28,7 @@ abstract class RemotedbWebhookBrowserTestBase extends RemotedbBrowserTestBase {
    * @return string
    *   The retrieved HTML string, also available as $this->getRawContent().
    */
-  protected function webhookPost(array $edit) {
+  protected function webhookPost(array $edit): string {
     $this->prepareRequest();
 
     $url = $this->buildUrl($this->getWebhookEndpointPath(), ['absolute' => TRUE]);
@@ -55,7 +55,7 @@ abstract class RemotedbWebhookBrowserTestBase extends RemotedbBrowserTestBase {
    * @return string
    *   The webhook endpoint path.
    */
-  protected function getWebhookEndpointPath() {
+  protected function getWebhookEndpointPath(): string {
     $key = $this->container->get('remotedb_webhook.webhook')->getKey();
     return 'remotedb/webhook/' . $key;
   }

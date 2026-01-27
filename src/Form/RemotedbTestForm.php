@@ -67,7 +67,7 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     $dumper = $container->has('devel.dumper') ? $container->get('devel.dumper') : NULL;
 
     return new static(
@@ -81,14 +81,14 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'remotedb_test_form';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $result = $form_state->get(['remotedb_result']);
     if ($result) {
       $form['remotedb_result'] = $this->dump($result);
@@ -124,7 +124,7 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $method = $form_state->getValue(['method']);
     $params = $this->stringLib->textToArray($form_state->getValue(['params']));
     $remotedb = $this->storage->load($form_state->getValue(['remotedb']));
@@ -144,8 +144,11 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
    *
    * @param mixed $data
    *   The data to dump.
+   *
+   * @return array
+   *   A render array.
    */
-  protected function dump(&$data) {
+  protected function dump(mixed &$data): array {
     if ($this->dumper instanceof DevelDumperManagerInterface) {
       return $this->dumper->exportAsRenderable($data);
     }

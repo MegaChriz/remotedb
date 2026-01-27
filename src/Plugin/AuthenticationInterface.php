@@ -5,6 +5,7 @@ namespace Drupal\remotedb\Plugin;
 use Drupal\Component\Plugin\ConfigurableInterface;
 use Drupal\Component\Plugin\DependentPluginInterface;
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Interface for remote database authentication plugins.
@@ -14,18 +15,18 @@ interface AuthenticationInterface extends ConfigurableInterface, DependentPlugin
   /**
    * Returns the administrative label for this authentication method.
    *
-   * @return string
+   * @return string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *   The method's administrative label.
    */
-  public function getLabel();
+  public function getLabel(): string|TranslatableMarkup;
 
   /**
    * Returns the administrative description for this authentication method.
    *
-   * @return string
+   * @return string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *   The method's description.
    */
-  public function getDescription();
+  public function getDescription(): string|TranslatableMarkup;
 
   /**
    * Executes authentication method.
@@ -34,6 +35,6 @@ interface AuthenticationInterface extends ConfigurableInterface, DependentPlugin
    *   TRUE if authentication was succesful.
    *   FALSE otherwise.
    */
-  public function authenticate();
+  public function authenticate(): bool;
 
 }

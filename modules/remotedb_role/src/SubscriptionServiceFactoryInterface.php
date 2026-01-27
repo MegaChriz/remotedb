@@ -13,6 +13,6 @@ interface SubscriptionServiceFactoryInterface {
    * @return \Drupal\remotedb_role\SubscriptionServiceInterface
    *   The subscription service.
    */
-  public function get();
+  public function get(): SubscriptionServiceInterface;
 
 }

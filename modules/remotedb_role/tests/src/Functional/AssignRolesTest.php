@@ -27,7 +27,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
    * @param array $subscriptions
    *   The subscriptions by the service to return, keyed by ID.
    */
-  protected function setSubscriptions(array $subscriptions) {
+  protected function setSubscriptions(array $subscriptions): void {
     $return = [];
     foreach ($subscriptions as $id => $title) {
       $return[$id] = [
@@ -42,7 +42,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
   /**
    * Test logging in without the debug option enabled.
    */
-  public function testWithoutDebug() {
+  public function testWithoutDebug(): void {
     $this->config('remotedb_role.settings')
       ->set('remotedb', $this->remotedb->id())
       ->set('roles', [
@@ -88,7 +88,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
    *
    * @dataProvider dataProviderWithDebug
    */
-  public function testWithDebug(array $roles, array $subscriptions, array $has_roles, array $not_has_roles, array $texts) {
+  public function testWithDebug(array $roles, array $subscriptions, array $has_roles, array $not_has_roles, array $texts): void {
     $this->config('remotedb_role.settings')
       ->set('remotedb', $this->remotedb->id())
       ->set('roles', [
@@ -186,7 +186,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
   /**
    * Tests that roles are left untouched for users with bypass permission.
    */
-  public function testWithBypassPermission() {
+  public function testWithBypassPermission(): void {
     // Create a role with bypass permission.
     $bypass_rid = $this->createRole(['remotedb_role.bypass']);
 

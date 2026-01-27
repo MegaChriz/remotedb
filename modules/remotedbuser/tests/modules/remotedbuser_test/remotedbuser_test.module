@@ -10,7 +10,7 @@ use Drupal\remotedbuser_test\Entity\RemotedbUserStorage;
 /**
  * Implements hook_entity_type_build().
  */
-function remotedbuser_test_entity_type_build(&$entity_types) {
+function remotedbuser_test_entity_type_build(array &$entity_types): void {
   if (isset($entity_types['remotedb_user'])) {
     $entity_types['remotedb_user']->setStorageClass(RemotedbUserStorage::class);
   }

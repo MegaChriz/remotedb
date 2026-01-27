@@ -16,7 +16,7 @@ class RemotedbException extends \Exception {
   /**
    * Prints error message on screen.
    */
-  public function printMessage($severity = 'error') {
+  public function printMessage(string $severity = 'error'): void {
     $this->messenger()->addMessage($this->getMessage(), $severity);
   }
 
@@ -26,7 +26,7 @@ class RemotedbException extends \Exception {
    * @param string $level
    *   The PSR log level. Must be valid constant in \Psr\Log\LogLevel.
    */
-  public function logError($level = LogLevel::ERROR) {
+  public function logError(string $level = LogLevel::ERROR): void {
     $logger = \Drupal::logger('remotedb');
     Error::logException($logger, $this, Error::DEFAULT_ERROR_MESSAGE, [], $level);
   }

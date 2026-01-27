@@ -32,10 +32,10 @@ abstract class RemotedbBrowserTestBase extends BrowserTestBase {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The entity to be reloaded.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
+   * @return \Drupal\Core\Entity\EntityInterface|null
    *   The reloaded entity.
    */
-  protected function reloadEntity(EntityInterface $entity) {
+  protected function reloadEntity(EntityInterface $entity): ?EntityInterface {
     $controller = $this->container->get('entity_type.manager')->getStorage($entity->getEntityTypeId());
     $controller->resetCache([$entity->id()]);
     return $controller->load($entity->id());

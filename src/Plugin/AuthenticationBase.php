@@ -4,6 +4,7 @@ namespace Drupal\remotedb\Plugin;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\remotedb\Entity\RemotedbInterface;
 
 /**
@@ -69,7 +70,7 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
   /**
    * {@inheritdoc}
    */
-  public function setConfiguration(array $configuration) {
+  public function setConfiguration(array $configuration): static {
     if (isset($configuration['status'])) {
       $this->status = (bool) $configuration['status'];
     }
@@ -85,7 +86,7 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
   /**
    * {@inheritdoc}
    */
-  public function getConfiguration() {
+  public function getConfiguration(): array {
     return [
       'id' => $this->getPluginId(),
       'provider' => $this->pluginDefinition['provider'],
@@ -98,7 +99,7 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration() {
+  public function defaultConfiguration(): array {
     return [
       'provider' => $this->pluginDefinition['provider'],
       'status' => FALSE,
@@ -110,28 +111,28 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
   /**
    * {@inheritdoc}
    */
-  public function calculateDependencies() {
+  public function calculateDependencies(): array {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLabel() {
+  public function getLabel(): string|TranslatableMarkup {
     return $this->pluginDefinition['title'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDescription() {
+  public function getDescription(): string|TranslatableMarkup {
     return $this->pluginDefinition['description'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
+  public function settingsForm(array $form, FormStateInterface $form_state): array {
     // Implementations should work with and return $form. Returning an empty
     // array here if there are no additional settings needed.
     return [];

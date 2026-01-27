@@ -13,6 +13,7 @@ use Drupal\Core\Url;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
+use Drupal\user\UserInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -88,7 +89,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function getKey() {
+  public function getKey(): string {
     $base_url = Url::fromRoute('<front>', [], ['absolute' => TRUE])
       ->toString();
 
@@ -98,7 +99,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function getUrl() {
+  public function getUrl(): Url {
     return Url::fromRoute('remotedb_webhook.process_webhook', [
       'key' => $this->getKey(),
     ]);
@@ -107,7 +108,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function exists(RemotedbInterface $remotedb, ?Url $url = NULL) {
+  public function exists(RemotedbInterface $remotedb, ?Url $url = NULL): bool {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
@@ -120,7 +121,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function index(RemotedbInterface $remotedb) {
+  public function index(RemotedbInterface $remotedb): array {
     $cache = $this->cache->get(static::CACHE_CID . $remotedb->id());
     if ($cache) {
       return $cache->data;
@@ -141,7 +142,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function add(RemotedbInterface $remotedb, ?Url $url = NULL) {
+  public function add(RemotedbInterface $remotedb, ?Url $url = NULL): bool {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
@@ -149,16 +150,17 @@ class Webhook implements WebhookInterface {
     $url = $url->toString();
 
     $this->cacheClear($remotedb);
-    return $remotedb->sendRequest('kkbservices_webhook.create', [
+    $result = $remotedb->sendRequest('kkbservices_webhook.create', [
       $url,
       ['user__update'],
     ]);
+    return (bool) $result;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function delete(RemotedbInterface $remotedb, ?Url $url = NULL) {
+  public function delete(RemotedbInterface $remotedb, ?Url $url = NULL): void {
     if (is_null($url)) {
       $url = $this->getUrl();
     }
@@ -168,14 +170,14 @@ class Webhook implements WebhookInterface {
     $webhooks = $this->index($remotedb);
     if (isset($webhooks[$url])) {
       $this->cacheClear($remotedb);
-      return $remotedb->sendRequest('kkbservices_webhook.delete', [$webhooks[$url]['webhook_id']]);
+      $remotedb->sendRequest('kkbservices_webhook.delete', [$webhooks[$url]['webhook_id']]);
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function cacheClear(RemotedbInterface $remotedb) {
+  public function cacheClear(RemotedbInterface $remotedb): void {
     $this->cache->delete(static::CACHE_CID . $remotedb->id());
     Cache::invalidateTags(['remotedb_webhook_enabled']);
   }
@@ -183,7 +185,7 @@ class Webhook implements WebhookInterface {
   /**
    * {@inheritdoc}
    */
-  public function process($type, $data) {
+  public function process(string $type, mixed $data): void {
     [$entity_type, $hook] = explode('__', $type);
 
     if ($entity_type == 'user') {
@@ -216,7 +218,7 @@ class Webhook implements WebhookInterface {
    * @param int $remotedb_uid
    *   The ID of the user in the remote database.
    */
-  protected function createAccount($remotedb_uid) {
+  protected function createAccount($remotedb_uid): ?UserInterface {
     $remote_account = $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
 
     if (isset($remote_account->uid)) {

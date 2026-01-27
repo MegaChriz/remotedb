@@ -32,7 +32,7 @@ abstract class RemotedbFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('entity_type.manager')->getStorage('remotedb')
     );
@@ -41,7 +41,7 @@ abstract class RemotedbFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state) {
+  public function form(array $form, FormStateInterface $form_state): array {
     $remotedb = $this->entity;
 
     $form['#tree'] = TRUE;
@@ -155,7 +155,7 @@ abstract class RemotedbFormBase extends EntityForm {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     parent::submitForm($form, $form_state);
 
     // Add the submitted form values to the entity, and save it.
@@ -173,8 +173,6 @@ abstract class RemotedbFormBase extends EntityForm {
       }
     }
     $remotedb->save();
-
-    return $this->entity;
   }
 
 }

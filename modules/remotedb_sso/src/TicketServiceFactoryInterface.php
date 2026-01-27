@@ -13,6 +13,6 @@ interface TicketServiceFactoryInterface {
    * @return \Drupal\remotedb_sso\TicketServiceInterface
    *   The ticket service.
    */
-  public function get();
+  public function get(): TicketServiceInterface;
 
 }

@@ -3,6 +3,7 @@
 namespace Drupal\Tests\remotedb\Traits;
 
 use Drupal\remotedb\Entity\Remotedb;
+use Drupal\remotedb\Entity\RemotedbInterface;
 
 /**
  * Provides methods to create remote databases with default settings.
@@ -21,7 +22,7 @@ trait RemotedbCreationTrait {
    * @return \Drupal\remotedb\Entity\RemotedbInterface
    *   The created remote database entity.
    */
-  protected function createRemotedb(array $settings = []) {
+  protected function createRemotedb(array $settings = []): RemotedbInterface {
     $settings += [
       'name' => mb_strtolower($this->randomMachineName()),
       'label' => $this->randomMachineName(),

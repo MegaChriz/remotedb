@@ -18,6 +18,6 @@ interface UrlInterface {
    * @return string
    *   The text where in the URLs are modified.
    */
-  public function createSsoGotoUrl($site, $text);
+  public function createSsoGotoUrl(string $site, string $text): string;
 
 }

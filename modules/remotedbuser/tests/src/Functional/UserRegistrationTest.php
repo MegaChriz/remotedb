@@ -16,7 +16,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests if user is saved to remote database on a successful register.
    */
-  public function testRegistration() {
+  public function testRegistration(): void {
     // Don't require e-mail verification and allow registration by site visitors
     // without administrator approval.
     $this->config('user.settings')
@@ -55,7 +55,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests registration failure when username already exists remotely.
    */
-  public function testRegistrationNameDuplicates() {
+  public function testRegistrationNameDuplicates(): void {
     // Don't require e-mail verification and allow registration by site visitors
     // without administrator approval.
     $this->config('user.settings')
@@ -78,7 +78,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests registration failure when mail address already exists remotely.
    */
-  public function testRegistrationEmailDuplicates() {
+  public function testRegistrationEmailDuplicates(): void {
     // Don't require e-mail verification and allow registration by site visitors
     // without administrator approval.
     $this->config('user.settings')

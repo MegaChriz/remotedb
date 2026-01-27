@@ -28,7 +28,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests importing two users from the remote database.
    */
-  public function testBasic() {
+  public function testBasic(): void {
     // Create two remote users.
     $remote_account1 = $this->createRemoteUser();
     $remote_account2 = $this->createRemoteUser();
@@ -65,7 +65,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
   /**
    * Tests that importing non-existing users do not abort the process.
    */
-  public function testWithFailures() {
+  public function testWithFailures(): void {
     // Create two remote users.
     $remote_account1 = $this->createRemoteUser();
     $remote_account2 = $this->createRemoteUser();
@@ -116,7 +116,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
    * When more than 10 users are imported at once, the import is expected to
    * happen in multiple chunks.
    */
-  public function testImportManyUsers() {
+  public function testImportManyUsers(): void {
     $mails = [];
     for ($i = 0; $i < 25; $i++) {
       $mails[] = $this->randomMachineName() . '@example.com';

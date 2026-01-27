@@ -95,7 +95,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type): static {
     return new static(
       $entity_type,
       $container->get('entity_field.manager'),
@@ -117,7 +117,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @return array
    *   An array of accounts.
    */
-  public function getRemoteAccounts() {
+  public function getRemoteAccounts(): array {
     return $this->state->get('remotedbuser_test_accounts', []);
   }
 
@@ -127,7 +127,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @param array $accounts
    *   The accounts to save in database.
    */
-  private function setRemoteAccounts(array $accounts) {
+  private function setRemoteAccounts(array $accounts): void {
     $this->state->set('remotedbuser_test_accounts', $accounts);
   }
 
@@ -142,7 +142,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @return mixed
    *   Returns different values depending on the method call.
    */
-  public function remotedbCallback($method, array $params) {
+  public function remotedbCallback(string $method, array $params): mixed {
     switch ($method) {
       case 'dbuser.retrieve':
         $id = $params[0];
@@ -171,7 +171,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @return array|null
    *   An array of user data if found, NULL otherwise.
    */
-  private function dbuserRetrieve($id, $by) {
+  private function dbuserRetrieve(mixed $id, string $by): ?array {
     foreach ($this->getRemoteAccounts() as $account) {
       if ($account[$by] == $id) {
         return $account;
@@ -189,7 +189,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    * @return int|false
    *   The remote user uid or FALSE if saving failed.
    */
-  private function dbuserSave(array $user_data) {
+  private function dbuserSave(array $user_data): int|false {
     // First check if this account already exists.
     $search = [
       'uid',
@@ -254,7 +254,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The remote user's ID if authentication was successful.
    *   FALSE otherwise.
    */
-  private function dbuserAuthenticate($name, $password) {
+  private function dbuserAuthenticate(string $name, string $password): int|false {
     $user_data = $this->dbuserRetrieve($name, 'name');
 
     // No account found? Return FALSE.

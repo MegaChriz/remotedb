@@ -43,8 +43,11 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
 
   /**
    * Retrieves plugin definitions and creates an instance for each one.
+   *
+   * @return \Drupal\remotedb\Plugin\AuthenticationInterface[]
+   *   The plugin instances.
    */
-  public function getAll() {
+  public function getAll(): array {
     // Retrieve all available authentication plugin definitions.
     if (!$this->definitions) {
       $this->definitions = $this->manager->getDefinitions();
@@ -65,7 +68,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   /**
    * {@inheritdoc}
    */
-  protected function initializePlugin($instance_id) {
+  protected function initializePlugin($instance_id): void {
     // Authentications have a 1:1 relationship to remote databases and can be
     // added and instantiated at any time.
     $configuration = $this->manager->getDefinition($instance_id);
@@ -84,7 +87,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   /**
    * {@inheritdoc}
    */
-  public function sort() {
+  public function sort(): static {
     $this->getAll();
     return parent::sort();
   }
@@ -92,7 +95,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   /**
    * {@inheritdoc}
    */
-  public function sortHelper($aID, $bID) {
+  public function sortHelper($aID, $bID): int {
     $a = $this->get($aID);
     $b = $this->get($bID);
     if ($a->status != $b->status) {
@@ -110,7 +113,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   /**
    * {@inheritdoc}
    */
-  public function getConfiguration() {
+  public function getConfiguration(): array {
     $configuration = parent::getConfiguration();
     // Remove configuration if it matches the defaults. In self::getAll(), we
     // load all available authentications, in addition to the enabled

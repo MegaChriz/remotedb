@@ -3,6 +3,7 @@
 namespace Drupal\remotedbuser\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\user\UserInterface;
 
 /**
  * Defines the remote user entity type.
@@ -27,7 +28,7 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
   /**
    * {@inheritdoc}
    */
-  public function toArray() {
+  public function toArray(): array {
     $values = $this->values;
 
     // Don't send attached account along.
@@ -39,7 +40,7 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
   /**
    * {@inheritdoc}
    */
-  public function toAccount() {
+  public function toAccount(): UserInterface {
     return $this->entityTypeManager()->getStorage($this->entityTypeId)->toAccount($this);
   }
 

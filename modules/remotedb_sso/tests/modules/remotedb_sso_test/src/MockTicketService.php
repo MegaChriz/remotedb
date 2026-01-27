@@ -71,7 +71,7 @@ class MockTicketService implements TicketServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function validateTicket($remotedb_uid, $timestamp, $hash): ?RemotedbUserInterface {
+  public function validateTicket(int|string $remotedb_uid, int $timestamp, string $hash): ?RemotedbUserInterface {
     return $this->entityTypeManager
       ->getStorage('remotedb_user')
       ->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
