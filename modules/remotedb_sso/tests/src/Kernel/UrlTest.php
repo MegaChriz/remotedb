@@ -3,6 +3,7 @@
 namespace Drupal\Tests\remotedb_sso\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Test if SSO urls are handled as expected.
@@ -10,6 +11,7 @@ use Drupal\KernelTests\KernelTestBase;
  * @coversDefaultClass \Drupal\remotedb_sso\Url
  * @group remotedb_sso
  */
+#[RunTestsInSeparateProcesses]
 class UrlTest extends KernelTestBase {
 
   /**

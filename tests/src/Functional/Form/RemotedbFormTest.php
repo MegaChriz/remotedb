@@ -2,14 +2,16 @@
 
 namespace Drupal\Tests\remotedb\Functional\Form;
 
-use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
 use Drupal\remotedb\Entity\Remotedb;
+use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests adding and editing remote database entities.
  *
  * @group remotedb
  */
+#[RunTestsInSeparateProcesses]
 class RemotedbFormTest extends RemotedbBrowserTestBase {
 
   /**

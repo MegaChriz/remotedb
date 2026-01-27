@@ -4,6 +4,7 @@ namespace Drupal\Tests\remotedbuser\Functional;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\user\Entity\User;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests if users can be imported from the remote database.

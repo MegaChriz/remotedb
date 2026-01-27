@@ -3,6 +3,7 @@
 namespace Drupal\Tests\remotedb_sso\Functional;
 
 use Drupal\user\Entity\User;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for single sign on.

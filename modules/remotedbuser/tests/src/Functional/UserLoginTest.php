@@ -2,11 +2,14 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
  * Ensure that users that only exist on the remote database can login.
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class UserLoginTest extends RemotedbUserBrowserTestBase {
 
   /**

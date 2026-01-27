@@ -3,12 +3,14 @@
 namespace Drupal\Tests\remotedb\Functional;
 
 use Drupal\Tests\BrowserTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests module uninstallation.
  *
  * @group remotedb
  */
+#[RunTestsInSeparateProcesses]
 class UninstallTest extends BrowserTestBase {
 
   /**

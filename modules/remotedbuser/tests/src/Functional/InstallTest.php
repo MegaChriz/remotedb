@@ -3,12 +3,14 @@
 namespace Drupal\Tests\remotedbuser\Functional;
 
 use Drupal\Tests\BrowserTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests module installation.
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class InstallTest extends BrowserTestBase {
 
   /**

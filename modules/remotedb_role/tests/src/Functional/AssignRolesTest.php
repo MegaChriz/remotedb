@@ -2,11 +2,14 @@
 
 namespace Drupal\Tests\remotedb_role\Functional;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
  * Test assigning/unassigning roles upon login.
  *
  * @group remotedb_role
  */
+#[RunTestsInSeparateProcesses]
 class AssignRolesTest extends RemotedbRoleBrowserTestBase {
 
   /**

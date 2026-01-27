@@ -4,6 +4,7 @@ namespace Drupal\Tests\remotedbuser\Functional;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for editing username, mail or password.

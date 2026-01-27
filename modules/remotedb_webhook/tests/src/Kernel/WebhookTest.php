@@ -4,6 +4,7 @@ namespace Drupal\Tests\remotedb_webhook\Kernel;
 
 use Drupal\Core\Test\AssertMailTrait;
 use Drupal\user\UserInterface;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the webhook service.

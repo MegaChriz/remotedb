@@ -3,6 +3,7 @@
 namespace Drupal\Tests\remotedb_role\Functional\Form;
 
 use Drupal\Tests\remotedb_role\Functional\RemotedbRoleBrowserTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * @coversDefaultClass \Drupal\remotedb_role\Form\SettingsForm

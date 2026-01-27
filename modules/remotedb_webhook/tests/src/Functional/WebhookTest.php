@@ -2,11 +2,14 @@
 
 namespace Drupal\Tests\remotedb_webhook\Functional;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
  * Tests posting to webhook.
  *
  * @group remotedb_webhook
  */
+#[RunTestsInSeparateProcesses]
 class WebhookTest extends RemotedbWebhookBrowserTestBase {
 
   /**

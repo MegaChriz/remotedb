@@ -2,15 +2,17 @@
 
 namespace Drupal\Tests\remotedbuser\Kernel\Entity;
 
-use Drupal\Tests\remotedbuser\Kernel\RemotedbUserKernelTestBase;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
+use Drupal\Tests\remotedbuser\Kernel\RemotedbUserKernelTestBase;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * @coversDefaultClass \Drupal\remotedbuser\Entity\RemotedbUserStorage
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
 
   /**
@@ -246,7 +248,7 @@ class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
   /**
    * Tests failing username update.
    *
-   * Tests that an existing local user cannot be updated with an username
+   * Tests that an existing local user cannot be updated with a username
    * that already belongs to an other local user.
    *
    * @covers ::toAccount

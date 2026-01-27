@@ -2,11 +2,14 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
 /**
  * Tests for requesting a new password via the remote database.
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class UserPasswordResetTest extends RemotedbUserBrowserTestBase {
 
   /**

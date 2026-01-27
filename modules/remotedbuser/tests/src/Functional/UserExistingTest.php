@@ -4,12 +4,14 @@ namespace Drupal\Tests\remotedbuser\Functional;
 
 use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
 use Drupal\user\Entity\User;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests behavior on name collisions between local and remote users.
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class UserExistingTest extends RemotedbUserBrowserTestBase {
 
   /**
