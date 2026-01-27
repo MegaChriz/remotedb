@@ -11,7 +11,7 @@ use Drupal\user\UserInterface;
 interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
 
   /**
-   * Methods to load an user by in the remote database.
+   * Methods to load a user by in the remote database.
    *
    * @var string
    */
@@ -65,7 +65,7 @@ interface RemotedbUserStorageInterface extends ContentEntityStorageInterface {
   public function toAccount(RemotedbUserInterface $entity);
 
   /**
-   * Authenticates an user via the remote database.
+   * Authenticates a user via the remote database.
    *
    * @param string $name
    *   User name to authenticate.

@@ -131,7 +131,7 @@ class AssignRolesTest extends UnitTestCase {
   }
 
   /**
-   * Tests removing a role for an user that has that role.
+   * Tests removing a role for a user that has that role.
    *
    * @covers ::execute
    */

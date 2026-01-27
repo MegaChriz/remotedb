@@ -243,7 +243,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
   }
 
   /**
-   * Authenticates an user.
+   * Authenticates a user.
    *
    * @param string $name
    *   The user's name.

@@ -11,6 +11,7 @@ use Drupal\user\UserInterface;
  * @coversDefaultClass \Drupal\remotedb_webhook\Webhook
  * @group remotedb_webhook
  */
+#[RunTestsInSeparateProcesses]
 class WebhookTest extends RemotedbWebhookKernelTestBase {
 
   use AssertMailTrait;
@@ -32,7 +33,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
   }
 
   /**
-   * Tests processing an user update that does not exists locally.
+   * Tests processing a user update that does not exists locally.
    *
    * No users should be added.
    *
@@ -49,7 +50,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
   }
 
   /**
-   * Tests processing an user update.
+   * Tests processing a user update.
    *
    * @covers ::process
    */
@@ -96,7 +97,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
     // Process welcome email hook.
     $this->webhookService->process('user__welcome_email', $remote_user->uid);
 
-    // Assert that an user has been created.
+    // Assert that a user has been created.
     $account = user_load_by_name($remote_user->name);
     $this->assertInstanceOf(UserInterface::class, $account);
 

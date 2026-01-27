@@ -14,7 +14,7 @@ use Drupal\user\UserInterface;
 function remotedb_role_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'remotedb_role.admin_settings_form':
-      $output = '<p>' . t("On this page you can configure which roles an user should be assigned when they own a certain subscription. <strong>Warning</strong>: when an user doesn't own one of the specified subscriptions for a certain role, this role will be automatically revoked for that user.") . '</p>';
+      $output = '<p>' . t("On this page you can configure which roles a user should be assigned when they own a certain subscription. <strong>Warning</strong>: when a user doesn't own one of the specified subscriptions for a certain role, this role will be automatically revoked for that user.") . '</p>';
       $output .= '<p>' . t('The roles are assigned/unassigned upon user login.') . '</p>';
       return $output;
   }

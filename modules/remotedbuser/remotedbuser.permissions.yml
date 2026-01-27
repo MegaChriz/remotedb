@@ -3,4 +3,4 @@ remotedbuser.create:
   description: 'Allow users who can create accounts to create accounts that already exist in the remote database.'
 remotedbuser.getuser:
   title: 'Get remote user'
-  description: 'Copy over an user from the remote database.'
+  description: 'Copy over a user from the remote database.'

@@ -9,6 +9,7 @@ use Drupal\user\Entity\User;
  *
  * @group remotedb_sso
  */
+#[RunTestsInSeparateProcesses]
 class SsoTest extends RemotedbSsoBrowserTestBase {
 
   /**
@@ -83,7 +84,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
   /**
    * Tests logging in a new remote user using a SSO link.
    *
-   * When an user that only exists remotely, an user account is expected to be
+   * When a user that only exists remotely, a user account is expected to be
    * created locally and a login should be successful.
    */
   public function testSsoLoginNewUser() {

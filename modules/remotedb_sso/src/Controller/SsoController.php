@@ -127,7 +127,7 @@ class SsoController extends ControllerBase {
     }
 
     if ($this->currentUser->isAuthenticated()) {
-      // An user is already logged in, so ignore the attempt and go to the
+      // A user is already logged in, so ignore the attempt and go to the
       // target url.
       return $this->redirect($route_name, $route_parameters, $options);
     }

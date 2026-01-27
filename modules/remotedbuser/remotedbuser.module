@@ -236,7 +236,7 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
       if (!$storage->validateName($name, $account)) {
         $message = t('The name %name is already taken.', ['%name' => $name]);
         if (remotedbuser_get_remote_user_access()) {
-          $message = t('An user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
+          $message = t('A user with the name %name already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
             '%name' => $name,
             '@link' => Url::fromRoute('remotedbuser.get_remote_user_form')->toString(),
             '@title' => t('Get remote user'),
@@ -254,7 +254,7 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
         // An authenticated user is editing account data.
         $message = t('The e-mail address %email is already taken.', ['%email' => $mail]);
         if (remotedbuser_get_remote_user_access()) {
-          $message = t('An user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
+          $message = t('a user with the e-mail address %email already exists on the remote database. You can copy this user over on the <a href="@link">@title</a> page.', [
             '%email' => $mail,
             '@link' => Url::fromRoute('remotedbuser.get_remote_user_form')->toString(),
             '@title' => t('Get remote user'),

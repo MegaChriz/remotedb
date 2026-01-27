@@ -10,10 +10,11 @@ use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class UserEditTest extends RemotedbUserBrowserTestBase {
 
   /**
-   * Tests that an user cannot choose an username already existing remotely.
+   * Tests that a user cannot choose a username already existing remotely.
    */
   public function testNameDuplicates() {
     // Create a remote user.
@@ -33,7 +34,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an user can change its username.
+   * Tests if a user can change its username.
    */
   public function testLocalNameChange() {
     $account = $this->drupalCreateUser(['change own username']);
@@ -52,7 +53,7 @@ class UserEditTest extends RemotedbUserBrowserTestBase {
   }
 
   /**
-   * Tests if an user can login with their remotely changed username.
+   * Tests if a user can login with their remotely changed username.
    */
   public function testRemoteNameChange() {
     // Set logging in via the remote database only.

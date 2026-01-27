@@ -10,6 +10,7 @@ use Drupal\user\Entity\User;
  *
  * @group remotedbuser
  */
+#[RunTestsInSeparateProcesses]
 class UserImportTest extends RemotedbUserBrowserTestBase {
 
   /**
@@ -68,7 +69,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
     $remote_account1 = $this->createRemoteUser();
     $remote_account2 = $this->createRemoteUser();
 
-    // For the first remote account, create an user that points to a
+    // For the first remote account, create a user that points to a
     // non-existing remote user.
     $account = User::create([
       'name' => $remote_account1->name,

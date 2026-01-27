@@ -13,7 +13,7 @@ use Drupal\remotedb\Plugin\AuthenticationBase;
 #[RemotedbAuthentication(
   id: 'login',
   title: new TranslatableMarkup('Login'),
-  description: new TranslatableMarkup('Logs in an user on the remote database.'),
+  description: new TranslatableMarkup('Logs in a user on the remote database.'),
   settings: [
     'username' => '',
     'password' => '',

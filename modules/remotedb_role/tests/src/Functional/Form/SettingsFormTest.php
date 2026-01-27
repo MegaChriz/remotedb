@@ -8,6 +8,7 @@ use Drupal\Tests\remotedb_role\Functional\RemotedbRoleBrowserTestBase;
  * @coversDefaultClass \Drupal\remotedb_role\Form\SettingsForm
  * @group remotedb_role
  */
+#[RunTestsInSeparateProcesses]
 class SettingsFormTest extends RemotedbRoleBrowserTestBase {
 
   /**
@@ -23,7 +24,7 @@ class SettingsFormTest extends RemotedbRoleBrowserTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Create an user with admin privileges.
+    // Create a user with admin privileges.
     $this->adminUser = $this->drupalCreateUser([], NULL, FALSE, [
       'roles' => ['admin'],
     ]);
