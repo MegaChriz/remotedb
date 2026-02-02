@@ -4,6 +4,7 @@ namespace Drupal\remotedb;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 
 /**
@@ -62,7 +63,7 @@ abstract class RemotedbFactoryBase {
    *   In case the remote database is not set.
    */
   protected function requireRemotedb(): void {
-    if (!$this->remotedb) {
+    if (!$this->remotedb instanceof RemotedbInterface) {
       throw new RemotedbException('Can not perform request to the remote database, because ' . get_class($this) . ' did not receive a remote database object.');
     }
   }

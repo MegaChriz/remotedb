@@ -30,8 +30,12 @@ class SubscriptionService implements SubscriptionServiceInterface {
   /**
    * {@inheritdoc}
    */
-  public function getSubscriptions(UserInterface $account) {
-    return $this->sendRequest('dbsubscription.retrieve', [$account->getEmail(), 'mail']);
+  public function getSubscriptions(UserInterface $account): array {
+    $subscriptions = $this->sendRequest('dbsubscription.retrieve', [$account->getEmail(), 'mail']);
+    if (!is_array($subscriptions)) {
+      return [];
+    }
+    return $subscriptions;
   }
 
   /**

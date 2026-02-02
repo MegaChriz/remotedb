@@ -18,6 +18,6 @@ interface SubscriptionServiceInterface {
    * @return array
    *   A list of subscriptions.
    */
-  public function getSubscriptions(UserInterface $account);
+  public function getSubscriptions(UserInterface $account): array;
 
 }

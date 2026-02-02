@@ -90,7 +90,7 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
    * {@inheritdoc}
    */
   public function execute(?UserInterface $account = NULL): void {
-    if (empty($account)) {
+    if (!$account instanceof UserInterface) {
       // No account given. Abort.
       return;
     }
@@ -108,41 +108,39 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
     $this->unassigned = [];
     $changed = FALSE;
 
-    if (is_array($subscriptions)) {
-      // Loop through all roles and prepare a list of assign/unassign roles.
-      foreach ($role_settings as $rid => $role_setting) {
-        if (empty($role_setting['status'])) {
-          continue;
-        }
-
-        $this->unassigned[$rid] = $rid;
-        foreach ($subscriptions as $subscription) {
-          if (in_array($subscription['subscription_id'], $role_setting['subscriptions'])) {
-            $this->assigned[$rid] = $rid;
-            unset($this->unassigned[$rid]);
-          }
-        }
+    // Loop through all roles and prepare a list of assign/unassign roles.
+    foreach ($role_settings as $rid => $role_setting) {
+      if (!isset($role_setting['status']) || $role_setting['status'] === FALSE) {
+        continue;
       }
 
-      // Unassign roles.
-      foreach ($this->unassigned as $rid) {
-        if ($account->hasRole($rid)) {
-          $account->removeRole($rid);
-          $changed = TRUE;
-        }
-        else {
+      $this->unassigned[$rid] = $rid;
+      foreach ($subscriptions as $subscription) {
+        if (in_array((string) $subscription['subscription_id'], $role_setting['subscriptions'], TRUE)) {
+          $this->assigned[$rid] = $rid;
           unset($this->unassigned[$rid]);
         }
       }
-      // Assign roles.
-      foreach ($this->assigned as $rid) {
-        if (!$account->hasRole($rid)) {
-          $account->addRole($rid);
-          $changed = TRUE;
-        }
-        else {
-          unset($this->assigned[$rid]);
-        }
+    }
+
+    // Unassign roles.
+    foreach ($this->unassigned as $rid) {
+      if ($account->hasRole($rid)) {
+        $account->removeRole($rid);
+        $changed = TRUE;
+      }
+      else {
+        unset($this->unassigned[$rid]);
+      }
+    }
+    // Assign roles.
+    foreach ($this->assigned as $rid) {
+      if (!$account->hasRole($rid)) {
+        $account->addRole($rid);
+        $changed = TRUE;
+      }
+      else {
+        unset($this->assigned[$rid]);
       }
     }
 
@@ -157,7 +155,7 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
    * @return array
    *   A list of assigned role ID's.
    */
-  public function getAssignedRoles() {
+  public function getAssignedRoles(): array {
     return $this->assigned;
   }
 
@@ -167,7 +165,7 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
    * @return array
    *   A list of assigned role ID's.
    */
-  public function getUnassignedRoles() {
+  public function getUnassignedRoles(): array {
     return $this->unassigned;
   }
 

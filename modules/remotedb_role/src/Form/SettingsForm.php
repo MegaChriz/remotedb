@@ -81,6 +81,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('remotedb_role.settings');
+    $debug_enabled = (bool) $config->get('debug');
 
     $form['remotedb'] = [
       '#type' => 'select',
@@ -133,14 +134,18 @@ class SettingsForm extends ConfigFormBase {
           '#default_value' => $config->get('roles.' . $rid . '.status'),
           '#description' => $this->t('Enable or disable this role for automatic role assignment via remote database.'),
         ];
+
         $subscriptions = $config->get('roles.' . $rid . '.subscriptions');
+        if (!is_array($subscriptions)) {
+          $subscriptions = [];
+        }
         $form['roles'][$rid]['subscriptions'] = [
           '#type' => 'textarea',
           '#title' => $this->t('Subscriptions'),
           '#description' => $this->t('Specify which subscriptions should give the user the role %role. Enter one per line.', [
             '%role' => $role->label(),
           ]),
-          '#default_value' => !empty($subscriptions) ? implode("\n", $subscriptions) : NULL,
+          '#default_value' => $subscriptions !== [] ? implode("\n", $subscriptions) : NULL,
         ];
       }
     }
@@ -150,7 +155,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Extra'),
       '#collapsible' => TRUE,
-      '#collapsed' => !$config->get('debug'),
+      '#collapsed' => !$debug_enabled,
     ];
 
     // Debug settings.
@@ -158,7 +163,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Debug'),
       '#description' => $this->t('If enabled, a message about which roles were assigned/unassigned will be displayed when users login.'),
-      '#default_value' => $config->get('debug'),
+      '#default_value' => $debug_enabled,
     ];
 
     return parent::buildForm($form, $form_state);
@@ -171,7 +176,7 @@ class SettingsForm extends ConfigFormBase {
     $values = $form_state->getValues();
 
     foreach ($values['roles'] as &$role_values) {
-      if (!empty($role_values['subscriptions'])) {
+      if (isset($role_values['subscriptions']) && is_string($role_values['subscriptions']) && trim($role_values['subscriptions']) !== '') {
         $role_values['subscriptions'] = explode("\n", $role_values['subscriptions']);
         $role_values['subscriptions'] = array_map('trim', $role_values['subscriptions']);
       }
