@@ -91,6 +91,7 @@ class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
     try {
       $ticket_service = $container->get('remotedb_sso.ticket');
     }
+    /** @phpstan-ignore catch.neverThrown */
     catch (RemotedbException $e) {
       // Ignore remotedb exceptions.
       $ticket_service = NULL;
@@ -127,7 +128,7 @@ class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
    * {@inheritdoc}
    */
   public function process($text, $langcode) {
-    if (empty($this->ticketService)) {
+    if (!$this->ticketService instanceof TicketServiceInterface) {
       // Bail out if the ticket service is not available.
       return new FilterProcessResult($text);
     }
@@ -138,7 +139,7 @@ class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
     }
 
     try {
-      if (!empty($this->settings['websites'])) {
+      if (isset($this->settings['websites']) && is_string($this->settings['websites']) && strlen(trim($this->settings['websites'])) > 0) {
         $sites = $this->settings['websites'];
         $sites = explode("\n", $sites);
       }
@@ -146,8 +147,10 @@ class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
         $sites = $this->config->get('websites');
       }
 
-      foreach ($sites as $site) {
-        $text = $this->urlGenerator->createSsoGotoUrl($site, $text);
+      if (is_array($sites) && $sites !== []) {
+        foreach ($sites as $site) {
+          $text = $this->urlGenerator->createSsoGotoUrl($site, $text);
+        }
       }
     }
     catch (RemotedbException $e) {

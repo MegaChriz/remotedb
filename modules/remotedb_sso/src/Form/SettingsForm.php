@@ -30,12 +30,15 @@ class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('remotedb_sso.settings');
     $websites = $config->get('websites');
+    if (!is_array($websites)) {
+      $websites = [];
+    }
 
     $form['websites'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Websites'),
       '#description' => $this->t('Specify to which external websites an SSO link automatically must created, one on each line. Omit the http://, but include the subdomain if necassery, such as "www".'),
-      '#default_value' => !empty($websites) ? implode("\n", $websites) : NULL,
+      '#default_value' => $websites !== [] ? implode("\n", $websites) : NULL,
     ];
 
     return parent::buildForm($form, $form_state);
@@ -47,7 +50,7 @@ class SettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $values = $form_state->getValues();
 
-    if (!empty($values['websites'])) {
+    if (isset($values['websites']) && is_string($values['websites']) && strlen(trim($values['websites'])) > 0) {
       $values['websites'] = explode("\n", $values['websites']);
       $values['websites'] = array_map('trim', $values['websites']);
     }

@@ -34,9 +34,8 @@ class SsoLoginRedirect implements EventSubscriberInterface {
   public function onRequest(RequestEvent $event): void {
     $request = $event->getRequest();
 
-    // Don't process events with HTTP exceptions - those have either been thrown
-    // by us or have nothing to do with rabbit hole.
-    if ($request->get('exception') != NULL) {
+    // Don't process events with HTTP exceptions.
+    if ($request->attributes->get('exception') !== NULL) {
       return;
     }
 
@@ -48,9 +47,11 @@ class SsoLoginRedirect implements EventSubscriberInterface {
         'timestamp' => preg_replace($pattern, '${2}', $path),
         'hashed_pass' => preg_replace($pattern, '${3}', $path),
       ];
-      $options['query'] = [
-        'target_path' => preg_replace($pattern, '${4}', $path),
-      ] + $request->query->all();
+      $options = [
+        'query' => [
+          'target_path' => preg_replace($pattern, '${4}', $path),
+        ] + $request->query->all(),
+      ];
       $response = new RedirectResponse(Url::fromRoute('remotedb_sso.login', $route_parameters, $options)->toString(), 302);
       $event->setResponse($response);
     }
