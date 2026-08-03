@@ -28,6 +28,14 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
   /**
    * {@inheritdoc}
    */
+  public function id() {
+    // This entity type has no entity_keys; uid is stored as a plain value.
+    return $this->values['uid'] ?? NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toArray(): array {
     $values = $this->values;
 

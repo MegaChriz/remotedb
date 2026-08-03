@@ -3,7 +3,9 @@
 namespace Drupal\remotedb_sso\Twig;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\filter\Plugin\FilterInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -47,18 +49,16 @@ class SsoFilter extends AbstractExtension {
    * @param string $text
    *   The text to apply the filter on.
    *
-   * @return string
+   * @return string|\Drupal\Component\Render\MarkupInterface
    *   The text with the SSO filter applied.
    */
-  public function applyFilter($text) {
+  public function applyFilter(string $text): string|MarkupInterface {
     $filter = $this->filterManager->createInstance('remotedb_sso');
-    $result = $filter->process($text, 'nl')
-      ->getProcessedText();
-
-    if (is_string($result)) {
-      return Markup::create($result);
+    if (!$filter instanceof FilterInterface) {
+      throw new \LogicException('Expected remotedb_sso filter plugin.');
     }
-    return $result;
+    $result = $filter->process($text, 'nl')->getProcessedText();
+    return Markup::create($result);
   }
 
 }

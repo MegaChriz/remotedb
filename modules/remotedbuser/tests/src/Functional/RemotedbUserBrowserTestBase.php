@@ -62,7 +62,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
    *
    * Checks also if a remote account was created for this user.
    */
-  protected function drupalCreateUser(array $permissions = [], $name = NULL, $admin = FALSE, array $values = []): UserInterface|false {
+  protected function drupalCreateUser(array $permissions = [], $name = NULL, $admin = FALSE, array $values = []): UserInterface {
     $account = parent::drupalCreateUser($permissions, $name, $admin, $values);
 
     // Make sure that a remote account exists.

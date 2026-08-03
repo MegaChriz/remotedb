@@ -163,7 +163,7 @@ class SsoFilter extends FilterBase implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function tips($long = FALSE) {
+  public function tips($long = FALSE) { // @phpstan-ignore missingType.parameter
     return $this->t('SSO links to certain external websites will be automatically created.');
   }
 

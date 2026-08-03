@@ -57,8 +57,9 @@ class MockTicketService implements TicketServiceInterface {
    */
   public function getTicket(AccountInterface $account): string {
     $uid = 0;
-    if (!empty($account->remotedb_uid->value)) {
-      $uid = $account->remotedb_uid->value;
+    $remotedb_uid = $account->remotedb_uid->value ?? NULL;
+    if (is_numeric($remotedb_uid) && (int) $remotedb_uid > 0) {
+      $uid = (int) $remotedb_uid;
     }
 
     return implode('/', [
@@ -72,9 +73,11 @@ class MockTicketService implements TicketServiceInterface {
    * {@inheritdoc}
    */
   public function validateTicket(int|string $remotedb_uid, int $timestamp, string $hash): ?RemotedbUserInterface {
-    return $this->entityTypeManager
-      ->getStorage('remotedb_user')
-      ->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
+    $storage = $this->entityTypeManager->getStorage('remotedb_user');
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    return $storage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
   }
 
 }

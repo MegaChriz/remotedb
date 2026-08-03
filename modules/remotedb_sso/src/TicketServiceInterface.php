@@ -24,7 +24,7 @@ interface TicketServiceInterface {
   /**
    * Validate a ticket.
    *
-   * @param int $remotedb_uid
+   * @param int|string $remotedb_uid
    *   The remote user uid.
    * @param int $timestamp
    *   The time the ticket was generated.
@@ -35,6 +35,6 @@ interface TicketServiceInterface {
    *   An instance of RemotedbUserInterface, if the ticket was valid.
    *   NULL otherwise.
    */
-  public function validateTicket($remotedb_uid, $timestamp, $hash): ?RemotedbUserInterface;
+  public function validateTicket(int|string $remotedb_uid, int $timestamp, string $hash): ?RemotedbUserInterface;
 
 }

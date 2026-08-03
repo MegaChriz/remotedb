@@ -229,6 +229,13 @@ class MockAccount implements AccountInterface {
   /**
    * {@inheritdoc}
    */
+  public function hasRole(string $rid): bool {
+    return in_array($rid, $this->getRoles(), TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isAuthenticated(): bool {
     return $this->isAuthenticated;
   }

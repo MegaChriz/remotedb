@@ -41,14 +41,18 @@ class TicketService implements TicketServiceInterface {
    * {@inheritdoc}
    */
   public function getTicket(AccountInterface $account): string {
-    return $this->sendRequest('ticket.retrieve', [$account->getEmail(), 'mail']);
+    $ticket = $this->sendRequest('ticket.retrieve', [$account->getEmail(), 'mail']);
+    if (!is_string($ticket)) {
+      return '';
+    }
+    return $ticket;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateTicket($remotedb_uid, $timestamp, $hash): ?RemotedbUserInterface {
-    if ($this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
+  public function validateTicket(int|string $remotedb_uid, int $timestamp, string $hash): ?RemotedbUserInterface {
+    if ((bool) $this->sendRequest('ticket.validate', [$remotedb_uid, $timestamp, $hash])) {
       // Get account details from the remote database.
       return $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
     }

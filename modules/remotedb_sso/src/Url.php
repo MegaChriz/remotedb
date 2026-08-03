@@ -71,7 +71,8 @@ class Url implements UrlInterface {
     $pattern = "`($url_pattern)`u";
 
     // Now replace the URLS.
-    return preg_replace_callback($pattern, [$this, 'createSsoGotoUrlCallback'], $text);
+    $result = preg_replace_callback($pattern, [$this, 'createSsoGotoUrlCallback'], $text);
+    return is_string($result) ? $result : $text;
   }
 
   /**
@@ -92,11 +93,15 @@ class Url implements UrlInterface {
       ],
       'absolute' => TRUE,
     ];
-    if (!empty($matches[4])) {
-      $options['query']['path'] = $matches[4];
+    $path = '';
+    if (isset($matches[4]) && is_string($matches[4]) && $matches[4] !== '') {
+      $path = $matches[4];
     }
-    if (!empty($matches[5])) {
-      $options['query']['path'] .= $matches[5];
+    if (isset($matches[5]) && is_string($matches[5]) && $matches[5] !== '') {
+      $path .= $matches[5];
+    }
+    if ($path !== '') {
+      $options['query']['path'] = $path;
     }
 
     return CoreUrl::fromRoute('remotedb_sso.goto', [], $options)->toString();
