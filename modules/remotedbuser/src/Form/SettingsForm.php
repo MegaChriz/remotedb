@@ -54,6 +54,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('entity_type.manager')->getStorage('remotedb'),
       $container->get('entity_field.manager')
     );
