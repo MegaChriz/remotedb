@@ -78,7 +78,11 @@ class Webhook implements WebhookInterface {
    *   The private key service.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time, LoggerInterface $logger, PrivateKey $private_key) {
-    $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedb_user');
+    $remotedb_storage = $entity_type_manager->getStorage('remotedb_user');
+    if (!$remotedb_storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException(sprintf('Remote database storage object should be of type %s, but it is %s.', RemotedbUserStorageInterface::class, get_class($remotedb_storage)));
+    }
+    $this->remotedbUserStorage = $remotedb_storage;
     $this->userStorage = $entity_type_manager->getStorage('user');
     $this->cache = $cache;
     $this->time = $time;
@@ -123,18 +127,27 @@ class Webhook implements WebhookInterface {
    */
   public function index(RemotedbInterface $remotedb): array {
     $cache = $this->cache->get(static::CACHE_CID . $remotedb->id());
-    if ($cache) {
-      return $cache->data;
+    if ($cache !== FALSE) {
+      if (!is_array($cache->data)) {
+        $this->logger->error('Cached data of @cid is not an array.', [
+          '@cid' => static::CACHE_CID . $remotedb->id(),
+        ]);
+      }
+      else {
+        return $cache->data;
+      }
     }
-    else {
-      try {
-        $index = $remotedb->sendRequest('kkbservices_webhook.index');
-        $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
-        return $index;
+
+    try {
+      $index = $remotedb->sendRequest('kkbservices_webhook.index');
+      if (!is_array($index)) {
+        throw new RemotedbException('List of indexed webhooks is not of the correct type.');
       }
-      catch (RemotedbException $e) {
-        $e->logError();
-      }
+      $this->cache->set(static::CACHE_CID . $remotedb->id(), $index, $this->time->getRequestTime() + 3600);
+      return $index;
+    }
+    catch (RemotedbException $e) {
+      $e->logError();
     }
     return [];
   }
@@ -187,13 +200,18 @@ class Webhook implements WebhookInterface {
    */
   public function process(string $type, mixed $data): void {
     [$entity_type, $hook] = explode('__', $type);
+    if (!is_numeric($data)) {
+      // Unable to process. Abort.
+      return;
+    }
+    $data = (int) $data;
 
     if ($entity_type == 'user') {
       switch ($hook) {
         case 'update':
           // First ensure that this user already exists locally.
           $users = $this->userStorage->loadByProperties(['remotedb_uid' => $data]);
-          if (empty($users)) {
+          if ($users === []) {
             return;
           }
 
@@ -204,7 +222,7 @@ class Webhook implements WebhookInterface {
           // The user should receive a welcome mail.
           // First ensure that this user already exists locally.
           $account = $this->createAccount($data);
-          if ($account) {
+          if ($account instanceof UserInterface) {
             _user_mail_notify('register_admin_created', $account);
           }
           break;
@@ -217,6 +235,10 @@ class Webhook implements WebhookInterface {
    *
    * @param int $remotedb_uid
    *   The ID of the user in the remote database.
+   *
+   * @return \Drupal\user\UserInterface|null
+   *   A user account, if retrieving remote account was succesfull. Null
+   *   otherwise.
    */
   protected function createAccount($remotedb_uid): ?UserInterface {
     $remote_account = $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
@@ -234,6 +256,8 @@ class Webhook implements WebhookInterface {
 
       return $account;
     }
+
+    return NULL;
   }
 
 }

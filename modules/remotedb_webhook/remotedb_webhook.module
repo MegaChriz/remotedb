@@ -6,8 +6,8 @@
  */
 
 use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb_webhook\Form\WebhookDisable;
 use Drupal\remotedb_webhook\Form\WebhookEnable;
 
@@ -27,7 +27,7 @@ function remotedb_webhook_entity_type_build(array &$entity_types): void {
 /**
  * Implements hook_ENTITY_TYPE_access() for 'remotedb'.
  */
-function remotedb_webhook_remotedb_access(EntityInterface $remotedb, string $operation, AccountInterface $account): AccessResult {
+function remotedb_webhook_remotedb_access(RemotedbInterface $remotedb, string $operation, AccountInterface $account): AccessResult {
   $has_perm = $account->hasPermission('remotedb.administer');
 
   switch ($operation) {

@@ -10,9 +10,9 @@
  *
  * @param string $type
  *   The type of webhook firing.
- * @param array $data
+ * @param mixed $data
  *   The data contained in the webhook.
  */
-function hook_remotedb_process_webhook($type, array $data) {
+function hook_remotedb_process_webhook($type, mixed $data) {
 
 }

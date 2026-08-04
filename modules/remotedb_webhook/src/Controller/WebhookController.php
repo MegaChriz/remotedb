@@ -3,6 +3,7 @@
 namespace Drupal\remotedb_webhook\Controller;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\remotedb_webhook\WebhookInterface;
@@ -61,10 +62,10 @@ class WebhookController extends ControllerBase {
    * @param \Drupal\Core\Session\AccountInterface $account
    *   The operating account.
    *
-   * @return Drupal\Core\Access\AccessResultInterface
+   * @return \Drupal\Core\Access\AccessResultInterface
    *   The access result.
    */
-  public function processWebhookAccess($key, AccountInterface $account) {
+  public function processWebhookAccess(string $key, AccountInterface $account): AccessResultInterface {
     return AccessResult::allowedIf($key == $this->webhook->getKey());
   }
 
@@ -77,16 +78,17 @@ class WebhookController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   A response in JSON format.
    */
-  public function processWebhook(Request $request) {
+  public function processWebhook(Request $request): JsonResponse {
     if ($request->getMethod() != 'POST') {
       $this->logger->notice('Tried to process a webhook with no post data.');
       return new JsonResponse('Remote database Webhook Endpoint.', 400);
     }
 
-    $type = $request->get('type');
-    $data = $request->get('data');
+    $payload = $request->request->all();
+    $type = $payload['type'] ?? NULL;
+    $data = $payload['data'] ?? NULL;
 
-    if (empty($type) || empty($data)) {
+    if ($type === NULL || $type === '' || $data === NULL || $data === '') {
       $this->logger->notice('Tried to process a webhook with unsufficient information.');
       return new JsonResponse("Remote database Webhook Endpoint, but missing post data for 'type' or 'data'.", 400);
     }

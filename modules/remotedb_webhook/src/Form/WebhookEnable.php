@@ -3,6 +3,7 @@
 namespace Drupal\remotedb_webhook\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
 
 /**
  * Registers a webhook url.
@@ -29,6 +30,9 @@ class WebhookEnable extends OperationActionBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    if (!$this->entity instanceof RemotedbInterface) {
+      throw new \LogicException(sprintf('Entity is not of the correct type. Should be a %s but it is a %s.', RemotedbInterface::class, get_class($this->entity)));
+    }
     $this->webhookService->add($this->entity);
 
     $success = $this->webhookService->exists($this->entity);
