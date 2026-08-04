@@ -16,7 +16,9 @@ class RemotedbListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader(): array {
-    $header['label'] = $this->t('Label');
+    $header = [
+      'label' => $this->t('Label'),
+    ];
     return $header + parent::buildHeader();
   }
 
@@ -24,7 +26,9 @@ class RemotedbListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity): array {
-    $row['label'] = $entity->label();
+    $row = [
+      'label' => $entity->label(),
+    ];
     return $row + parent::buildRow($entity);
   }
 

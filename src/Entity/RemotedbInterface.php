@@ -3,6 +3,8 @@
 namespace Drupal\remotedb\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\remotedb\AuthenticationPluginCollection;
+use Drupal\remotedb\Plugin\AuthenticationInterface;
 
 /**
  * Provides an interface for defining a remote database entity.
@@ -17,6 +19,37 @@ interface RemotedbInterface extends ConfigEntityInterface {
    *   defined.
    */
   public function getUrl(): ?string;
+
+  /**
+   * Gets the authentication method plugin collection.
+   *
+   * @return \Drupal\remotedb\AuthenticationPluginCollection
+   *   The authentication plugin collection.
+   */
+  public function getAuthenticationMethods(): AuthenticationPluginCollection;
+
+  /**
+   * Gets a single authentication method plugin.
+   *
+   * @param string $instance_id
+   *   The authentication method instance ID.
+   *
+   * @return \Drupal\remotedb\Plugin\AuthenticationInterface
+   *   The authentication method plugin.
+   */
+  public function getAuthenticationMethod(string $instance_id): AuthenticationInterface;
+
+  /**
+   * Sets the configuration for an authentication method plugin instance.
+   *
+   * @param string $instance_id
+   *   The ID of the authentication method plugin instance.
+   * @param array $configuration
+   *   The authentication method plugin instance configuration.
+   *
+   * @return $this
+   */
+  public function setAuthenticationMethodConfig(string $instance_id, array $configuration): static;
 
   /**
    * Gets a header.

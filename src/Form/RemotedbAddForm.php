@@ -20,9 +20,10 @@ class RemotedbAddForm extends RemotedbFormBase {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state): void {
-    parent::save($form, $form_state);
+  public function save(array $form, FormStateInterface $form_state): int {
+    $result = parent::save($form, $form_state);
     $form_state->setRedirect('entity.remotedb.collection');
+    return $result;
   }
 
 }

@@ -63,8 +63,24 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->remotedb = $remotedb;
-    $this->provider = $this->pluginDefinition['provider'];
+    $definition = $this->getDefinitionArray();
+    $provider = $definition['provider'] ?? '';
+    $this->provider = is_string($provider) ? $provider : '';
     $this->setConfiguration($configuration);
+  }
+
+  /**
+   * Returns the plugin definition as an array.
+   *
+   * @return array<string, mixed>
+   *   The plugin definition.
+   */
+  protected function getDefinitionArray(): array {
+    $definition = $this->pluginDefinition;
+    if (!is_array($definition)) {
+      throw new \LogicException('Expected array plugin definition.');
+    }
+    return $definition;
   }
 
   /**
@@ -87,9 +103,10 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
    * {@inheritdoc}
    */
   public function getConfiguration(): array {
+    $definition = $this->getDefinitionArray();
     return [
       'id' => $this->getPluginId(),
-      'provider' => $this->pluginDefinition['provider'],
+      'provider' => $definition['provider'] ?? $this->provider,
       'status' => $this->status,
       'weight' => $this->weight,
       'settings' => $this->settings,
@@ -100,11 +117,13 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
    * {@inheritdoc}
    */
   public function defaultConfiguration(): array {
+    $definition = $this->getDefinitionArray();
+    $weight = $definition['weight'] ?? 0;
     return [
-      'provider' => $this->pluginDefinition['provider'],
+      'provider' => $definition['provider'] ?? $this->provider,
       'status' => FALSE,
-      'weight' => $this->pluginDefinition['weight'] ?: 0,
-      'settings' => $this->pluginDefinition['settings'],
+      'weight' => is_numeric($weight) ? (int) $weight : 0,
+      'settings' => $definition['settings'] ?? [],
     ];
   }
 
@@ -119,14 +138,43 @@ abstract class AuthenticationBase extends PluginBase implements AuthenticationIn
    * {@inheritdoc}
    */
   public function getLabel(): string|TranslatableMarkup {
-    return $this->pluginDefinition['title'];
+    $title = $this->getDefinitionArray()['title'] ?? '';
+    if ($title instanceof TranslatableMarkup || is_string($title)) {
+      return $title;
+    }
+    return '';
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDescription(): string|TranslatableMarkup {
-    return $this->pluginDefinition['description'];
+    $description = $this->getDefinitionArray()['description'] ?? '';
+    if ($description instanceof TranslatableMarkup || is_string($description)) {
+      return $description;
+    }
+    return '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStatus(): bool {
+    return $this->status;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWeight(): int {
+    return $this->weight;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getProvider(): string {
+    return $this->provider;
   }
 
   /**

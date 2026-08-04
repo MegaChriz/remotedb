@@ -37,6 +37,9 @@ class StringLib {
    *   The value (passed by reference).
    */
   private function textToArrayParse(int|string &$key, mixed &$value): void {
+    if (!is_string($value)) {
+      return;
+    }
     $value = trim($value);
     if (strpos($value, '|') !== FALSE) {
       $paramparts = explode('|', $value);
@@ -45,8 +48,11 @@ class StringLib {
     }
     $value = trim($value);
     $regex = '/^array\((.+)\)$/i';
-    if (preg_match($regex, $value)) {
+    if (preg_match($regex, $value) === 1) {
       $sValues = preg_replace($regex, '${1}', $value);
+      if (!is_string($sValues)) {
+        return;
+      }
       $aValues = explode(',', $sValues);
       $value = [];
       foreach ($aValues as $index => $sValuePart) {

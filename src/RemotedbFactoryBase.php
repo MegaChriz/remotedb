@@ -36,8 +36,12 @@ abstract class RemotedbFactoryBase {
    */
   public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     $remotedb_id = $this->getRemotedbId($config_factory);
-    if ($remotedb_id) {
-      $this->remotedb = $entity_type_manager->getStorage('remotedb')->load($remotedb_id);
+    if ($remotedb_id !== NULL) {
+      $remotedb = $entity_type_manager->getStorage('remotedb')->load($remotedb_id);
+      if (!$remotedb instanceof RemotedbInterface) {
+        throw new \RuntimeException(sprintf('Failed to load remote database %s.', $remotedb_id));
+      }
+      $this->remotedb = $remotedb;
     }
     $this->entityTypeManager = $entity_type_manager;
   }

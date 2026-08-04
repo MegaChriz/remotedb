@@ -5,6 +5,8 @@ namespace Drupal\remotedb\Form;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Plugin\AuthenticationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -42,6 +44,9 @@ abstract class RemotedbFormBase extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state): array {
+    if (!$this->entity instanceof RemotedbInterface) {
+      throw new \LogicException(sprintf('Entity is not of the correct type. Should be a %s but it is a %s.', RemotedbInterface::class, get_class($this->entity)));
+    }
     $remotedb = $this->entity;
 
     $form['#tree'] = TRUE;
@@ -106,17 +111,20 @@ abstract class RemotedbFormBase extends EntityForm {
 
     $methods = $remotedb->getAuthenticationMethods();
     foreach ($methods as $name => $method) {
+      if (!$method instanceof AuthenticationInterface) {
+        continue;
+      }
       $form['authentication_methods']['status'][$name] = [
         '#type' => 'checkbox',
         '#title' => $method->getLabel(),
-        '#default_value' => $method->status,
+        '#default_value' => $method->getStatus(),
         '#parents' => ['authentication_methods', $name, 'status'],
         '#description' => $method->getDescription(),
-        '#weight' => $method->weight,
+        '#weight' => $method->getWeight(),
       ];
 
       $form['authentication_methods']['order'][$name]['#attributes']['class'][] = 'draggable';
-      $form['authentication_methods']['order'][$name]['#weight'] = $method->weight;
+      $form['authentication_methods']['order'][$name]['#weight'] = $method->getWeight();
       $form['authentication_methods']['order'][$name]['authentication_method'] = [
         '#markup' => $method->getLabel(),
       ];
@@ -125,7 +133,7 @@ abstract class RemotedbFormBase extends EntityForm {
         '#title' => $this->t('Weight for @title', ['@title' => $method->getLabel()]),
         '#title_display' => 'invisible',
         '#delta' => 50,
-        '#default_value' => $method->weight,
+        '#default_value' => $method->getWeight(),
         '#parents' => ['authentication_methods', $name, 'weight'],
         '#attributes' => ['class' => ['authentication-method-order-weight']],
       ];
@@ -136,12 +144,12 @@ abstract class RemotedbFormBase extends EntityForm {
         '#tree' => TRUE,
       ];
       $settings_form = $method->settingsForm($settings_form, $form_state);
-      if (!empty($settings_form)) {
+      if ($settings_form !== []) {
         $form['authentication_methods']['settings'][$name] = [
           '#type' => 'details',
           '#title' => $method->getLabel(),
           '#open' => TRUE,
-          '#weight' => $method->weight,
+          '#weight' => $method->getWeight(),
           '#parents' => ['authentication_methods', $name, 'settings'],
           '#group' => 'authentication_method_settings',
         ];
@@ -159,7 +167,11 @@ abstract class RemotedbFormBase extends EntityForm {
     parent::submitForm($form, $form_state);
 
     // Add the submitted form values to the entity, and save it.
+    if (!$this->entity instanceof RemotedbInterface) {
+      throw new \LogicException(sprintf('Entity is not of the correct type. Should be a %s but it is a %s.', RemotedbInterface::class, get_class($this->entity)));
+    }
     $remotedb = $this->entity;
+
     foreach ($form_state->getValues() as $key => $value) {
       switch ($key) {
         case 'authentication_methods':

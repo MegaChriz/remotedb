@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\devel\DevelDumperManagerInterface;
 use Drupal\remotedb\Component\StringLib;
+use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -68,10 +69,18 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
-    $dumper = $container->has('devel.dumper') ? $container->get('devel.dumper') : NULL;
+    $dumper = $container->get('devel.dumper', ContainerInterface::NULL_ON_INVALID_REFERENCE);
+    if (!$dumper instanceof DevelDumperManagerInterface) {
+      $dumper = NULL;
+    }
+
+    $storage = $container->get('entity_type.manager')->getStorage('remotedb');
+    if (!$storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
 
     return new static(
-      $container->get('entity_type.manager')->getStorage('remotedb'),
+      $storage,
       $container->get('remotedb.string_lib'),
       $container->get('messenger'),
       $dumper
@@ -90,7 +99,7 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $result = $form_state->get(['remotedb_result']);
-    if ($result) {
+    if ($result !== NULL) {
       $form['remotedb_result'] = $this->dump($result);
     }
 
@@ -125,10 +134,15 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $method = $form_state->getValue(['method']);
-    $params = $this->stringLib->textToArray($form_state->getValue(['params']));
-    $remotedb = $this->storage->load($form_state->getValue(['remotedb']));
-    if ($remotedb) {
+    $method = $form_state->getValue('method');
+    $params_value = $form_state->getValue('params');
+    $remotedb_id = $form_state->getValue('remotedb');
+    if (!is_string($method) || !is_string($remotedb_id)) {
+      return;
+    }
+    $params = $this->stringLib->textToArray(is_string($params_value) ? $params_value : '');
+    $remotedb = $this->storage->load($remotedb_id);
+    if ($remotedb instanceof RemotedbInterface) {
       try {
         $form_state->set(['remotedb_result'], $remotedb->sendRequest($method, $params));
       }

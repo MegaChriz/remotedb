@@ -12,9 +12,9 @@ class MockRemotedb extends Remotedb {
   /**
    * The callback to use for function calls.
    *
-   * @var callable
+   * @var callable|null
    */
-  protected $callback;
+  protected $callback = NULL;
 
   /**
    * Sets the callback to use for method calls.

@@ -15,6 +15,13 @@ parameters:
     # For now we don't want iterable value type hints.
     - identifier: missingType.iterableValue
 
+    # Attribute constructors promote properties and intentionally skip
+    # parent::__construct(); same pattern as core plugin attributes.
+    -
+      message: "#^Drupal\\\\remotedb\\\\Attribute\\\\RemotedbAuthentication::__construct\\(\\) does not call parent constructor from Drupal\\\\Component\\\\Plugin\\\\Attribute\\\\Plugin\\.$#"
+      count: 1
+      path: src/Attribute/RemotedbAuthentication.php
+
     -
       message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
       count: 1

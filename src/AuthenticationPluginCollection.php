@@ -6,6 +6,7 @@ use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Plugin\DefaultLazyPluginCollection;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Plugin\AuthenticationInterface;
 
 /**
  * A collection of authentications.
@@ -15,7 +16,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   /**
    * All possible authentication plugin IDs.
    *
-   * @var array
+   * @var array<string, mixed>|null
    */
   protected $definitions;
 
@@ -42,6 +43,18 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   }
 
   /**
+   * {@inheritdoc}
+   *
+   * @return \Drupal\remotedb\Plugin\AuthenticationInterface
+   *   The authentication plugin instance.
+   */
+  public function &get($instance_id) {
+    $instance =& parent::get($instance_id);
+    assert($instance instanceof AuthenticationInterface);
+    return $instance;
+  }
+
+  /**
    * Retrieves plugin definitions and creates an instance for each one.
    *
    * @return \Drupal\remotedb\Plugin\AuthenticationInterface[]
@@ -49,7 +62,7 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
    */
   public function getAll(): array {
     // Retrieve all available authentication plugin definitions.
-    if (!$this->definitions) {
+    if ($this->definitions === NULL) {
       $this->definitions = $this->manager->getDefinitions();
     }
 
@@ -71,7 +84,11 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   protected function initializePlugin($instance_id): void {
     // Authentications have a 1:1 relationship to remote databases and can be
     // added and instantiated at any time.
-    $configuration = $this->manager->getDefinition($instance_id);
+    $definition = $this->manager->getDefinition($instance_id);
+    if (!is_array($definition)) {
+      throw new \LogicException(sprintf('Expected array plugin definition for "%s".', $instance_id));
+    }
+    $configuration = $definition;
     // Merge the actual configuration into the default configuration.
     if (isset($this->configurations[$instance_id])) {
       $configuration = NestedArray::mergeDeep($configuration, $this->configurations[$instance_id]);
@@ -95,17 +112,18 @@ class AuthenticationPluginCollection extends DefaultLazyPluginCollection {
   /**
    * {@inheritdoc}
    */
-  public function sortHelper($aID, $bID): int {
+  public function sortHelper(mixed $aID, mixed $bID): int {
+    assert(is_string($aID) && is_string($bID));
     $a = $this->get($aID);
     $b = $this->get($bID);
-    if ($a->status != $b->status) {
-      return !empty($a->status) ? -1 : 1;
+    if ($a->getStatus() != $b->getStatus()) {
+      return $a->getStatus() ? -1 : 1;
     }
-    if ($a->weight != $b->weight) {
-      return $a->weight < $b->weight ? -1 : 1;
+    if ($a->getWeight() != $b->getWeight()) {
+      return $a->getWeight() < $b->getWeight() ? -1 : 1;
     }
-    if ($a->provider != $b->provider) {
-      return strnatcasecmp($a->provider, $b->provider);
+    if ($a->getProvider() != $b->getProvider()) {
+      return strnatcasecmp($a->getProvider(), $b->getProvider());
     }
     return parent::sortHelper($aID, $bID);
   }

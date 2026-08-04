@@ -21,9 +21,10 @@ class RemotedbEditForm extends RemotedbFormBase {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state): void {
-    parent::save($form, $form_state);
+  public function save(array $form, FormStateInterface $form_state): int {
+    $result = parent::save($form, $form_state);
     $this->messenger()->addStatus($this->t('Updated remote database %name.', ['%name' => $this->entity->label()]));
+    return $result;
   }
 
 }

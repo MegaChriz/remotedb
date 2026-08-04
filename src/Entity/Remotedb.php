@@ -3,10 +3,10 @@
 namespace Drupal\remotedb\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\remotedb\Plugin\AuthenticationInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\remotedb\AuthenticationPluginCollection;
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb\Plugin\AuthenticationInterface;
 
 /**
  * Defines the remote database entity type.
@@ -115,15 +115,19 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
-  public function getAuthenticationMethods(?string $instance_id = NULL): AuthenticationPluginCollection|AuthenticationInterface {
+  public function getAuthenticationMethods(): AuthenticationPluginCollection {
     if (!isset($this->authenticationCollection)) {
       $this->authenticationCollection = new AuthenticationPluginCollection(\Drupal::service('plugin.manager.remotedb.authentication'), $this->authentication_methods, $this);
       $this->authenticationCollection->sort();
     }
-    if (isset($instance_id)) {
-      return $this->authenticationCollection->get($instance_id);
-    }
     return $this->authenticationCollection;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAuthenticationMethod(string $instance_id): AuthenticationInterface {
+    return $this->getAuthenticationMethods()->get($instance_id);
   }
 
   /**
@@ -180,7 +184,10 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
     $this->authenticated = FALSE;
     $methods = $this->getAuthenticationMethods();
     foreach ($methods as $method) {
-      if ($method->status) {
+      if (!$method instanceof AuthenticationInterface) {
+        continue;
+      }
+      if ($method->getStatus()) {
         $result = $method->authenticate();
         if (!$result) {
           return FALSE;
@@ -216,8 +223,14 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
     if ($result === FALSE) {
       $error = xmlrpc_error();
       // Throw exception in case of errors.
-      if (is_object($error) && !empty($error->is_error)) {
-        throw new RemotedbException($error->message, $error->code);
+      if (
+        is_object($error)
+        && property_exists($error, 'is_error')
+        && $error->is_error
+        && property_exists($error, 'message')
+        && property_exists($error, 'code')
+      ) {
+        throw new RemotedbException((string) $error->message, (int) $error->code);
       }
     }
     return $result;
