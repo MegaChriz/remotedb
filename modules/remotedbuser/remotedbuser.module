@@ -11,6 +11,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\user\UserInterface;
 
@@ -52,7 +53,7 @@ function remotedbuser_hook_info(): array {
  *   (optional) The account to check access for.
  */
 function remotedbuser_get_remote_user_access(?AccountInterface $account = NULL): bool {
-  if (empty($account)) {
+  if (!$account instanceof AccountInterface) {
     $account = \Drupal::currentUser();
   }
   return $account->hasPermission('remotedb.administer') || $account->hasPermission('remotedbuser.getuser');
@@ -76,20 +77,32 @@ function remotedbuser_user_presave(UserInterface $account): void {
   }
 
   // Create remote account based on the local account.
-  $remote_account = \Drupal::entityTypeManager()->getStorage('remotedb_user')->fromAccount($account);
+  $storage = \Drupal::entityTypeManager()->getStorage('remotedb_user');
+  if (!$storage instanceof RemotedbUserStorageInterface) {
+    throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+  }
+  $remote_account = $storage->fromAccount($account);
 
   // Save remote account.
   $result = $remote_account->save();
-  if (!$result) {
+  if ($result === 0) {
     \Drupal::messenger()->addError('Er ging iets mis bij het opslaan van uw account. Neem contact met ons op.');
     \Drupal::logger('remotedb')->error('Saving account failed for user %username (%uid)', [
       '%username' => $account->getAccountName(),
       '%uid' => $account->id(),
     ]);
+    return;
   }
-  elseif (empty($account->remotedb_uid->value) || $remote_account->uid != $account->remotedb_uid->value) {
+
+  if (!$account->hasField('remotedb_uid')) {
+    return;
+  }
+  $remotedb_uid = $account->get('remotedb_uid')->value;
+  $remote_values = $remote_account->toArray();
+  $remote_uid = $remote_values['uid'] ?? NULL;
+  if ($remotedb_uid === NULL || $remotedb_uid === '' || $remotedb_uid === 0 || $remotedb_uid === '0' || $remote_uid != $remotedb_uid) {
     // Save remote account uid on local account.
-    $account->remotedb_uid->value = $remote_account->uid;
+    $account->get('remotedb_uid')->value = $remote_uid;
   }
 }
 
@@ -100,19 +113,27 @@ function remotedbuser_user_presave(UserInterface $account): void {
  */
 function _remotedbuser_user_view(array &$build, UserInterface $account): void {
   // Add ID details (if available).
-  if (!empty($account->remotedb_uid)) {
-    $account->content['remotedb'] = [
-      '#type' => 'user_profile_category',
-      '#title' => t('Remote Database'),
-      '#access' => \Drupal::currentUser()->hasPermission('administer users'),
-      'remotedb_uid' => [
-        '#type' => 'user_profile_item',
-        '#title' => t('Remote database UID'),
-        '#markup' => Html::escape($account->remotedb_uid->value),
-      ],
-      '#weight' => 1,
-    ];
+  if (!$account->hasField('remotedb_uid')) {
+    return;
   }
+  $remotedb_uid = $account->get('remotedb_uid')->value;
+  if ($remotedb_uid === NULL || $remotedb_uid === '' || $remotedb_uid === 0) {
+    return;
+  }
+  if (!is_scalar($remotedb_uid)) {
+    return;
+  }
+  $account->content['remotedb'] = [
+    '#type' => 'user_profile_category',
+    '#title' => t('Remote Database'),
+    '#access' => \Drupal::currentUser()->hasPermission('administer users'),
+    'remotedb_uid' => [
+      '#type' => 'user_profile_item',
+      '#title' => t('Remote database UID'),
+      '#markup' => Html::escape((string) $remotedb_uid),
+    ],
+    '#weight' => 1,
+  ];
 }
 
 // @codingStandardsIgnoreStart
@@ -197,8 +218,10 @@ function remotedbuser_form_user_form_alter(array &$form, FormStateInterface $for
  * Form validation handler for user_form().
  */
 function remotedbuser_account_form_validate(array $form, FormStateInterface $form_state): void {
-  /** @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $storage */
   $storage = \Drupal::entityTypeManager()->getStorage('remotedb_user');
+  if (!$storage instanceof RemotedbUserStorageInterface) {
+    throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+  }
   /** @var \Drupal\user\UserInterface $account */
   $account = $form_state->getBuildInfo()['callback_object']->getEntity();
 
@@ -211,17 +234,25 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
 
   if ($admin_create && \Drupal::currentUser()->hasPermission('remotedbuser.create')) {
     // An administrator is creating an account.
-    if ($form_state->getErrors()) {
+    if ($form_state->getErrors() !== []) {
       // Don't continue in case of other errors.
       return;
     }
 
     // Get account from the remote database, if it exists.
+    if (!is_string($mail) && !is_int($mail)) {
+      return;
+    }
     $remote_account = $storage->loadBy($mail, RemotedbUserStorageInterface::BY_MAIL);
-    if ($remote_account) {
+    if ($remote_account instanceof RemotedbUserInterface) {
       // Account exists. Make sure that the chosen username is not already taken
       // if the remote account has an other username.
-      if ($remote_account->name != $name) {
+      $remote_values = $remote_account->toArray();
+      $remote_name = $remote_values['name'] ?? NULL;
+      if ($remote_name != $name) {
+        if (!is_string($name)) {
+          return;
+        }
         if (!$storage->validateName($name, $account)) {
           // @todo make this a constraint?
           $form_state->setErrorByName('name', t('The name %name is already taken.', ['%name' => $name]));
@@ -232,7 +263,7 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
   else {
     // The account is an existing account or the account is not created by an
     // administrator. Validate new or changing username.
-    if ($name) {
+    if (is_string($name) && $name !== '') {
       if (!$storage->validateName($name, $account)) {
         $message = t('The name %name is already taken.', ['%name' => $name]);
         if (remotedbuser_get_remote_user_access()) {
@@ -248,6 +279,9 @@ function remotedbuser_account_form_validate(array $form, FormStateInterface $for
 
     // Validate the e-mail address, and check if it is taken by an existing user
     // in the remote database.
+    if (!is_string($mail)) {
+      return;
+    }
     if (!$storage->validateMail($mail, $account)) {
       // The mail address is already taken.
       if (\Drupal::currentUser()->isAuthenticated()) {

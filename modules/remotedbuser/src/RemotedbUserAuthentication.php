@@ -6,6 +6,8 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use Drupal\user\UserAuthInterface;
 
@@ -61,7 +63,11 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
     $this->config = $config_factory->get('remotedbuser.settings');
     $this->remotedbUserConfiguration = $remotedbuser_configuration;
     $this->userAuth = $user_auth;
-    $this->remotedbUserStorage = $entity_type_manager->getStorage('remotedb_user');
+    $remotedb_user_storage = $entity_type_manager->getStorage('remotedb_user');
+    if (!$remotedb_user_storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    $this->remotedbUserStorage = $remotedb_user_storage;
   }
 
   /**
@@ -73,7 +79,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
         // Authenticate local users first. If authentication fails, perform
         // the next case. So this case intentionally does not end with a break.
         $uid = $this->userAuth->authenticate($name, $password);
-        if ($uid) {
+        if ($uid !== FALSE) {
           return $uid;
         }
 
@@ -82,7 +88,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
 
       case static::REMOTEFIRST:
         $uid = $this->remoteAuthenticate($name, $password);
-        if ($uid) {
+        if ($uid !== FALSE) {
           return $uid;
         }
         return $this->userAuth->authenticate($name, $password);
@@ -96,19 +102,21 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
    */
   public function remoteAuthenticate(string $name, string $password): int|false {
     $remotedb_uid = $this->remotedbUserStorage->authenticate($name, $password);
-    if (!$remotedb_uid) {
+    if (!is_int($remotedb_uid) || $remotedb_uid === 0) {
       // Authentication failed.
       return FALSE;
     }
 
     // Get account details from the remote database.
     $remote_account = $this->remotedbUserStorage->load($remotedb_uid);
-    if ($remote_account) {
+    if ($remote_account instanceof RemotedbUserInterface) {
       // Save user locally.
       try {
         $account = $remote_account->toAccount();
         $account->save();
-        return $account->id();
+        // Entity::id() is string|int|null even when the uid column is numeric.
+        $uid = $account->id();
+        return is_numeric($uid) ? (int) $uid : FALSE;
       }
       catch (RemotedbExistingUserException $e) {
         $e->logError();

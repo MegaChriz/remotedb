@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Utility\Error;
 use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -108,7 +109,8 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $user_ids = explode("\n", $form_state->getValue(['user']));
+    $user_input = $form_state->getValue(['user']);
+    $user_ids = explode("\n", is_string($user_input) ? $user_input : '');
     if (count($user_ids) >= static::USER_BATCH_MINIMUM) {
       // Use batch.
       $this->getRemoteUserBatch($user_ids);
@@ -128,9 +130,19 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    *   The user to import from the remote database.
    */
   public function getRemoteUser($user_id): void {
+    if (is_string($user_id)) {
+      $user_id = trim($user_id);
+      if ($user_id === '') {
+        return;
+      }
+    }
+    elseif (!is_int($user_id)) {
+      return;
+    }
+
     try {
       $remote_account = $this->remotedbUserStorage->loadByAny($user_id);
-      if ($remote_account) {
+      if ($remote_account instanceof RemotedbUserInterface) {
         // Copy over account data.
         $account = $remote_account->toAccount();
         $account->save();
@@ -167,6 +179,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    *   Defaults to 10.
    */
   protected function getRemoteUserBatch(array $user_ids, $limit_per_batch = 10): void {
+    $operations = [];
     $operations[] = [
       [$this, 'getRemoteUserBatchOperation'],
       [$user_ids, $limit_per_batch],
@@ -191,7 +204,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    *   The batch context array, passed by reference.
    */
   public function getRemoteUserBatchOperation(array $user_ids, $limit_per_batch, array &$context): void {
-    if (empty($context['sandbox'])) {
+    if (!isset($context['sandbox']) || $context['sandbox'] === []) {
       $context['sandbox'] = [
         'progress' => 0,
         'max' => count($user_ids),

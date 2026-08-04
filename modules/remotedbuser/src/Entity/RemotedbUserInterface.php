@@ -7,6 +7,11 @@ use Drupal\user\UserInterface;
 
 /**
  * Provides an interface for defining a remote user.
+ *
+ * @property int|string|null $uid
+ * @property string|null $name
+ * @property string|null $mail
+ * @property \Drupal\user\UserInterface|null $account
  */
 interface RemotedbUserInterface extends ContentEntityInterface {
 

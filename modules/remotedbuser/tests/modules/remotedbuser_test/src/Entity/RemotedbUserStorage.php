@@ -12,6 +12,7 @@ use Drupal\Core\Password\PasswordInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
+use Drupal\remotedb_test\Entity\MockRemotedb;
 use Drupal\remotedbuser\Entity\RemotedbUserStorage as OriginalRemotedbUserStorage;
 use Drupal\user\UserStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -61,10 +62,10 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The password checking service.
    * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
    *   The Remotedb entity storage.
-   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
-   *   (optional) The memory cache backend.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|null $entity_type_bundle_info
-   *   (optional) The entity type bundle info.
+   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface $memory_cache
+   *   The memory cache backend.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
    * @param \Drupal\remotedb\Entity\RemotedbInterface|null $remotedb
    *   (optional) The remote database in which the remote users are stored.
    */
@@ -77,8 +78,8 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
     StateInterface $state,
     PasswordInterface $password,
     RemotedbStorageInterface $remotedb_storage,
-    ?MemoryCacheInterface $memory_cache = NULL,
-    ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL,
+    MemoryCacheInterface $memory_cache,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info,
     ?RemotedbInterface $remotedb = NULL,
   ) {
     $this->state = $state;
@@ -87,6 +88,9 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
 
     // Set remotedb mock.
     $remotedb = $this->remotedbStorage->create([]);
+    if (!$remotedb instanceof MockRemotedb) {
+      throw new \LogicException('Expected remotedb entity to be an instance of MockRemotedb.');
+    }
     $remotedb->setCallback([$this, 'remotedbCallback']);
 
     parent::__construct($entity_type, $entity_field_manager, $cache, $user_storage, $config, $memory_cache, $entity_type_bundle_info, $remotedb);
@@ -118,7 +122,8 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   An array of accounts.
    */
   public function getRemoteAccounts(): array {
-    return $this->state->get('remotedbuser_test_accounts', []);
+    $accounts = $this->state->get('remotedbuser_test_accounts', []);
+    return is_array($accounts) ? $accounts : [];
   }
 
   /**
@@ -157,6 +162,9 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
         $name = $params[0];
         $pass = $params[1];
         return $this->dbuserAuthenticate($name, $pass);
+
+      default:
+        return NULL;
     }
   }
 
@@ -204,7 +212,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
       }
 
       $account = $this->dbuserRetrieve($user_data[$key], $key);
-      if ($account) {
+      if ($account !== NULL) {
         // An account is found.
         $accounts[$key] = $account;
       }
@@ -223,9 +231,9 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
       }
     }
 
-    if (empty($account)) {
+    if ($account === FALSE) {
       // No existing account was found, thus create a new user.
-      if (empty($user_data['uid'])) {
+      if (!isset($user_data['uid']) || $user_data['uid'] === '') {
         // Generate uid if it doesn't have one.
         $user_data['uid'] = count($user_data) + 1000;
       }
@@ -258,7 +266,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
     $user_data = $this->dbuserRetrieve($name, 'name');
 
     // No account found? Return FALSE.
-    if (empty($user_data)) {
+    if ($user_data === NULL) {
       return FALSE;
     }
 

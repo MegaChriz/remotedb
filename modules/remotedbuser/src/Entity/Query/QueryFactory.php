@@ -22,7 +22,8 @@ class QueryFactory implements QueryFactoryInterface {
    * {@inheritdoc}
    */
   public function getAggregate(EntityTypeInterface $entity_type, $conjunction) {
-    return new Query($entity_type, $conjunction, QueryBase::getNamespaces($this));
+    // Aggregate queries are not supported for remotedb_user entities.
+    throw new \LogicException('Aggregate queries are not supported for remotedb_user entities.');
   }
 
 }

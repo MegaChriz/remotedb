@@ -69,7 +69,6 @@ class SsoController extends ControllerBase {
     try {
       $ticket_service = $container->get('remotedb_sso.ticket');
     }
-    /** @phpstan-ignore catch.neverThrown */
     catch (RemotedbException $e) {
       // Log remotedb exceptions, but continue.
       $e->logError();

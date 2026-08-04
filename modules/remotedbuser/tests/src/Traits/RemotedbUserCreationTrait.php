@@ -214,7 +214,7 @@ class MockAccount implements AccountInterface {
    */
   public function getRoles($exclude_locked_roles = FALSE): array {
     if ($exclude_locked_roles) {
-      return array_filter($this->roles, fn($role) => !in_array($role, [self::ANONYMOUS_ROLE, self::AUTHENTICATED_ROLE]));
+      return array_filter($this->roles, fn($role) => !in_array($role, [self::ANONYMOUS_ROLE, self::AUTHENTICATED_ROLE], TRUE));
     }
     return $this->roles;
   }
@@ -223,7 +223,7 @@ class MockAccount implements AccountInterface {
    * {@inheritdoc}
    */
   public function hasPermission(/* string */ $permission): bool {
-    return in_array($permission, $this->permissions);
+    return in_array($permission, $this->permissions, TRUE);
   }
 
   /**
@@ -285,7 +285,7 @@ class MockAccount implements AccountInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTimezone(): string {
+  public function getTimeZone(): string {
     return $this->timezone;
   }
 

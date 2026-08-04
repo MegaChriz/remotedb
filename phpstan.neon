@@ -1,20 +1,19 @@
 
 # Configuration file for PHPStan static code checking, see https://phpstan.org.
 
-includes:
-  - phar://phpstan.phar/conf/bleedingEdge.neon
-
 parameters:
-  level: 1
+  level: 9
   reportUnmatchedIgnoredErrors: false
+  excludePaths:
+    # Ignore test files.
+    - *Test.php
+    - *TestBase.php
   ignoreErrors:
     # new static() is a best practice in Drupal, so we cannot fix that.
     - "#^Unsafe usage of new static#"
 
-    -
-      message: "#^Class Behat\\\\Mink\\\\Driver\\\\GoutteDriver not found\\.$#"
-      count: 1
-      path: modules/remotedb_webhook/tests/src/Functional/RemotedbWebhookBrowserTestBase.php
+    # For now we don't want iterable value type hints.
+    - identifier: missingType.iterableValue
 
     -
       message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
@@ -45,3 +44,46 @@ parameters:
       message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
       count: 1
       path: src/Plugin/Factory/RemotedbPluginFactory.php
+
+    # RemotedbUser stores remote payload keys as ContentEntityBase::$values
+    # magic properties (uid, name, mail, account, …).
+    -
+      identifier: property.notFound
+      path: modules/remotedbuser/src/Entity/RemotedbUserStorage.php
+
+    # Dynamic User flags (remotedb_user, from_remotedb) are not entity fields.
+    -
+      identifier: assign.propertyType
+      path: modules/remotedbuser/src/Entity/RemotedbUserStorage.php
+
+    -
+      identifier: property.notFound
+      path: modules/remotedbuser/remotedbuser.module
+
+    # from_remotedb is a dynamic runtime flag on the user account.
+    -
+      identifier: empty.notAllowed
+      path: modules/remotedbuser/remotedbuser.module
+      count: 1
+
+    # MockAccount uses variable property access for AccountInterface stubs.
+    -
+      identifier: property.dynamicName
+      path: modules/remotedbuser/tests/src/Traits/RemotedbUserCreationTrait.php
+
+    # remotedb_sso.ticket may throw RemotedbException via the service factory.
+    -
+      identifier: catch.neverThrown
+      path: modules/remotedb_sso/src/Controller/SsoController.php
+      count: 1
+
+    -
+      identifier: catch.neverThrown
+      path: modules/remotedb_sso/src/Plugin/Filter/SsoFilter.php
+      count: 1
+
+    # tips() signature must stay compatible with FilterBase (no bool type).
+    -
+      identifier: missingType.parameter
+      path: modules/remotedb_sso/src/Plugin/Filter/SsoFilter.php
+      count: 1

@@ -3,7 +3,9 @@
 namespace Drupal\remotedbuser\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
+use Drupal\user\Entity\User;
 use Drupal\user\Form\UserPasswordForm as UserPasswordFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -27,7 +29,11 @@ class UserPasswordForm extends UserPasswordFormBase {
    */
   public static function create(ContainerInterface $container): static {
     $form_object = parent::create($container);
-    $form_object->setRemoteUserStorage($container->get('entity_type.manager')->getStorage('remotedb_user'));
+    $remote_user_storage = $container->get('entity_type.manager')->getStorage('remotedb_user');
+    if (!$remote_user_storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    $form_object->setRemoteUserStorage($remote_user_storage);
 
     return $form_object;
   }
@@ -46,26 +52,27 @@ class UserPasswordForm extends UserPasswordFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    $name = trim($form_state->getValue('name'));
+    $name_value = $form_state->getValue('name');
+    $name = trim(is_string($name_value) ? $name_value : '');
     // Try to load by email.
     $users = $this->userStorage->loadByProperties(['mail' => $name, 'status' => '1']);
-    if (empty($users)) {
+    if ($users === []) {
       // No success, try to load by name.
       $users = $this->userStorage->loadByProperties(['name' => $name, 'status' => '1']);
     }
     $account = reset($users);
-    if ($account && $account->id()) {
+    if ($account instanceof User && $account->id() !== NULL) {
       $form_state->setValueForElement(['#parents' => ['account']], $account);
     }
     else {
       // Account not found locally. Search in the remote database.
       // Try to load by email.
       $remote_account = $this->remoteUserStorage->loadBy($name, RemotedbUserStorageInterface::BY_MAIL);
-      if (!$remote_account) {
+      if (!$remote_account instanceof RemotedbUserInterface) {
         // No success, try to load by name.
         $remote_account = $this->remoteUserStorage->loadBy($name, RemotedbUserStorageInterface::BY_NAME);
       }
-      if (isset($remote_account->uid)) {
+      if ($remote_account instanceof RemotedbUserInterface && isset($remote_account->uid)) {
         // Copy over account data.
         $account = $remote_account->toAccount();
         $account->save();

@@ -36,10 +36,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
 
   /**
    * A remote database.
-   *
-   * @var \Drupal\remotedb\Entity\RemotedbInterface
    */
-  protected $remotedb;
+  protected ?RemotedbInterface $remotedb = NULL;
 
   /**
    * Constructs a RemotedbUserStorage instance.
@@ -54,20 +52,20 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    *   The user entity storage.
    * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The remotedbuser settings.
-   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
+   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface $memory_cache
    *   The memory cache backend.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The entity type bundle info.
-   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
+   * @param \Drupal\remotedb\Entity\RemotedbInterface|null $remotedb
    *   The remote database in which the remote users are stored.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, UserStorageInterface $user_storage, ImmutableConfig $config, ?MemoryCacheInterface $memory_cache = NULL, ?EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, ?RemotedbInterface $remotedb = NULL) {
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, UserStorageInterface $user_storage, ImmutableConfig $config, MemoryCacheInterface $memory_cache, EntityTypeBundleInfoInterface $entity_type_bundle_info, ?RemotedbInterface $remotedb = NULL) {
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
 
     $this->userStorage = $user_storage;
     $this->config = $config;
 
-    if (is_null($remotedb)) {
+    if (!$remotedb instanceof RemotedbInterface) {
       // Get default remote database (if defined).
       $this->remotedb = \Drupal::service('remotedbuser.configuration')->getDefault();
     }
@@ -127,8 +125,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   protected function doSaveFieldItems(ContentEntityInterface $entity, array $names = []): void {
     // Save remote user into the remote database.
     $uid = $this->sendRequest('dbuser.save', [$entity->toArray()]);
-    if ($uid) {
-      $entity->uid = $uid;
+    if (is_int($uid) || (is_string($uid) && is_numeric($uid))) {
+      assert($entity instanceof RemotedbUserInterface);
+      $entity->uid = (int) $uid;
     }
   }
 
@@ -168,7 +167,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    */
   public function loadBy($id, string $load_by): ?RemotedbUserInterface {
     $entities = $this->getFromStorage([$id], $load_by);
-    return !empty($entities) ? reset($entities) : NULL;
+    return $entities !== [] ? reset($entities) : NULL;
   }
 
   /**
@@ -176,9 +175,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    */
   public function loadByAny($id): ?RemotedbUserInterface {
     // Remove extra spaces.
-    $id = trim($id);
+    $id = trim((string) $id);
 
-    if (empty($id)) {
+    if ($id === '') {
       // Skip "empty" users.
       return NULL;
     }
@@ -190,7 +189,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     ];
     foreach ($load_by_methods as $load_by) {
       $remote_account = $this->loadBy($id, $load_by);
-      if ($remote_account) {
+      if ($remote_account instanceof RemotedbUserInterface) {
         return $remote_account;
       }
     }
@@ -203,12 +202,16 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
   protected function doLoadMultiple(?array $ids = NULL) {
     // Attempt to load entities from the static cache. This will remove IDs
     // that were loaded from $ids.
-    $entities_from_cache = $this->getFromStaticCache($ids);
+    $entities_from_cache = $this->getFromStaticCache($ids ?? []);
 
     // Load any remaining entities from the database.
-    if ($entities_from_storage = $this->getFromStorage($ids)) {
-      $this->invokeStorageLoadHook($entities_from_storage);
-      $this->setStaticCache($entities_from_storage);
+    $entities_from_storage = [];
+    if ($ids !== NULL) {
+      $entities_from_storage = $this->getFromStorage($ids);
+      if ($entities_from_storage !== []) {
+        $this->invokeStorageLoadHook($entities_from_storage);
+        $this->setStaticCache($entities_from_storage);
+      }
     }
 
     return $entities_from_cache + $entities_from_storage;
@@ -220,14 +223,18 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @param array|null $ids
    *   If not empty, return entities that match these IDs. Return all entities
    *   when NULL.
-   * @param string $load_by
+   * @param string|null $load_by
    *   The key to load remote users by.
    *
    * @return \Drupal\remotedbuser\Entity\RemotedbUserInterface[]
    *   Array of entities from the storage.
    */
-  protected function getFromStorage(?array $ids = NULL, $load_by = NULL) {
+  protected function getFromStorage(?array $ids = NULL, ?string $load_by = NULL): array {
     $entities = [];
+
+    if ($ids === NULL) {
+      return $entities;
+    }
 
     switch ($load_by) {
       case static::BY_ID:
@@ -242,14 +249,16 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     foreach ($ids as $id) {
       // The remote database only supports loading one remote user at a time.
       $data = $this->sendRequest('dbuser.retrieve', [$id, $load_by]);
-      if ($data) {
+      if (is_array($data)) {
         $data['is_new'] = FALSE;
         $entity = $this->create($data);
+        assert($entity instanceof RemotedbUserInterface);
+        // Key by the remote uid property (not entity id key, which is unset).
         $entities[$entity->uid] = $entity;
       }
     }
 
-    if (!empty($entities)) {
+    if ($entities !== []) {
       $this->postLoad($entities);
     }
     return $entities;
@@ -280,28 +289,33 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   public function fromAccount(UserInterface $account): RemotedbUserInterface {
-    if (!$account->getEmail()) {
+    $mail = $account->getEmail();
+    if ($mail === NULL || $mail === '') {
       throw new RemotedbException(t("The account cannot be saved in the remote database, because it doesn't have a mail address."));
     }
 
+    $timezone_value = $account->hasField('timezone') ? $account->get('timezone')->value : NULL;
+    $language_value = $account->hasField('language') ? $account->get('language')->value : NULL;
     $values = [
       'name' => $account->getAccountName(),
-      'mail' => $account->getEmail(),
+      'mail' => $mail,
       'pass' => $account->getPassword(),
       'status' => $account->isActive(),
       'created' => $account->getCreatedTime(),
-      'timezone' => !empty($account->timezone->value) ? $account->timezone->value : NULL,
-      'language' => !empty($account->language->value) ? $account->language->value : NULL,
+      'timezone' => ($timezone_value !== NULL && $timezone_value !== '' && $timezone_value !== 0 && $timezone_value !== '0') ? $timezone_value : NULL,
+      'language' => ($language_value !== NULL && $language_value !== '' && $language_value !== 0 && $language_value !== '0') ? $language_value : NULL,
       'init' => $account->getInitialEmail(),
     ];
 
-    if (!empty($account->remotedb_uid->value)) {
-      $values['uid'] = $account->remotedb_uid->value;
+    $remotedb_uid = $account->hasField('remotedb_uid') ? $account->get('remotedb_uid')->value : NULL;
+    if ($remotedb_uid !== NULL && $remotedb_uid !== '' && $remotedb_uid !== 0 && $remotedb_uid !== '0') {
+      $values['uid'] = $remotedb_uid;
       $values['is_new'] = FALSE;
     }
 
     // Instantiate a remote user.
     $entity = $this->create($values);
+    assert($entity instanceof RemotedbUserInterface);
 
     // Cross reference.
     $entity->account = $account;
@@ -314,16 +328,22 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   public function toAccount(RemotedbUserInterface $entity): UserInterface {
+    $entity_values = $entity->toArray();
+    $remote_uid = $entity_values['uid'] ?? NULL;
+    $remote_name = $entity_values['name'] ?? NULL;
+    $remote_mail = $entity_values['mail'] ?? NULL;
+
     // First, get account from local database, if it exists.
     // First find by remotedb_uid, then by name and finally by mail.
+    $account = NULL;
     $search = [
-      'remotedb_uid' => $entity->uid,
-      'name' => $entity->name,
-      'mail' => $entity->mail,
+      'remotedb_uid' => $remote_uid,
+      'name' => $remote_name,
+      'mail' => $remote_mail,
     ];
     foreach ($search as $key => $value) {
       $users = $this->userStorage->loadByProperties([$key => $value]);
-      if (!empty($users)) {
+      if ($users !== []) {
         $account = reset($users);
         break;
       }
@@ -331,32 +351,35 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
 
     // Check if this account is already linked to a remote account. If so, we
     // should not suddenly link it to an other account.
-    if (!empty($account->remotedb_uid->value) && $account->remotedb_uid->value != $entity->uid) {
-      $vars = [
-        '@uid' => $account->id(),
-        '@remotedb_uid' => $entity->uid,
-      ];
-      throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
+    if ($account instanceof UserInterface) {
+      $existing_remotedb_uid = $account->get('remotedb_uid')->value;
+      if ($existing_remotedb_uid !== NULL && $existing_remotedb_uid !== '' && $existing_remotedb_uid !== 0 && $existing_remotedb_uid !== '0' && $existing_remotedb_uid != $remote_uid) {
+        $vars = [
+          '@uid' => $account->id(),
+          '@remotedb_uid' => $remote_uid,
+        ];
+        throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local user @uid.', $vars));
+      }
     }
 
     // Name and mail must be unique. If an account was found, make sure that no
     // other account exists that has either the name or the mail address from
     // the remote account.
-    if (!empty($account)) {
+    if ($account instanceof UserInterface) {
       $search = [
-        'name' => $entity->name,
-        'mail' => $entity->mail,
+        'name' => $remote_name,
+        'mail' => $remote_mail,
       ];
       foreach ($search as $key => $value) {
         $users = $this->userStorage->loadByProperties([$key => $value]);
-        if (!empty($users)) {
+        if ($users !== []) {
           $account2 = reset($users);
           if ($account->id() != $account2->id()) {
             // We have a conflict here.
             $vars = [
               '@uid1' => $account->id(),
               '@uid2' => $account2->id(),
-              '@remotedb_uid' => $entity->uid,
+              '@remotedb_uid' => $remote_uid,
             ];
             throw new RemotedbExistingUserException(t('Failed to synchronize the remote user. The remote user @remotedb_uid conflicts with local users @uid1 and @uid2.', $vars));
           }
@@ -365,18 +388,18 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     }
 
     // Construct values to set on the local account.
-    $values = $entity->toArray();
+    $values = $entity_values;
     // The remote user's uid should not overwrite the local user's uid,
     // but instead be saved as 'remotedb_uid'.
     $values['remotedb_uid'] = $values['uid'];
     unset($values['uid']);
 
-    if (empty($account)) {
+    if (!$account instanceof UserInterface) {
       // No account found, create a new user.
       $account = $this->userStorage->create($values);
 
       // Special case for password.
-      if (!empty($values['pass'])) {
+      if (isset($values['pass']) && $values['pass'] !== '') {
         $account->pass->value = $values['pass'];
         $account->pass->pre_hashed = TRUE;
       }
@@ -384,24 +407,27 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     else {
       // Update user account.
       $update_props = $this->config->get('sync_properties');
+      if (!is_array($update_props)) {
+        $update_props = [];
+      }
       foreach ($update_props as $key) {
-        if (empty($key)) {
+        if (!is_string($key) || $key === '') {
           continue;
         }
         if (isset($values[$key])) {
-          if ($key == 'pass') {
+          if ($key === 'pass') {
             // Setting the hashed password requires a special case.
             $account->pass->value = $values['pass'];
             $account->pass->pre_hashed = TRUE;
           }
           else {
-            $account->$key = $values[$key];
+            $account->set($key, $values[$key]);
           }
         }
       }
 
       // Always set remotedb_uid.
-      $account->remotedb_uid = $values['remotedb_uid'];
+      $account->set('remotedb_uid', $values['remotedb_uid']);
     }
 
     // Cross reference.
@@ -419,7 +445,17 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * {@inheritdoc}
    */
   public function authenticate(string $name, string $pass): int|bool {
-    return $this->sendRequest('dbuser.authenticate', [$name, $pass]);
+    $result = $this->sendRequest('dbuser.authenticate', [$name, $pass]);
+    if (is_int($result)) {
+      return $result;
+    }
+    if (is_numeric($result)) {
+      return (int) $result;
+    }
+    if (is_bool($result)) {
+      return $result;
+    }
+    return FALSE;
   }
 
   /**
@@ -432,20 +468,20 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     }
 
     $remote_account = $this->loadBy($name, self::BY_NAME);
-    if (empty($remote_account)) {
+    if (!$remote_account instanceof RemotedbUserInterface) {
       // Name is not taken yet.
       return TRUE;
     }
-    elseif (empty($account->remotedb_uid->value)) {
+
+    $remotedb_uid = $account->hasField('remotedb_uid') ? $account->get('remotedb_uid')->value : NULL;
+    if ($remotedb_uid === NULL || $remotedb_uid === '' || $remotedb_uid === 0 || $remotedb_uid === '0') {
       // This could be a valid case, but only if user name and mail exactly
       // match.
-      if (isset($account->mail)) {
-        if ($name == $remote_account->name && $account->getEmail() == $remote_account->mail) {
-          return TRUE;
-        }
+      if ($name == $remote_account->name && $account->getEmail() == $remote_account->mail) {
+        return TRUE;
       }
     }
-    elseif ($account->remotedb_uid->value == $remote_account->uid) {
+    elseif ($remotedb_uid == $remote_account->uid) {
       // Accounts match.
       return TRUE;
     }
@@ -464,18 +500,20 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     }
 
     $remote_account = $this->loadBy($mail, self::BY_MAIL);
-    if (empty($remote_account)) {
+    if (!$remote_account instanceof RemotedbUserInterface) {
       // Mail address is not taken yet.
       return TRUE;
     }
-    elseif (empty($account->remotedb_uid->value)) {
+
+    $remotedb_uid = $account->hasField('remotedb_uid') ? $account->get('remotedb_uid')->value : NULL;
+    if ($remotedb_uid === NULL || $remotedb_uid === '' || $remotedb_uid === 0 || $remotedb_uid === '0') {
       // This could be a valid case, but only if user name and mail exactly
       // match.
       if ($account->getAccountName() == $remote_account->name && $mail == $remote_account->mail) {
         return TRUE;
       }
     }
-    elseif ($account->remotedb_uid->value == $remote_account->uid) {
+    elseif ($remotedb_uid == $remote_account->uid) {
       // Accounts match.
       return TRUE;
     }
@@ -498,8 +536,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @throws \Drupal\remotedb\Exception\RemotedbException
    *   In case the remote database object was not set.
    */
-  protected function sendRequest($method, array $params = []) {
-    if (!($this->remotedb instanceof RemotedbInterface)) {
+  protected function sendRequest(string $method, array $params = []) {
+    if (!$this->remotedb instanceof RemotedbInterface) {
       throw new RemotedbException($this->t('Can not perform request to the remote database, because the RemotedbUserStorage did not receive a remote database object.'));
     }
     try {

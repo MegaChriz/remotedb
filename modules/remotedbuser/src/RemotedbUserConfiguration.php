@@ -5,6 +5,7 @@ namespace Drupal\remotedbuser;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Entity\RemotedbStorageInterface;
 
 /**
  * Default implementation of the remotedbuser.configuration service.
@@ -35,7 +36,11 @@ class RemotedbUserConfiguration implements RemotedbUserConfigurationInterface {
    */
   public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->config = $config_factory->get('remotedbuser.settings');
-    $this->remotedbStorage = $entity_type_manager->getStorage('remotedb');
+    $remotedb_storage = $entity_type_manager->getStorage('remotedb');
+    if (!$remotedb_storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    $this->remotedbStorage = $remotedb_storage;
   }
 
   /**
@@ -43,8 +48,9 @@ class RemotedbUserConfiguration implements RemotedbUserConfigurationInterface {
    */
   public function getDefault(): ?RemotedbInterface {
     $default_remotedb_id = $this->config->get('remotedb');
-    if ($default_remotedb_id) {
-      return $this->remotedbStorage->load($default_remotedb_id);
+    if (is_string($default_remotedb_id) && $default_remotedb_id !== '') {
+      $remotedb = $this->remotedbStorage->load($default_remotedb_id);
+      return $remotedb instanceof RemotedbInterface ? $remotedb : NULL;
     }
     return NULL;
   }

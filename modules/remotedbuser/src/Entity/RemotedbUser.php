@@ -27,14 +27,9 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
 
   /**
    * {@inheritdoc}
-   */
-  public function id() {
-    // This entity type has no entity_keys; uid is stored as a plain value.
-    return $this->values['uid'] ?? NULL;
-  }
-
-  /**
-   * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The entity values as an array.
    */
   public function toArray(): array {
     $values = $this->values;
@@ -49,7 +44,11 @@ class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
    * {@inheritdoc}
    */
   public function toAccount(): UserInterface {
-    return $this->entityTypeManager()->getStorage($this->entityTypeId)->toAccount($this);
+    $storage = $this->entityTypeManager()->getStorage($this->entityTypeId);
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    return $storage->toAccount($this);
   }
 
 }
