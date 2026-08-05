@@ -1,0 +1,4 @@
+services:
+  Drupal\remotedb_role_test\Hook\RemotedbRoleTestEntityHooks:
+    class: Drupal\remotedb_role_test\Hook\RemotedbRoleTestEntityHooks
+    arguments: ['@state']

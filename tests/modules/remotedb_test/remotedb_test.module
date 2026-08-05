@@ -5,13 +5,13 @@
  * Dummy module providing a mock class for remotedb entity.
  */
 
-use Drupal\remotedb_test\Entity\MockRemotedb;
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\remotedb_test\Hook\RemotedbTestEntityHooks;
 
 /**
  * Implements hook_entity_type_build().
  */
+#[LegacyHook]
 function remotedb_test_entity_type_build(array &$entity_types): void {
-  if (isset($entity_types['remotedb'])) {
-    $entity_types['remotedb']->setClass(MockRemotedb::class);
-  }
+  \Drupal::service(RemotedbTestEntityHooks::class)->entityTypeBuild($entity_types);
 }

@@ -8,3 +8,5 @@ services:
   remotedb.string_lib:
     class: Drupal\remotedb\Component\StringLib
     arguments: []
+  remotedb.access_checker:
+    class: Drupal\remotedb\Access\RemotedbAccessChecker

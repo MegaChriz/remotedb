@@ -5,30 +5,13 @@
  * Test module for setting a callback for the subscription service.
  */
 
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\remotedb_role_test\Hook\RemotedbRoleTestEntityHooks;
+
 /**
  * Implements hook_ENTITY_TYPE_load() for 'remotedb'.
  */
+#[LegacyHook]
 function remotedb_role_test_remotedb_load(array $entities): void {
-  foreach ($entities as $remotedb) {
-    $remotedb->setCallback('remotedb_role_test_remotedb_callback');
-  }
-}
-
-/**
- * Callback for remote database calls.
- *
- * @param string $method
- *   The method being called.
- * @param array $params
- *   An array of parameters.
- *
- * @return mixed
- *   Returns different values depending on the method call.
- */
-function remotedb_role_test_remotedb_callback(string $method, array $params): mixed {
-  switch ($method) {
-    case 'dbsubscription.retrieve':
-      return \Drupal::state()->get('remotedb_role_subscriptions', []);
-  }
-  return NULL;
+  \Drupal::service(RemotedbRoleTestEntityHooks::class)->remotedbLoad($entities);
 }

@@ -5,39 +5,25 @@
  * Remote database Webhook module.
  */
 
-use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Hook\Attribute\LegacyHook;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Access\AccessResult;
 use Drupal\remotedb\Entity\RemotedbInterface;
-use Drupal\remotedb_webhook\Form\WebhookDisable;
-use Drupal\remotedb_webhook\Form\WebhookEnable;
+use Drupal\remotedb_webhook\Hook\RemotedbWebhookAccessHooks;
+use Drupal\remotedb_webhook\Hook\RemotedbWebhookEntityHooks;
 
 /**
  * Implements hook_entity_type_build().
  */
+#[LegacyHook]
 function remotedb_webhook_entity_type_build(array &$entity_types): void {
-  if (!isset($entity_types['remotedb'])) {
-    return;
-  }
-
-  $entity_types['remotedb']
-    ->setFormClass('webhook_enable', WebhookEnable::class)
-    ->setFormClass('webhook_disable', WebhookDisable::class);
+  \Drupal::service(RemotedbWebhookEntityHooks::class)->entityTypeBuild($entity_types);
 }
 
 /**
  * Implements hook_ENTITY_TYPE_access() for 'remotedb'.
  */
+#[LegacyHook]
 function remotedb_webhook_remotedb_access(RemotedbInterface $remotedb, string $operation, AccountInterface $account): AccessResult {
-  $has_perm = $account->hasPermission('remotedb.administer');
-
-  switch ($operation) {
-    case 'webhook_enable':
-      return AccessResult::allowedIf($has_perm && !\Drupal::service('remotedb_webhook.webhook')->exists($remotedb));
-
-    case 'webhook_disable':
-      return AccessResult::allowedIf($has_perm && \Drupal::service('remotedb_webhook.webhook')->exists($remotedb));
-  }
-
-  // No opinion.
-  return AccessResult::neutral();
+  return \Drupal::service(RemotedbWebhookAccessHooks::class)->remotedbAccess($remotedb, $operation, $account);
 }

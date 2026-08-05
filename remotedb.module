@@ -10,7 +10,11 @@ use Drupal\Core\Session\AccountInterface;
 
 /**
  * Access callback for remotedb entity.
+ *
+ * @deprecated in remotedb:8.x-1.x and is removed from a future version.
+ *   Use the remotedb.access_checker service instead.
  */
 function remotedb_access(string $op, EntityInterface $entity, AccountInterface $account): bool {
-  return $account->hasPermission('remotedb.administer');
+  @trigger_error('remotedb_access() is deprecated in remotedb:8.x-1.x and will be removed from a future version. Use the remotedb.access_checker service instead.', E_USER_DEPRECATED);
+  return \Drupal::service('remotedb.access_checker')->access($op, $entity, $account);
 }

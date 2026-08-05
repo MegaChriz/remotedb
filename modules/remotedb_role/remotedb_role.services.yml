@@ -5,3 +5,8 @@ services:
   remotedb_role.subscription_factory:
     class: Drupal\remotedb_role\SubscriptionServiceFactory
     arguments: ['@config.factory', '@entity_type.manager']
+  Drupal\remotedb_role\Hook\RemotedbRoleHooks:
+    class: Drupal\remotedb_role\Hook\RemotedbRoleHooks
+  Drupal\remotedb_role\Hook\RemotedbRoleUserHooks:
+    class: Drupal\remotedb_role\Hook\RemotedbRoleUserHooks
+    arguments: ['@plugin.manager.action', '@messenger', '@config.factory', '@logger.factory']

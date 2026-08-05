@@ -2,3 +2,8 @@ services:
   remotedb_webhook.webhook:
     class: Drupal\remotedb_webhook\Webhook
     arguments: ['@entity_type.manager', '@cache.default', '@datetime.time', '@logger.channel.remotedb', '@private_key']
+  Drupal\remotedb_webhook\Hook\RemotedbWebhookEntityHooks:
+    class: Drupal\remotedb_webhook\Hook\RemotedbWebhookEntityHooks
+  Drupal\remotedb_webhook\Hook\RemotedbWebhookAccessHooks:
+    class: Drupal\remotedb_webhook\Hook\RemotedbWebhookAccessHooks
+    arguments: ['@remotedb_webhook.webhook']

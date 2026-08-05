@@ -7,8 +7,23 @@ services:
     arguments: ['@config.factory', '@remotedbuser.configuration', '@user.auth', '@entity_type.manager']
   remotedbuser.entity.query:
     class: Drupal\remotedbuser\Entity\Query\QueryFactory
+  remotedbuser.remote_user_access_checker:
+    class: Drupal\remotedbuser\Access\RemoteUserAccessChecker
+    arguments: ['@current_user']
+
+  # Hooks.
+  Drupal\remotedbuser\Hook\RemotedbuserEntityHooks:
+    class: Drupal\remotedbuser\Hook\RemotedbuserEntityHooks
+  Drupal\remotedbuser\Hook\RemotedbuserViewsHooks:
+    class: Drupal\remotedbuser\Hook\RemotedbuserViewsHooks
+  Drupal\remotedbuser\Hook\RemotedbuserUserHooks:
+    class: Drupal\remotedbuser\Hook\RemotedbuserUserHooks
+    arguments: ['@entity_type.manager', '@messenger', '@logger.factory', '@current_user']
+  Drupal\remotedbuser\Hook\RemotedbuserFormHooks:
+    class: Drupal\remotedbuser\Hook\RemotedbuserFormHooks
+    arguments: ['@entity_type.manager', '@current_user', '@remotedbuser.remote_user_access_checker']
 
   route_subscriber:
     class: Drupal\remotedbuser\Routing\RouteSubscriber
-    tags: 
+    tags:
       - {name: event_subscriber }

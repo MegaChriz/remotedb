@@ -5,13 +5,13 @@
  * Dummy module providing a mock class for remotedb_user entity.
  */
 
-use Drupal\remotedbuser_test\Entity\RemotedbUserStorage;
+use Drupal\Core\Hook\Attribute\LegacyHook;
+use Drupal\remotedbuser_test\Hook\RemotedbuserTestEntityHooks;
 
 /**
  * Implements hook_entity_type_build().
  */
+#[LegacyHook]
 function remotedbuser_test_entity_type_build(array &$entity_types): void {
-  if (isset($entity_types['remotedb_user'])) {
-    $entity_types['remotedb_user']->setStorageClass(RemotedbUserStorage::class);
-  }
+  \Drupal::service(RemotedbuserTestEntityHooks::class)->entityTypeBuild($entity_types);
 }
