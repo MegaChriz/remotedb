@@ -89,7 +89,7 @@ class AssignRoles extends ActionBase implements ContainerFactoryPluginInterface 
   /**
    * {@inheritdoc}
    */
-  public function execute(?UserInterface $account = NULL): void {
+  public function execute(?object $account = NULL): void {
     if (!$account instanceof UserInterface) {
       // No account given. Abort.
       return;
