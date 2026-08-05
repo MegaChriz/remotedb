@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\BrowserTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -11,6 +12,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb')]
 class UninstallTest extends BrowserTestBase {
 
   /**

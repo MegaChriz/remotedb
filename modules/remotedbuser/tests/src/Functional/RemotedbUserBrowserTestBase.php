@@ -77,6 +77,33 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   }
 
   /**
+   * Loads a single user by name.
+   *
+   * @param  string $name
+   *   The name to load a user by.
+   *
+   * @return \Drupal\user\UserInterface|null
+   *   A user account if found. Null otherwise.
+   */
+  protected function loadUserByName(string $name): ?UserInterface {
+    $accounts = $this->container->get('entity_type.manager')
+      ->getStorage('user')
+      ->loadByProperties([
+        'name' => $name,
+      ]);
+
+    if ($accounts === []) {
+      return NULL;
+    }
+
+    $account = reset($accounts);
+    if (!$account instanceof UserInterface) {
+      throw new \LogicException(sprintf('Loading user %s did not result into an object of the expected type.', $name));
+    }
+    return $account;
+  }
+
+  /**
    * Asserts that a remote user exists as a local user.
    *
    * @param int $remotedb_uid

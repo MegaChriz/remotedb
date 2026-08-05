@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\remotedb_role\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
@@ -10,6 +12,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb_role
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb_role')]
 class AssignRolesTest extends RemotedbRoleBrowserTestBase {
 
   /**
@@ -88,6 +91,7 @@ class AssignRolesTest extends RemotedbRoleBrowserTestBase {
    *
    * @dataProvider dataProviderWithDebug
    */
+  #[DataProvider('dataProviderWithDebug')]
   public function testWithDebug(array $roles, array $subscriptions, array $has_roles, array $not_has_roles, array $texts): void {
     $this->config('remotedb_role.settings')
       ->set('remotedb', $this->remotedb->id())

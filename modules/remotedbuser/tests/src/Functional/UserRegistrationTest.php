@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\user\UserInterface;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -11,6 +12,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedbuser
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedbuser')]
 class UserRegistrationTest extends RemotedbUserBrowserTestBase {
 
   /**

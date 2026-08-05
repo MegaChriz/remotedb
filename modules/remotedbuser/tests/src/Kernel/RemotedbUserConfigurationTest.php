@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\remotedbuser\RemotedbUserConfiguration;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -11,6 +12,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedbuser
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedbuser')]
 class RemotedbUserConfigurationTest extends RemotedbUserKernelTestBase {
 
   /**

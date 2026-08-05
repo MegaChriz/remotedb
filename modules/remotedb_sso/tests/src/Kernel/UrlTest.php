@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\remotedb_sso\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -12,6 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb_sso
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb_sso')]
 class UrlTest extends KernelTestBase {
 
   /**
@@ -34,6 +37,7 @@ class UrlTest extends KernelTestBase {
    *
    * @dataProvider urlDataProvider
    */
+  #[DataProvider('urlDataProvider')]
   public function testCreateSsoGotoUrl(array $sites, string $text, string $expected): void {
     foreach ($sites as $site) {
       $url = $this->container->get('remotedb_sso.url');

@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb_role\Unit\Plugin\Action;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\UnitTestCase;
 use Drupal\remotedb_role\Plugin\Action\AssignRoles;
 use Drupal\remotedb_role\SubscriptionServiceInterface;
@@ -10,6 +11,7 @@ use Drupal\remotedb_role\SubscriptionServiceInterface;
  * @coversDefaultClass \Drupal\remotedb_role\Plugin\Action\AssignRoles
  * @group remotedb_role
  */
+#[Group('remotedb_role')]
 class AssignRolesTest extends UnitTestCase {
 
   /**

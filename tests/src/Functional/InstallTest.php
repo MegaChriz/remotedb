@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb_test\Entity\MockRemotedb;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb')]
 class InstallTest extends BrowserTestBase {
 
   /**

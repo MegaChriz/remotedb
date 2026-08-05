@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedbuser
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedbuser')]
 class UserImportTest extends RemotedbUserBrowserTestBase {
 
   /**
@@ -54,10 +56,10 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
     $this->assertSession()->pageTextNotContains('Failed to synchronize the remote user');
 
     // Assert that the accounts exist in the local database.
-    $account1 = user_load_by_name($remote_account1->name);
+    $account1 = $this->loadUserByName($remote_account1->name);
     $this->assertNotNull($account1, 'Account 1 exists on the local database.');
     $this->assertEquals($account1->remotedb_uid->value, $remote_account1->uid, 'Account 1 got a remote database user id.');
-    $account2 = user_load_by_name($remote_account2->name);
+    $account2 = $this->loadUserByName($remote_account2->name);
     $this->assertNotNull($account2, 'Account 2 exists on the local database.');
     $this->assertEquals($account2->remotedb_uid->value, $remote_account2->uid, 'Account 2 got a remote database user id.');
   }
@@ -105,7 +107,7 @@ class UserImportTest extends RemotedbUserBrowserTestBase {
     ]));
 
     // Assert that account 2 exists in the local database.
-    $account2 = user_load_by_name($remote_account2->name);
+    $account2 = $this->loadUserByName($remote_account2->name);
     $this->assertNotNull($account2, 'Account 2 exists on the local database.');
     $this->assertEquals($account2->remotedb_uid->value, $remote_account2->uid, 'Account 2 got a remote database user id.');
   }

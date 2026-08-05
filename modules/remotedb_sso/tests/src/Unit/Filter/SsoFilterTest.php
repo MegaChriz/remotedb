@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb_sso\Unit\Filter;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Core\Config\ConfigBase;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Tests\UnitTestCase;
@@ -18,6 +19,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
  * @coversDefaultClass \Drupal\remotedb_sso\Plugin\Filter\SsoFilter
  * @group remotedb_sso
  */
+#[Group('remotedb_sso')]
 class SsoFilterTest extends UnitTestCase {
 
   use ProphecyTrait;

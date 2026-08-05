@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Kernel\Entity;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use Drupal\Tests\remotedbuser\Kernel\RemotedbUserKernelTestBase;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedbuser
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedbuser')]
 class RemotedbUserStorageTest extends RemotedbUserKernelTestBase {
 
   /**

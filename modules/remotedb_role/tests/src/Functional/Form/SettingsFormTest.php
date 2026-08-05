@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb_role\Functional\Form;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\remotedb_role\Functional\RemotedbRoleBrowserTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -10,6 +11,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb_role
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb_role')]
 class SettingsFormTest extends RemotedbRoleBrowserTestBase {
 
   /**

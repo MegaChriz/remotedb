@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedbuser\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\remotedbuser\RemotedbUserAuthenticationInterface;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedbuser
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedbuser')]
 class UserEditTest extends RemotedbUserBrowserTestBase {
 
   /**

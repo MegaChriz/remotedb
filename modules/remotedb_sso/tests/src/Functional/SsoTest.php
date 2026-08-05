@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb_sso\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -11,6 +12,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb_sso
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb_sso')]
 class SsoTest extends RemotedbSsoBrowserTestBase {
 
   /**

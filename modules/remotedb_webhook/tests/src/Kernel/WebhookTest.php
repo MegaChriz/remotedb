@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\remotedb_webhook\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Core\Test\AssertMailTrait;
 use Drupal\user\UserInterface;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb_webhook
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb_webhook')]
 class WebhookTest extends RemotedbWebhookKernelTestBase {
 
   use AssertMailTrait;
@@ -47,7 +49,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
     $this->webhookService->process('user__update', $remote_user->uid);
 
     // Assert that the remote user does not exist locally.
-    $this->assertFalse(user_load_by_name($remote_user->name));
+    $this->assertFalse(array_values(\Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $remote_user->name]))[0] ?? FALSE);
   }
 
   /**
@@ -99,7 +101,7 @@ class WebhookTest extends RemotedbWebhookKernelTestBase {
     $this->webhookService->process('user__welcome_email', $remote_user->uid);
 
     // Assert that a user has been created.
-    $account = user_load_by_name($remote_user->name);
+    $account = array_values(\Drupal::entityTypeManager()->getStorage('user')->loadByProperties(['name' => $remote_user->name]))[0] ?? FALSE;
     $this->assertInstanceOf(UserInterface::class, $account);
 
     // Assert that a welcome email was sent.

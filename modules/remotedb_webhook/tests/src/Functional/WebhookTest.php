@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\remotedb_webhook\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
@@ -10,6 +12,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb_webhook
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb_webhook')]
 class WebhookTest extends RemotedbWebhookBrowserTestBase {
 
   /**
@@ -27,6 +30,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
    *
    * @dataProvider dataProviderWebhookPost
    */
+  #[DataProvider('dataProviderWebhookPost')]
   public function testWebhookPost(array $edit): void {
     $this->webhookPost($edit);
     $this->assertSession()->statusCodeEquals(200);
@@ -63,6 +67,7 @@ class WebhookTest extends RemotedbWebhookBrowserTestBase {
    *
    * @dataProvider dataProviderPostWithUnsufficientData
    */
+  #[DataProvider('dataProviderPostWithUnsufficientData')]
   public function testPostWithUnsufficientData(array $edit): void {
     $this->webhookPost($edit);
     $this->assertSession()->statusCodeEquals(400);

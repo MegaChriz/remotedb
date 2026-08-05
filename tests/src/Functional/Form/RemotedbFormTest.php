@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\remotedb\Functional\Form;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\remotedb\Entity\Remotedb;
 use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -12,6 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * @group remotedb
  */
 #[RunTestsInSeparateProcesses]
+#[Group('remotedb')]
 class RemotedbFormTest extends RemotedbBrowserTestBase {
 
   /**
@@ -50,6 +53,7 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
    *
    * @dataProvider remotedbDataProvider
    */
+  #[DataProvider('remotedbDataProvider')]
   public function testAddRemotedb(array $expected, array $edit): void {
     $this->drupalLogin($this->remotedbAdminUser);
 
