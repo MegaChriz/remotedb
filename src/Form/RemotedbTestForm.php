@@ -3,6 +3,7 @@
 namespace Drupal\remotedb\Form;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -19,11 +20,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
 
   /**
-   * The remote database storage.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $storage;
+  protected $entityTypeManager;
 
   /**
    * The string utility library.
@@ -49,8 +50,8 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
   /**
    * Constructs a new RemotedbTestForm object.
    *
-   * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $storage
-   *   The remote database storage.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\remotedb\Component\StringLib $stringLib
    *   The string utility.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
@@ -58,8 +59,8 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
    * @param \Drupal\devel\DevelDumperManagerInterface|null $dumper
    *   The optional devel dumper service.
    */
-  public function __construct(RemotedbStorageInterface $storage, StringLib $stringLib, MessengerInterface $messenger, ?DevelDumperManagerInterface $dumper = NULL) {
-    $this->storage = $storage;
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, StringLib $stringLib, MessengerInterface $messenger, ?DevelDumperManagerInterface $dumper = NULL) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->stringLib = $stringLib;
     $this->messenger = $messenger;
     $this->dumper = $dumper;
@@ -74,13 +75,8 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
       $dumper = NULL;
     }
 
-    $storage = $container->get('entity_type.manager')->getStorage('remotedb');
-    if (!$storage instanceof RemotedbStorageInterface) {
-      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
-    }
-
     return new static(
-      $storage,
+      $container->get('entity_type.manager'),
       $container->get('remotedb.string_lib'),
       $container->get('messenger'),
       $dumper
@@ -105,7 +101,7 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
 
     $form['remotedb'] = [
       '#type' => 'select',
-      '#options' => $this->storage->options(),
+      '#options' => $this->getRemotedbStorage()->options(),
       '#title' => $this->t('Database'),
       '#required' => TRUE,
       '#description' => $this->t('The remote database.'),
@@ -141,7 +137,7 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
       return;
     }
     $params = $this->stringLib->textToArray(is_string($params_value) ? $params_value : '');
-    $remotedb = $this->storage->load($remotedb_id);
+    $remotedb = $this->getRemotedbStorage()->load($remotedb_id);
     if ($remotedb instanceof RemotedbInterface) {
       try {
         $form_state->set(['remotedb_result'], $remotedb->sendRequest($method, $params));
@@ -172,6 +168,17 @@ class RemotedbTestForm extends FormBase implements ContainerInjectionInterface {
       '#title' => $this->t('Result'),
       '#value' => print_r($data, TRUE),
     ];
+  }
+
+  /**
+   * Gets the remotedb storage handler.
+   */
+  protected function getRemotedbStorage(): RemotedbStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb');
+    if (!$storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    return $storage;
   }
 
 }

@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\remotedb_webhook\Functional;
 
-use Behat\Mink\Driver\GoutteDriver;
 use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
 
 /**
@@ -36,9 +35,9 @@ abstract class RemotedbWebhookBrowserTestBase extends RemotedbBrowserTestBase {
     $this->getSession()->getDriver()->getClient()->request('POST', $url, $edit);
     $out = $this->getSession()->getPage()->getContent();
 
-    // Log only for JavascriptTestBase tests because for Goutte we log with
-    // ::getResponseLogHandler.
-    if ($this->htmlOutputEnabled && !($this->getSession()->getDriver() instanceof GoutteDriver)) {
+    // Log only for WebDriverTestBase tests because for BrowserKitDriver we log
+    // with ::getResponseLogHandler.
+    if ($this->htmlOutputEnabled && !$this->isTestUsingGuzzleClient()) {
       $html_output = 'POST request to: ' . $url .
         '<hr />Ending URL: ' . $this->getSession()->getCurrentUrl();
       $html_output .= '<hr />' . $out;

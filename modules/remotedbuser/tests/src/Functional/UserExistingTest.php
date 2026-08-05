@@ -223,7 +223,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
     // Check that there are remote accounts for each local user now.
     $account1_found = FALSE;
     $account2_found = FALSE;
-    $remotes = $this->remotedbUserStorage->getRemoteAccounts();
+    $remotes = $this->remotedbUserTestStorage()->getRemoteAccounts();
     foreach ($remotes as $remote_user) {
       switch ($remote_user['name']) {
         case $account1->getAccountName():

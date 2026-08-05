@@ -8,13 +8,13 @@ use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedb_test\Entity\MockRemotedb;
 use Drupal\remotedbuser\Entity\RemotedbUserStorage as OriginalRemotedbUserStorage;
-use Drupal\user\UserStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -37,13 +37,6 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
   protected $password;
 
   /**
-   * The Remotedb entity storage.
-   *
-   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
-   */
-  protected $remotedbStorage;
-
-  /**
    * Constructs a RemotedbUserStorage instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
@@ -52,16 +45,14 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
    *   The entity field manager.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    *   The cache backend to be used.
-   * @param \Drupal\user\UserStorageInterface $user_storage
-   *   The user entity storage.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The remotedbuser settings.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
    * @param \Drupal\Core\Password\PasswordInterface $password
    *   The password checking service.
-   * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
-   *   The Remotedb entity storage.
    * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface $memory_cache
    *   The memory cache backend.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
@@ -73,27 +64,29 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
     EntityTypeInterface $entity_type,
     EntityFieldManagerInterface $entity_field_manager,
     CacheBackendInterface $cache,
-    UserStorageInterface $user_storage,
+    EntityTypeManagerInterface $entity_type_manager,
     ImmutableConfig $config,
     StateInterface $state,
     PasswordInterface $password,
-    RemotedbStorageInterface $remotedb_storage,
     MemoryCacheInterface $memory_cache,
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
     ?RemotedbInterface $remotedb = NULL,
   ) {
     $this->state = $state;
     $this->password = $password;
-    $this->remotedbStorage = $remotedb_storage;
 
     // Set remotedb mock.
-    $remotedb = $this->remotedbStorage->create([]);
+    $remotedb_storage = $entity_type_manager->getStorage('remotedb');
+    if (!$remotedb_storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    $remotedb = $remotedb_storage->create([]);
     if (!$remotedb instanceof MockRemotedb) {
       throw new \LogicException('Expected remotedb entity to be an instance of MockRemotedb.');
     }
     $remotedb->setCallback([$this, 'remotedbCallback']);
 
-    parent::__construct($entity_type, $entity_field_manager, $cache, $user_storage, $config, $memory_cache, $entity_type_bundle_info, $remotedb);
+    parent::__construct($entity_type, $entity_field_manager, $cache, $entity_type_manager, $config, $memory_cache, $entity_type_bundle_info, $remotedb);
   }
 
   /**
@@ -104,11 +97,10 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
       $entity_type,
       $container->get('entity_field.manager'),
       $container->get('cache.entity'),
-      $container->get('entity_type.manager')->getStorage('user'),
+      $container->get('entity_type.manager'),
       $container->get('config.factory')->get('remotedbuser.settings'),
       $container->get('state'),
       $container->get('password'),
-      $container->get('entity_type.manager')->getStorage('remotedb'),
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
       $container->get('remotedbuser.configuration')->getDefault()

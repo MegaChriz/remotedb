@@ -4,6 +4,8 @@ namespace Drupal\Tests\remotedbuser\Functional;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
+use Drupal\remotedbuser_test\Entity\RemotedbUserStorage as TestRemotedbUserStorage;
 use Drupal\Tests\remotedb\Functional\RemotedbBrowserTestBase;
 use Drupal\Tests\remotedbuser\Traits\RemotedbUserCreationTrait;
 use Drupal\user\Entity\User;
@@ -32,13 +34,6 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
-   * The remote database user storage.
-   *
-   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorage
-   */
-  protected $remotedbUserStorage;
-
-  /**
    * ID of role that allows users to change their own account.
    *
    * @var int
@@ -52,9 +47,30 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
     parent::setUp();
 
     $this->entityTypeManager = $this->container->get('entity_type.manager');
-    $this->remotedbUserStorage = $this->entityTypeManager->getStorage('remotedb_user');
     $this->roleId = $this->createRole(['change own username', 'cancel account']);
     $this->useOneTimeLoginLinks = FALSE;
+  }
+
+  /**
+   * Gets the remotedb_user storage handler.
+   */
+  protected function remotedbUserStorage(): RemotedbUserStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb_user');
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    return $storage;
+  }
+
+  /**
+   * Gets the remotedb_user test storage handler.
+   */
+  protected function remotedbUserTestStorage(): TestRemotedbUserStorage {
+    $storage = $this->remotedbUserStorage();
+    if (!$storage instanceof TestRemotedbUserStorage) {
+      throw new \LogicException('Expected remotedb_user storage to be the remotedbuser_test storage.');
+    }
+    return $storage;
   }
 
   /**
@@ -67,7 +83,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
 
     // Make sure that a remote account exists.
     $this->assertNotEmpty($account->remotedb_uid->value, 'The account is linked to a remote account.');
-    $remote_account = $this->remotedbUserStorage->load($account->remotedb_uid->value);
+    $remote_account = $this->remotedbUserStorage()->load($account->remotedb_uid->value);
     $this->assertNotNull($remote_account, 'The remote account was created.');
     if (!is_null($remote_account)) {
       $this->assertTrue($account->remotedb_uid->value === $remote_account->uid, 'The account belongs to the expected remote account.');
@@ -79,7 +95,7 @@ abstract class RemotedbUserBrowserTestBase extends RemotedbBrowserTestBase {
   /**
    * Loads a single user by name.
    *
-   * @param  string $name
+   * @param string $name
    *   The name to load a user by.
    *
    * @return \Drupal\user\UserInterface|null

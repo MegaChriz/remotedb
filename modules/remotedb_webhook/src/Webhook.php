@@ -22,18 +22,11 @@ use Psr\Log\LoggerInterface;
 class Webhook implements WebhookInterface {
 
   /**
-   * The remote user storage.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remotedbUserStorage;
-
-  /**
-   * The local user storage.
-   *
-   * @var \Drupal\user\UserStorageInterface
-   */
-  protected $userStorage;
+  protected $entityTypeManager;
 
   /**
    * The cache backend.
@@ -67,7 +60,7 @@ class Webhook implements WebhookInterface {
    * Constructs a new Webhook object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The remote user storage.
+   *   The entity type manager.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    *   The cache backend.
    * @param \Drupal\Component\Datetime\TimeInterface $time
@@ -78,12 +71,7 @@ class Webhook implements WebhookInterface {
    *   The private key service.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheBackendInterface $cache, TimeInterface $time, LoggerInterface $logger, PrivateKey $private_key) {
-    $remotedb_storage = $entity_type_manager->getStorage('remotedb_user');
-    if (!$remotedb_storage instanceof RemotedbUserStorageInterface) {
-      throw new \LogicException(sprintf('Remote database storage object should be of type %s, but it is %s.', RemotedbUserStorageInterface::class, get_class($remotedb_storage)));
-    }
-    $this->remotedbUserStorage = $remotedb_storage;
-    $this->userStorage = $entity_type_manager->getStorage('user');
+    $this->entityTypeManager = $entity_type_manager;
     $this->cache = $cache;
     $this->time = $time;
     $this->logger = $logger;
@@ -210,7 +198,7 @@ class Webhook implements WebhookInterface {
       switch ($hook) {
         case 'update':
           // First ensure that this user already exists locally.
-          $users = $this->userStorage->loadByProperties(['remotedb_uid' => $data]);
+          $users = $this->getUserStorage()->loadByProperties(['remotedb_uid' => $data]);
           if ($users === []) {
             return;
           }
@@ -241,7 +229,7 @@ class Webhook implements WebhookInterface {
    *   otherwise.
    */
   protected function createAccount($remotedb_uid): ?UserInterface {
-    $remote_account = $this->remotedbUserStorage->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
+    $remote_account = $this->getRemotedbUserStorage()->loadBy($remotedb_uid, RemotedbUserStorageInterface::BY_ID);
 
     if (isset($remote_account->uid)) {
       // Copy over account data.
@@ -258,6 +246,27 @@ class Webhook implements WebhookInterface {
     }
 
     return NULL;
+  }
+
+  /**
+   * Gets the remotedb_user storage handler.
+   */
+  protected function getRemotedbUserStorage(): RemotedbUserStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb_user');
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException(sprintf('Remote database storage object should be of type %s, but it is %s.', RemotedbUserStorageInterface::class, get_class($storage)));
+    }
+    return $storage;
+  }
+
+  /**
+   * Gets the user storage handler.
+   *
+   * @return \Drupal\user\UserStorageInterface
+   *   The user storage.
+   */
+  protected function getUserStorage() {
+    return $this->entityTypeManager->getStorage('user');
   }
 
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\remotedbuser\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
@@ -18,34 +19,30 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UserPasswordForm extends UserPasswordFormBase {
 
   /**
-   * The remote user storage.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remoteUserStorage;
+  protected $entityTypeManager;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
     $form_object = parent::create($container);
-    $remote_user_storage = $container->get('entity_type.manager')->getStorage('remotedb_user');
-    if (!$remote_user_storage instanceof RemotedbUserStorageInterface) {
-      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
-    }
-    $form_object->setRemoteUserStorage($remote_user_storage);
+    $form_object->setEntityTypeManager($container->get('entity_type.manager'));
 
     return $form_object;
   }
 
   /**
-   * Sets the remote user storage.
+   * Sets the entity type manager.
    *
-   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remote_user_storage
-   *   The remote user storage.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  protected function setRemoteUserStorage(RemotedbUserStorageInterface $remote_user_storage): void {
-    $this->remoteUserStorage = $remote_user_storage;
+  protected function setEntityTypeManager(EntityTypeManagerInterface $entity_type_manager): void {
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -66,11 +63,12 @@ class UserPasswordForm extends UserPasswordFormBase {
     }
     else {
       // Account not found locally. Search in the remote database.
+      $remote_user_storage = $this->getRemotedbUserStorage();
       // Try to load by email.
-      $remote_account = $this->remoteUserStorage->loadBy($name, RemotedbUserStorageInterface::BY_MAIL);
+      $remote_account = $remote_user_storage->loadBy($name, RemotedbUserStorageInterface::BY_MAIL);
       if (!$remote_account instanceof RemotedbUserInterface) {
         // No success, try to load by name.
-        $remote_account = $this->remoteUserStorage->loadBy($name, RemotedbUserStorageInterface::BY_NAME);
+        $remote_account = $remote_user_storage->loadBy($name, RemotedbUserStorageInterface::BY_NAME);
       }
       if ($remote_account instanceof RemotedbUserInterface && isset($remote_account->uid)) {
         // Copy over account data.
@@ -80,6 +78,17 @@ class UserPasswordForm extends UserPasswordFormBase {
       // Follow the usual validation.
       parent::validateForm($form, $form_state);
     }
+  }
+
+  /**
+   * Gets the remotedb_user storage handler.
+   */
+  protected function getRemotedbUserStorage(): RemotedbUserStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb_user');
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    return $storage;
   }
 
 }

@@ -3,6 +3,7 @@
 namespace Drupal\remotedbuser\Form;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -26,11 +27,11 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
   const USER_BATCH_MINIMUM = 3;
 
   /**
-   * The remote DB user storage.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remotedbUserStorage;
+  protected $entityTypeManager;
 
   /**
    * Messenger service.
@@ -49,19 +50,19 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
   /**
    * Constructs a new GetRemoteUserForm.
    *
-   * @param \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface $remotedb_user_storage
-   *   The remote DB user storage.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger for the 'remotedb' channel.
    */
   public function __construct(
-    RemotedbUserStorageInterface $remotedb_user_storage,
+    EntityTypeManagerInterface $entity_type_manager,
     MessengerInterface $messenger,
     LoggerInterface $logger,
   ) {
-    $this->remotedbUserStorage = $remotedb_user_storage;
+    $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
     $this->logger = $logger;
   }
@@ -71,7 +72,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
    */
   public static function create(ContainerInterface $container): static {
     return new static(
-      $container->get('entity_type.manager')->getStorage('remotedb_user'),
+      $container->get('entity_type.manager'),
       $container->get('messenger'),
       $container->get('logger.factory')->get('remotedb')
     );
@@ -141,7 +142,7 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
     }
 
     try {
-      $remote_account = $this->remotedbUserStorage->loadByAny($user_id);
+      $remote_account = $this->getRemotedbUserStorage()->loadByAny($user_id);
       if ($remote_account instanceof RemotedbUserInterface) {
         // Copy over account data.
         $account = $remote_account->toAccount();
@@ -237,6 +238,17 @@ class GetRemoteUserForm extends FormBase implements ContainerInjectionInterface 
     // Inform the batch engine that we are not finished,
     // and provide an estimation of the completion level we reached.
     $context['finished'] = ($context['sandbox']['progress'] / $context['sandbox']['max']);
+  }
+
+  /**
+   * Gets the remotedb_user storage handler.
+   */
+  protected function getRemotedbUserStorage(): RemotedbUserStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb_user');
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    return $storage;
   }
 
 }

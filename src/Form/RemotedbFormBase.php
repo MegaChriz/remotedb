@@ -3,42 +3,15 @@
 namespace Drupal\remotedb\Form;
 
 use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
+use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedb\Plugin\AuthenticationInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base form for remote database add and edit forms.
  */
 abstract class RemotedbFormBase extends EntityForm {
-
-  /**
-   * The remote database entity storage controller.
-   *
-   * @var \Drupal\Core\Entity\EntityStorageInterface
-   */
-  protected $remoteDbStorage;
-
-  /**
-   * Constructs a base class for remote database add and edit forms.
-   *
-   * @param \Drupal\Core\Entity\EntityStorageInterface $remotedb_storage
-   *   The remote database entity storage controller.
-   */
-  public function __construct(EntityStorageInterface $remotedb_storage) {
-    $this->remoteDbStorage = $remotedb_storage;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container): static {
-    return new static(
-      $container->get('entity_type.manager')->getStorage('remotedb')
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -61,7 +34,7 @@ abstract class RemotedbFormBase extends EntityForm {
     $form['name'] = [
       '#type' => 'machine_name',
       '#machine_name' => [
-        'exists' => [$this->remoteDbStorage, 'load'],
+        'exists' => [$this->getRemotedbStorage(), 'load'],
       ],
       '#default_value' => $remotedb->id(),
       '#required' => TRUE,
@@ -185,6 +158,17 @@ abstract class RemotedbFormBase extends EntityForm {
       }
     }
     $remotedb->save();
+  }
+
+  /**
+   * Gets the remotedb storage handler.
+   */
+  protected function getRemotedbStorage(): RemotedbStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb');
+    if (!$storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    return $storage;
   }
 
 }

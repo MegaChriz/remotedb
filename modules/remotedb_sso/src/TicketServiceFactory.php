@@ -5,7 +5,6 @@ namespace Drupal\remotedb_sso;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\RemotedbFactoryBase;
-use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 
 /**
  * Factory for instantiating ticket service.
@@ -31,11 +30,7 @@ class TicketServiceFactory extends RemotedbFactoryBase implements TicketServiceF
     if (!$this->remotedb instanceof RemotedbInterface) {
       throw new \LogicException('No remotedb is set but this error should have been catched by RemotedbFactoryBase.');
     }
-    $storage = $this->entityTypeManager->getStorage('remotedb_user');
-    if (!$storage instanceof RemotedbUserStorageInterface) {
-      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
-    }
-    return new TicketService($this->remotedb, $storage);
+    return new TicketService($this->remotedb, $this->entityTypeManager);
   }
 
 }

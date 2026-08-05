@@ -12,7 +12,6 @@ use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedb_sso\TicketServiceInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\user\UserInterface;
-use Drupal\user\UserStorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,13 +22,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * Controller for remotedb_sso routes.
  */
 class SsoController extends ControllerBase {
-
-  /**
-   * The user storage.
-   *
-   * @var \Drupal\user\UserStorageInterface
-   */
-  protected $userStorage;
 
   /**
    * The service for requesting tickets from the remote database.
@@ -48,16 +40,13 @@ class SsoController extends ControllerBase {
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current active user.
-   * @param \Drupal\user\UserStorageInterface $user_storage
-   *   The user storage.
    * @param \Psr\Log\LoggerInterface $logger
    *   The remotedb logger channel.
    * @param \Drupal\remotedb_sso\TicketServiceInterface $ticket_service
    *   (optional) The service for requesting tickets from the remote database.
    */
-  public function __construct(AccountProxyInterface $current_user, UserStorageInterface $user_storage, LoggerInterface $logger, ?TicketServiceInterface $ticket_service = NULL) {
+  public function __construct(AccountProxyInterface $current_user, LoggerInterface $logger, ?TicketServiceInterface $ticket_service = NULL) {
     $this->currentUser = $current_user;
-    $this->userStorage = $user_storage;
     $this->logger = $logger;
     $this->ticketService = $ticket_service;
   }
@@ -77,7 +66,6 @@ class SsoController extends ControllerBase {
 
     return new static(
       $container->get('current_user'),
-      $container->get('entity_type.manager')->getStorage('user'),
       $container->get('logger.factory')->get('remotedb'),
       $ticket_service
     );
@@ -148,8 +136,9 @@ class SsoController extends ControllerBase {
 
         // Reload the user's account object to ensure a full user object is
         // passed along to the various hooks.
-        $this->userStorage->resetCache();
-        $account = $this->userStorage->load($account_id);
+        $user_storage = $this->getUserStorage();
+        $user_storage->resetCache();
+        $account = $user_storage->load($account_id);
 
         // Now login the user.
         if (!$account instanceof UserInterface) {
@@ -229,6 +218,16 @@ class SsoController extends ControllerBase {
     $cache_metadata = CacheableMetadata::createFromRenderArray($build);
     $response->addCacheableDependency($cache_metadata);
     return $response;
+  }
+
+  /**
+   * Gets the user storage handler.
+   *
+   * @return \Drupal\user\UserStorageInterface
+   *   The user storage.
+   */
+  protected function getUserStorage() {
+    return $this->entityTypeManager()->getStorage('user');
   }
 
 }

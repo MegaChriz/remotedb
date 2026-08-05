@@ -11,12 +11,12 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Exception\RemotedbException;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
 use Drupal\user\UserInterface;
-use Drupal\user\UserStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,9 +25,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUserStorageInterface {
 
   /**
-   * The user entity storage.
+   * The entity type manager.
    */
-  protected UserStorageInterface $userStorage;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The remotedbuser settings.
@@ -48,8 +48,8 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    *   The entity field manager.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    *   The cache backend to be used.
-   * @param \Drupal\user\UserStorageInterface $user_storage
-   *   The user entity storage.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The remotedbuser settings.
    * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface $memory_cache
@@ -59,10 +59,10 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
    * @param \Drupal\remotedb\Entity\RemotedbInterface|null $remotedb
    *   The remote database in which the remote users are stored.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, UserStorageInterface $user_storage, ImmutableConfig $config, MemoryCacheInterface $memory_cache, EntityTypeBundleInfoInterface $entity_type_bundle_info, ?RemotedbInterface $remotedb = NULL) {
+  public function __construct(EntityTypeInterface $entity_type, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, EntityTypeManagerInterface $entity_type_manager, ImmutableConfig $config, MemoryCacheInterface $memory_cache, EntityTypeBundleInfoInterface $entity_type_bundle_info, ?RemotedbInterface $remotedb = NULL) {
     parent::__construct($entity_type, $entity_field_manager, $cache, $memory_cache, $entity_type_bundle_info);
 
-    $this->userStorage = $user_storage;
+    $this->entityTypeManager = $entity_type_manager;
     $this->config = $config;
 
     if (!$remotedb instanceof RemotedbInterface) {
@@ -82,7 +82,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       $entity_type,
       $container->get('entity_field.manager'),
       $container->get('cache.entity'),
-      $container->get('entity_type.manager')->getStorage('user'),
+      $container->get('entity_type.manager'),
       $container->get('config.factory')->get('remotedbuser.settings'),
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
@@ -342,7 +342,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       'mail' => $remote_mail,
     ];
     foreach ($search as $key => $value) {
-      $users = $this->userStorage->loadByProperties([$key => $value]);
+      $users = $this->getUserStorage()->loadByProperties([$key => $value]);
       if ($users !== []) {
         $account = reset($users);
         break;
@@ -371,7 +371,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
         'mail' => $remote_mail,
       ];
       foreach ($search as $key => $value) {
-        $users = $this->userStorage->loadByProperties([$key => $value]);
+        $users = $this->getUserStorage()->loadByProperties([$key => $value]);
         if ($users !== []) {
           $account2 = reset($users);
           if ($account->id() != $account2->id()) {
@@ -396,7 +396,7 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
 
     if (!$account instanceof UserInterface) {
       // No account found, create a new user.
-      $account = $this->userStorage->create($values);
+      $account = $this->getUserStorage()->create($values);
 
       // Special case for password.
       if (isset($values['pass']) && $values['pass'] !== '') {
@@ -547,6 +547,16 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
       $e->logError();
       return FALSE;
     }
+  }
+
+  /**
+   * Gets the user storage handler.
+   *
+   * @return \Drupal\user\UserStorageInterface
+   *   The user storage.
+   */
+  protected function getUserStorage() {
+    return $this->entityTypeManager->getStorage('user');
   }
 
 }

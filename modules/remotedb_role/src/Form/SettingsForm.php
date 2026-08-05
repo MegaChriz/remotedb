@@ -5,11 +5,11 @@ namespace Drupal\remotedb_role\Form;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ExtensionList;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
-use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,11 +19,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SettingsForm extends ConfigFormBase {
 
   /**
-   * The storage class for remote database entities.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remotedbStorage;
+  protected $entityTypeManager;
 
   /**
    * Module information provider.
@@ -39,14 +39,14 @@ class SettingsForm extends ConfigFormBase {
    *   The factory for configuration objects.
    * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
    *   The typed config manager.
-   * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
-   *   The storage class for remote database entities.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Extension\ExtensionList $extension_list
    *   Module information provider.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager, RemotedbStorageInterface $remotedb_storage, ExtensionList $extension_list) {
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager, EntityTypeManagerInterface $entity_type_manager, ExtensionList $extension_list) {
     parent::__construct($config_factory, $typedConfigManager);
-    $this->remotedbStorage = $remotedb_storage;
+    $this->entityTypeManager = $entity_type_manager;
     $this->extensionList = $extension_list;
   }
 
@@ -57,7 +57,7 @@ class SettingsForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('config.typed'),
-      $container->get('entity_type.manager')->getStorage('remotedb'),
+      $container->get('entity_type.manager'),
       $container->get('extension.list.module')
     );
   }
@@ -85,20 +85,20 @@ class SettingsForm extends ConfigFormBase {
 
     $form['remotedb'] = [
       '#type' => 'select',
-      '#options' => $this->remotedbStorage->options(),
+      '#options' => $this->getRemotedbStorage()->options(),
       '#title' => $this->t('Database'),
       '#required' => TRUE,
       '#description' => $this->t('The remote database.'),
       '#default_value' => $config->get('remotedb'),
     ];
 
-    $roles = Role::loadMultiple();
+    $roles = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
     unset($roles[RoleInterface::ANONYMOUS_ID]);
     unset($roles[RoleInterface::AUTHENTICATED_ID]);
 
     $role_names = [];
     foreach ($roles as $rid => $role) {
-      $role_names[$rid] = Html::cleanCssIdentifier($rid);
+      $role_names[$rid] = Html::cleanCssIdentifier((string) $rid);
     }
 
     $form['role_settings'] = [
@@ -139,13 +139,19 @@ class SettingsForm extends ConfigFormBase {
         if (!is_array($subscriptions)) {
           $subscriptions = [];
         }
+        $subscription_lines = [];
+        foreach ($subscriptions as $subscription) {
+          if (is_scalar($subscription)) {
+            $subscription_lines[] = (string) $subscription;
+          }
+        }
         $form['roles'][$rid]['subscriptions'] = [
           '#type' => 'textarea',
           '#title' => $this->t('Subscriptions'),
           '#description' => $this->t('Specify which subscriptions should give the user the role %role. Enter one per line.', [
             '%role' => $role->label(),
           ]),
-          '#default_value' => $subscriptions !== [] ? implode("\n", $subscriptions) : NULL,
+          '#default_value' => $subscription_lines !== [] ? implode("\n", $subscription_lines) : NULL,
         ];
       }
     }
@@ -192,6 +198,17 @@ class SettingsForm extends ConfigFormBase {
       ->save();
 
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Gets the remotedb storage handler.
+   */
+  protected function getRemotedbStorage(): RemotedbStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb');
+    if (!$storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    return $storage;
   }
 
 }

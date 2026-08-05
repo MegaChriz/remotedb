@@ -20,11 +20,11 @@ class RemotedbUserConfiguration implements RemotedbUserConfigurationInterface {
   protected $config;
 
   /**
-   * The remote database storage.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remotedbStorage;
+  protected $entityTypeManager;
 
   /**
    * Constructs a new RemotedbUserConfiguration object.
@@ -36,11 +36,7 @@ class RemotedbUserConfiguration implements RemotedbUserConfigurationInterface {
    */
   public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->config = $config_factory->get('remotedbuser.settings');
-    $remotedb_storage = $entity_type_manager->getStorage('remotedb');
-    if (!$remotedb_storage instanceof RemotedbStorageInterface) {
-      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
-    }
-    $this->remotedbStorage = $remotedb_storage;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -49,10 +45,21 @@ class RemotedbUserConfiguration implements RemotedbUserConfigurationInterface {
   public function getDefault(): ?RemotedbInterface {
     $default_remotedb_id = $this->config->get('remotedb');
     if (is_string($default_remotedb_id) && $default_remotedb_id !== '') {
-      $remotedb = $this->remotedbStorage->load($default_remotedb_id);
+      $remotedb = $this->getRemotedbStorage()->load($default_remotedb_id);
       return $remotedb instanceof RemotedbInterface ? $remotedb : NULL;
     }
     return NULL;
+  }
+
+  /**
+   * Gets the remotedb storage handler.
+   */
+  protected function getRemotedbStorage(): RemotedbStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb');
+    if (!$storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    return $storage;
   }
 
 }

@@ -44,7 +44,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $this->assertTrue($new_user->isActive(), 'New account is active after registration.');
 
     // Assert that the remote account exists.
-    $remote_account = $this->remotedbUserStorage->loadBy($name, 'name');
+    $remote_account = $this->remotedbUserStorage()->loadBy($name, 'name');
     $this->assertNotNull($remote_account, 'A remote account was created.');
 
     // Assert that the remote account has an uid.

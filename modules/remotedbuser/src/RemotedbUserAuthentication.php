@@ -41,14 +41,14 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   protected $userAuth;
 
   /**
-   * The remote database user storage.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedbuser\Entity\RemotedbUserStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remotedbUserStorage;
+  protected $entityTypeManager;
 
   /**
-   * Constructs a new RemotedbUserConfiguration object.
+   * Constructs a new RemotedbUserAuthentication object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory service.
@@ -63,11 +63,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
     $this->config = $config_factory->get('remotedbuser.settings');
     $this->remotedbUserConfiguration = $remotedbuser_configuration;
     $this->userAuth = $user_auth;
-    $remotedb_user_storage = $entity_type_manager->getStorage('remotedb_user');
-    if (!$remotedb_user_storage instanceof RemotedbUserStorageInterface) {
-      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
-    }
-    $this->remotedbUserStorage = $remotedb_user_storage;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -101,14 +97,15 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
    * {@inheritdoc}
    */
   public function remoteAuthenticate(string $name, string $password): int|false {
-    $remotedb_uid = $this->remotedbUserStorage->authenticate($name, $password);
+    $storage = $this->getRemotedbUserStorage();
+    $remotedb_uid = $storage->authenticate($name, $password);
     if (!is_int($remotedb_uid) || $remotedb_uid === 0) {
       // Authentication failed.
       return FALSE;
     }
 
     // Get account details from the remote database.
-    $remote_account = $this->remotedbUserStorage->load($remotedb_uid);
+    $remote_account = $storage->load($remotedb_uid);
     if ($remote_account instanceof RemotedbUserInterface) {
       // Save user locally.
       try {
@@ -125,6 +122,17 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
     }
 
     return FALSE;
+  }
+
+  /**
+   * Gets the remotedb_user storage handler.
+   */
+  protected function getRemotedbUserStorage(): RemotedbUserStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb_user');
+    if (!$storage instanceof RemotedbUserStorageInterface) {
+      throw new \LogicException('Expected remotedb_user storage to implement RemotedbUserStorageInterface.');
+    }
+    return $storage;
   }
 
 }

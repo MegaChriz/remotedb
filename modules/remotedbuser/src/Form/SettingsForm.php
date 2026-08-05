@@ -5,6 +5,7 @@ namespace Drupal\remotedbuser\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
@@ -17,11 +18,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SettingsForm extends ConfigFormBase {
 
   /**
-   * The storage class for remote database entities.
+   * The entity type manager.
    *
-   * @var \Drupal\remotedb\Entity\RemotedbStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $remotedbStorage;
+  protected $entityTypeManager;
 
   /**
    * The entity field manager.
@@ -37,14 +38,14 @@ class SettingsForm extends ConfigFormBase {
    *   The factory for configuration objects.
    * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
    *   The typed config manager.
-   * @param \Drupal\remotedb\Entity\RemotedbStorageInterface $remotedb_storage
-   *   The storage class for remote database entities.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $field_manager
    *   The entity field manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager, RemotedbStorageInterface $remotedb_storage, EntityFieldManagerInterface $field_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $typedConfigManager, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $field_manager) {
     parent::__construct($config_factory, $typedConfigManager);
-    $this->remotedbStorage = $remotedb_storage;
+    $this->entityTypeManager = $entity_type_manager;
     $this->fieldManager = $field_manager;
   }
 
@@ -55,7 +56,7 @@ class SettingsForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('config.typed'),
-      $container->get('entity_type.manager')->getStorage('remotedb'),
+      $container->get('entity_type.manager'),
       $container->get('entity_field.manager')
     );
   }
@@ -82,7 +83,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['remotedb'] = [
       '#type' => 'select',
-      '#options' => $this->remotedbStorage->options(),
+      '#options' => $this->getRemotedbStorage()->options(),
       '#title' => $this->t('Database'),
       '#required' => TRUE,
       '#description' => $this->t('The remote database.'),
@@ -139,6 +140,17 @@ class SettingsForm extends ConfigFormBase {
       ->save();
 
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Gets the remotedb storage handler.
+   */
+  protected function getRemotedbStorage(): RemotedbStorageInterface {
+    $storage = $this->entityTypeManager->getStorage('remotedb');
+    if (!$storage instanceof RemotedbStorageInterface) {
+      throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
+    }
+    return $storage;
   }
 
 }
