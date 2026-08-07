@@ -140,7 +140,7 @@ class UserExistingTest extends RemotedbUserBrowserTestBase {
       'pass' => $remote_account->pass_raw,
     ];
     $this->drupalGet('user/login');
-    $this->submitForm($edit, t('Log in'));
+    $this->submitForm($edit, 'Log in');
     $this->assertSession()->pageTextContains('Another user already exists in the system with the same login name. You should contact the system administrator in order to solve this conflict.');
 
     // Ensure the two local accounts don't have the same mail address.

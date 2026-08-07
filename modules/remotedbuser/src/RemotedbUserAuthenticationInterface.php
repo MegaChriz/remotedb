@@ -2,12 +2,12 @@
 
 namespace Drupal\remotedbuser;
 
-use Drupal\user\UserAuthInterface;
+use Drupal\user\UserAuthenticationInterface;
 
 /**
  * Interface for the remotedbuser.authentication service.
  */
-interface RemotedbUserAuthenticationInterface extends UserAuthInterface {
+interface RemotedbUserAuthenticationInterface extends UserAuthenticationInterface {
 
   /**
    * Remote login methods.

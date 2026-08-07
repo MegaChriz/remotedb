@@ -9,7 +9,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\remotedbuser\Entity\RemotedbUserInterface;
 use Drupal\remotedbuser\Entity\RemotedbUserStorageInterface;
 use Drupal\remotedbuser\Exception\RemotedbExistingUserException;
-use Drupal\user\UserAuthInterface;
+use Drupal\user\UserAuthenticationInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Default implementation of the remotedbuser.authentication service.
@@ -36,7 +37,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   /**
    * The user authentication service.
    *
-   * @var \Drupal\user\UserAuthInterface
+   * @var \Drupal\user\UserAuthenticationInterface
    */
   protected $userAuth;
 
@@ -59,7 +60,7 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, RemotedbUserConfigurationInterface $remotedbuser_configuration, UserAuthInterface $user_auth, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, RemotedbUserConfigurationInterface $remotedbuser_configuration, UserAuthenticationInterface $user_auth, EntityTypeManagerInterface $entity_type_manager) {
     $this->config = $config_factory->get('remotedbuser.settings');
     $this->remotedbUserConfiguration = $remotedbuser_configuration;
     $this->userAuth = $user_auth;
@@ -69,12 +70,60 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
   /**
    * {@inheritdoc}
    */
-  public function authenticate($name, $password) {
+  public function lookupAccount($identifier): UserInterface|false {
+    // First try to find a local account.
+    $account = $this->userAuth->lookupAccount($identifier);
+    if ($account instanceof UserInterface) {
+      return $account;
+    }
+
+    // Not found. Try remote database instead.
+    $remote_account = $this->getRemotedbUserStorage()->loadBy($identifier, 'name');
+    if ($remote_account instanceof RemotedbUserInterface) {
+      // Convert it to a local account, but do not save it.
+      return $remote_account->toAccount();
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function authenticateAccount(UserInterface $account, #[\SensitiveParameter] string $password): bool {
     switch ($this->config->get('login')) {
       case static::LOCALFIRST:
         // Authenticate local users first. If authentication fails, perform
         // the next case. So this case intentionally does not end with a break.
-        $uid = $this->userAuth->authenticate($name, $password);
+        if ($this->userAuth->authenticateAccount($account, $password)) {
+          return TRUE;
+        }
+
+      case static::REMOTEONLY:
+        return $this->remoteAuthenticateAccount($account, $password);
+
+      case static::REMOTEFIRST:
+        if ($this->remoteAuthenticateAccount($account, $password)) {
+          return TRUE;
+        }
+        return $this->userAuth->authenticateAccount($account, $password);
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo This method got deprecated in drupal:10.3.0. Remove it when support
+   * for Drupal 10 will be dropped.
+   */
+  public function authenticate($name, #[\SensitiveParameter] $password) {
+    switch ($this->config->get('login')) {
+      case static::LOCALFIRST:
+        // Authenticate local users first. If authentication fails, perform
+        // the next case. So this case intentionally does not end with a break.
+        $uid = $this->localAuthenticate($name, $password);
         if ($uid !== FALSE) {
           return $uid;
         }
@@ -87,10 +136,60 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
         if ($uid !== FALSE) {
           return $uid;
         }
-        return $this->userAuth->authenticate($name, $password);
+        return $this->localAuthenticate($name, $password);
     }
 
     return FALSE;
+  }
+
+  /**
+   * Authenticates user against the local database.
+   *
+   * @param string $name
+   *   The username.
+   * @param string $password
+   *   The password.
+   *
+   * @return int|false
+   *   The user's uid on success, or FALSE on failure to authenticate.
+   */
+  protected function localAuthenticate(string $name, string $password): int|false {
+    $account = $this->userAuth->lookupAccount($name);
+    if ($account instanceof UserInterface && $this->userAuth->authenticateAccount($account, $password)) {
+      $uid = $account->id();
+      return is_numeric($uid) ? (int) $uid : FALSE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Authenticates against the remote database for a looked-up account.
+   *
+   * Core's UserLoginForm sets the form uid from $account->id() after a
+   * successful authenticateAccount(). lookupAccount() may return an unsaved
+   * account for remote-only users; remoteAuthenticate() then saves a different
+   * entity. Sync the authenticated uid onto $account so login can succeed.
+   *
+   * @param \Drupal\user\UserInterface $account
+   *   The account from lookupAccount().
+   * @param string $password
+   *   A plain-text password.
+   *
+   * @return bool
+   *   TRUE on success, FALSE on failure.
+   */
+  protected function remoteAuthenticateAccount(UserInterface $account, string $password): bool {
+    $uid = $this->remoteAuthenticate($account->getAccountName(), $password);
+    if ($uid === FALSE) {
+      return FALSE;
+    }
+
+    if ((int) $account->id() !== $uid) {
+      $account->set('uid', $uid);
+      $account->enforceIsNew(FALSE);
+    }
+
+    return TRUE;
   }
 
   /**

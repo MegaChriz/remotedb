@@ -28,7 +28,7 @@ class SsoTest extends RemotedbSsoBrowserTestBase {
       'pass' => $remote_account->pass_raw,
     ];
     $this->drupalGet('user');
-    $this->submitForm($edit, t('Log in'));
+    $this->submitForm($edit, 'Log in');
 
     // Follow a link to an "external" site.
     $ext_url = $this->getAbsoluteUrl('user');

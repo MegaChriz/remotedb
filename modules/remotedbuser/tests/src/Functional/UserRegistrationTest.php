@@ -33,7 +33,7 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
     $edit['pass[pass1]'] = $new_pass = $this->randomMachineName();
     $edit['pass[pass2]'] = $new_pass;
     $this->drupalGet('user/register');
-    $this->submitForm($edit, t('Create new account'));
+    $this->submitForm($edit, 'Create new account');
     $this->assertSession()->pageTextContains(t('Registration successful. You are now logged in.'));
 
     // Assert that the local account exists.
@@ -97,14 +97,14 @@ class UserRegistrationTest extends RemotedbUserBrowserTestBase {
 
     // Attempt to create a new account using an existing e-mail address.
     $this->drupalGet('user/register');
-    $this->submitForm($edit, t('Create new account'));
+    $this->submitForm($edit, 'Create new account');
     $this->assertSession()->pageTextContains(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]));
 
     // Attempt to bypass duplicate email registration validation by adding
     // spaces.
     $edit['mail'] = '   ' . $remote_account->mail . '   ';
     $this->drupalGet('user/register');
-    $this->submitForm($edit, t('Create new account'));
+    $this->submitForm($edit, 'Create new account');
     $this->assertSession()->pageTextContains(t('The e-mail address @email is already registered.', ['@email' => $remote_account->mail]));
   }
 

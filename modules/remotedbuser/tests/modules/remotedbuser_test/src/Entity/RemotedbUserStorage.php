@@ -211,7 +211,7 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
     }
 
     // Use the first found account.
-    $account = reset($accounts);
+    $account = $accounts !== [] ? reset($accounts) : FALSE;
 
     if (count($accounts) > 1) {
       // Multiple accounts were found. Stop when different.
@@ -225,14 +225,25 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
 
     if ($account === FALSE) {
       // No existing account was found, thus create a new user.
-      if (!isset($user_data['uid']) || $user_data['uid'] === '') {
+      if (!$this->hasRemoteUid($user_data)) {
         // Generate uid if it doesn't have one.
         $user_data['uid'] = count($user_data) + 1000;
       }
     }
     else {
       // An existing account was found. Update it.
+      // Local users without remotedb_uid may pass uid => NULL via toArray(),
+      // which must not overwrite the existing remote uid (PHP 8.5 also
+      // deprecates null as an array offset).
+      $existing_uid = $account['uid'] ?? NULL;
       $user_data = array_merge($account, $user_data);
+      if (!$this->hasRemoteUid($user_data)) {
+        $user_data['uid'] = $existing_uid;
+      }
+    }
+
+    if (!$this->hasRemoteUid($user_data)) {
+      $user_data['uid'] = count($this->getRemoteAccounts()) + 1000;
     }
 
     $accounts = $this->getRemoteAccounts();
@@ -240,6 +251,19 @@ class RemotedbUserStorage extends OriginalRemotedbUserStorage {
     $this->setRemoteAccounts($accounts);
 
     return $user_data['uid'];
+  }
+
+  /**
+   * Checks whether user data contains a usable remote uid.
+   *
+   * @param array $user_data
+   *   The remote user data.
+   *
+   * @return bool
+   *   TRUE if a non-empty uid is present.
+   */
+  private function hasRemoteUid(array $user_data): bool {
+    return isset($user_data['uid']) && $user_data['uid'] !== '';
   }
 
   /**

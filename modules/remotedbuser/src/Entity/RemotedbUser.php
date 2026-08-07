@@ -21,9 +21,18 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "storage" = "Drupal\remotedbuser\Entity\RemotedbUserStorage",
  *   },
+ *   static_cache = FALSE,
+ *   persistent_cache = FALSE,
  * )
  */
 class RemotedbUser extends ContentEntityBase implements RemotedbUserInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function id(): string|int|null {
+    return $this->uid;
+  }
 
   /**
    * {@inheritdoc}

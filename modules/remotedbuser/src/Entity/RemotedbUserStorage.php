@@ -127,7 +127,9 @@ class RemotedbUserStorage extends ContentEntityStorageBase implements RemotedbUs
     $uid = $this->sendRequest('dbuser.save', [$entity->toArray()]);
     if (is_int($uid) || (is_string($uid) && is_numeric($uid))) {
       assert($entity instanceof RemotedbUserInterface);
-      $entity->uid = (int) $uid;
+      $saved_uid = (int) $uid;
+      $entity->uid = $saved_uid;
+      $this->resetCache([$saved_uid]);
     }
   }
 
