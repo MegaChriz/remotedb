@@ -68,6 +68,12 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
       'label' => 'Foo',
       'name' => 'foo',
       'url' => '',
+      'transport' => 'xmlrpc',
+      'transport_settings' => [
+        'rest' => [
+          'prefix' => '',
+        ],
+      ],
       'status' => TRUE,
       'dependencies' => [],
       'authentication_methods' => [],
@@ -157,6 +163,20 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
           'authentication_methods[login][weight]' => 0,
         ],
       ],
+      'rest' => [
+        [
+          'transport' => 'rest',
+          'transport_settings' => [
+            'rest' => [
+              'prefix' => '/cdb',
+            ],
+          ],
+        ],
+        [
+          'transport' => 'rest',
+          'transport_settings[rest][prefix]' => '/cdb',
+        ],
+      ],
     ];
   }
 
@@ -194,6 +214,12 @@ class RemotedbFormTest extends RemotedbBrowserTestBase {
       'label' => 'Foo',
       'name' => 'foo',
       'url' => 'http://www.example.com',
+      'transport' => 'xmlrpc',
+      'transport_settings' => [
+        'rest' => [
+          'prefix' => '',
+        ],
+      ],
       'authentication_methods' => [
         'csrf' => [
           'status' => TRUE,

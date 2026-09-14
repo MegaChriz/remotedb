@@ -5,6 +5,7 @@ namespace Drupal\remotedb\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\remotedb\AuthenticationPluginCollection;
 use Drupal\remotedb\Plugin\AuthenticationInterface;
+use Drupal\remotedb\Plugin\RemotedbTransportInterface;
 
 /**
  * Provides an interface for defining a remote database entity.
@@ -19,6 +20,41 @@ interface RemotedbInterface extends ConfigEntityInterface {
    *   defined.
    */
   public function getUrl(): ?string;
+
+  /**
+   * Returns the transport plugin ID.
+   *
+   * @return string
+   *   The plugin ID, e.g. xmlrpc or rest.
+   */
+  public function getTransport(): string;
+
+  /**
+   * Returns transport-specific settings.
+   *
+   * @return array
+   *   Settings keyed by transport plugin ID.
+   */
+  public function getTransportSettings(): array;
+
+  /**
+   * Returns settings for a transport plugin.
+   *
+   * @param string|null $plugin_id
+   *   Transport plugin ID, or NULL for the selected transport.
+   *
+   * @return array
+   *   Configuration for that plugin.
+   */
+  public function getTransportPluginSettings(?string $plugin_id = NULL): array;
+
+  /**
+   * Returns the configured transport plugin.
+   *
+   * @return \Drupal\remotedb\Plugin\RemotedbTransportInterface
+   *   The transport plugin instance.
+   */
+  public function getTransportPlugin(): RemotedbTransportInterface;
 
   /**
    * Gets the authentication method plugin collection.
@@ -82,7 +118,7 @@ interface RemotedbInterface extends ConfigEntityInterface {
   public function setHeader(string $header, mixed $value): void;
 
   /**
-   * Sends a request to the XML-RPC server.
+   * Sends a request to the remote server.
    *
    * @param string $method
    *   The method to call on the server.
@@ -90,7 +126,7 @@ interface RemotedbInterface extends ConfigEntityInterface {
    *   An array of parameters.
    *
    * @return mixed
-   *   The XML-RPC Result.
+   *   The result of the request.
    */
   public function sendRequest(string $method, array $params = []): mixed;
 

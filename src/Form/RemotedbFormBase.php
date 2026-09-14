@@ -4,14 +4,36 @@ namespace Drupal\remotedb\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\remotedb\Entity\RemotedbInterface;
 use Drupal\remotedb\Entity\RemotedbStorageInterface;
 use Drupal\remotedb\Plugin\AuthenticationInterface;
+use Drupal\remotedb\Plugin\RemotedbTransportInterface;
+use Drupal\remotedb\TransportPluginManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base form for remote database add and edit forms.
  */
 abstract class RemotedbFormBase extends EntityForm {
+
+  /**
+   * The transport plugin manager.
+   */
+  protected TransportPluginManager $transportPluginManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container): static {
+    $instance = parent::create($container);
+    $manager = $container->get('plugin.manager.remotedb.transport');
+    if (!$manager instanceof TransportPluginManager) {
+      throw new \LogicException('Expected a TransportPluginManager.');
+    }
+    $instance->transportPluginManager = $manager;
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -46,6 +68,44 @@ abstract class RemotedbFormBase extends EntityForm {
       '#maxlength' => 255,
       '#default_value' => $remotedb->getUrl(),
     ];
+
+    $form['transport'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Transport'),
+      '#options' => $this->getTransportOptions(),
+      '#default_value' => $remotedb->getTransport(),
+      '#required' => TRUE,
+      '#description' => $this->t('XML-RPC talks to Drupal 7 Services. REST talks to Drupal REST resources (JSON).'),
+    ];
+    $form['transport_settings'] = [
+      '#type' => 'container',
+      '#tree' => TRUE,
+    ];
+    foreach (array_keys($this->transportPluginManager->getDefinitions()) as $plugin_id) {
+      if (!is_string($plugin_id)) {
+        continue;
+      }
+      $plugin = $this->createTransportPlugin($remotedb, $plugin_id);
+      $settings_form = [
+        '#parents' => ['transport_settings', $plugin_id],
+        '#tree' => TRUE,
+      ];
+      $settings_form = $plugin->settingsForm($settings_form, $form_state);
+      if ($settings_form === []) {
+        continue;
+      }
+      $form['transport_settings'][$plugin_id] = [
+        '#type' => 'container',
+        '#tree' => TRUE,
+        '#parents' => ['transport_settings', $plugin_id],
+        '#states' => [
+          'visible' => [
+            ':input[name="transport"]' => ['value' => $plugin_id],
+          ],
+        ],
+      ];
+      $form['transport_settings'][$plugin_id] += $settings_form;
+    }
 
     // Status.
     $form['authentication_methods']['status'] = [
@@ -169,6 +229,48 @@ abstract class RemotedbFormBase extends EntityForm {
       throw new \LogicException('Expected remotedb storage to implement RemotedbStorageInterface.');
     }
     return $storage;
+  }
+
+  /**
+   * Returns transport plugin options for the select list.
+   *
+   * @return array<string, string|\Drupal\Core\StringTranslation\TranslatableMarkup>
+   *   Options keyed by plugin ID.
+   */
+  protected function getTransportOptions(): array {
+    $options = [];
+    foreach ($this->transportPluginManager->getDefinitions() as $plugin_id => $definition) {
+      if (!is_string($plugin_id) || !is_array($definition)) {
+        continue;
+      }
+      $title = $definition['title'] ?? $plugin_id;
+      if (!$title instanceof TranslatableMarkup && !is_string($title)) {
+        $title = $plugin_id;
+      }
+      $options[$plugin_id] = $title;
+    }
+    return $options;
+  }
+
+  /**
+   * Instantiates a transport plugin for the remotedb form.
+   *
+   * @param \Drupal\remotedb\Entity\RemotedbInterface $remotedb
+   *   The remote database entity being edited.
+   * @param string $plugin_id
+   *   The transport plugin ID.
+   *
+   * @return \Drupal\remotedb\Plugin\RemotedbTransportInterface
+   *   The transport plugin instance.
+   */
+  protected function createTransportPlugin(RemotedbInterface $remotedb, string $plugin_id): RemotedbTransportInterface {
+    $configuration = $remotedb->getTransportPluginSettings($plugin_id);
+    $configuration['remotedb'] = $remotedb;
+    $plugin = $this->transportPluginManager->createInstance($plugin_id, $configuration);
+    if (!$plugin instanceof RemotedbTransportInterface) {
+      throw new \LogicException('Expected a RemotedbTransport plugin instance.');
+    }
+    return $plugin;
   }
 
 }

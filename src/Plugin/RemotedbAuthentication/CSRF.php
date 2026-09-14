@@ -20,15 +20,12 @@ class Csrf extends AuthenticationBase {
    * Implements AuthenticationInterface::authenticate().
    */
   public function authenticate(): bool {
-    $params = [
-      'user.token' => [],
-    ];
     $this->remotedb->setHeader('X-CSRF-Token', NULL);
-    $url = $this->remotedb->getUrl();
-    if (!is_string($url)) {
-      return FALSE;
-    }
-    $token = xmlrpc($url, $params, $this->remotedb->getHeaders());
+    // Use the transport plugin directly. Remotedb::sendRequest() authenticates
+    // first, and this plugin *is* that authentication, so calling sendRequest()
+    // here would recurse. New authentication plugins may still call xmlrpc()
+    // or HTTP clients themselves.
+    $token = $this->remotedb->getTransportPlugin()->sendRequest('user.token', []);
     if (is_array($token) && isset($token['token'])) {
       $this->remotedb->setHeader('X-CSRF-Token', $token['token']);
       return TRUE;

@@ -1,7 +1,7 @@
 {
   "name": "megachriz/remotedb",
   "type": "drupal-module",
-  "description": "Client-side module to exchange information with a remote database via XML-RPC.",
+  "description": "Client-side module to exchange information with a remote database via XML-RPC or REST.",
   "license": "GPL-2.0+",
   "repositories": [
     {

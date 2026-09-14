@@ -34,24 +34,25 @@ class Login extends AuthenticationBase {
       return TRUE;
     }
 
-    $params = [
-      'user.login' => [
-        'username' => $username,
-        'password' => $password,
-      ],
-    ];
-
     $this->remotedb->setHeader('cookie', NULL);
-    $url = $this->remotedb->getUrl();
-    if (!is_string($url)) {
-      return FALSE;
-    }
-    $session = xmlrpc($url, $params, $this->remotedb->getHeaders());
+    // Use the transport plugin directly. Remotedb::sendRequest() authenticates
+    // first, and this plugin *is* that authentication, so calling sendRequest()
+    // here would recurse. New authentication plugins may still call xmlrpc()
+    // or HTTP clients themselves.
+    $session = $this->remotedb->getTransportPlugin()->sendRequest('user.login', [
+      'username' => $username,
+      'password' => $password,
+    ]);
     if (!is_array($session) || !isset($session['session_name']) || !isset($session['sessid'])) {
       return FALSE;
     }
+    $session_name = $session['session_name'];
+    $sessid = $session['sessid'];
+    if (!is_string($session_name) || !is_string($sessid)) {
+      return FALSE;
+    }
 
-    $this->remotedb->setHeader('cookie', $session['session_name'] . '=' . $session['sessid'] . ';');
+    $this->remotedb->setHeader('cookie', $session_name . '=' . $sessid . ';');
     return TRUE;
   }
 

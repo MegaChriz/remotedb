@@ -13,6 +13,14 @@ remotedb.remotedb.*:
     url:
       type: uri
       label: 'Url to the remote database.'
+    transport:
+      type: string
+      label: 'Transport plugin'
+    transport_settings:
+      type: sequence
+      label: 'Transport settings'
+      sequence:
+        type: remotedb.transport_settings.[%key]
     authentication_methods:
       type: sequence
       label: 'Enabled authentication methods'
@@ -58,3 +66,15 @@ remotedb.authentication_method_settings.login:
     password:
       type: string
       label: 'Password'
+
+remotedb.transport_settings.*:
+  type: mapping
+  label: 'Transport settings'
+
+remotedb.transport_settings.rest:
+  type: mapping
+  label: 'REST settings'
+  mapping:
+    prefix:
+      type: string
+      label: 'REST path prefix'

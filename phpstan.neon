@@ -23,6 +23,11 @@ parameters:
       path: src/Attribute/RemotedbAuthentication.php
 
     -
+      message: "#^Drupal\\\\remotedb\\\\Attribute\\\\RemotedbTransport::__construct\\(\\) does not call parent constructor from Drupal\\\\Component\\\\Plugin\\\\Attribute\\\\Plugin\\.$#"
+      count: 1
+      path: src/Attribute/RemotedbTransport.php
+
+    -
       message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
       count: 1
       path: modules/remotedbuser/src/Entity/RemotedbUserStorage.php
@@ -38,8 +43,23 @@ parameters:
       path: modules/remotedbuser/src/Form/UserPasswordForm.php
 
     -
+      message: "#^Function xmlrpc not found\\.$#"
+      count: 1
+      path: src/Plugin/RemotedbTransport/Xmlrpc.php
+
+    -
       message: "#^Function xmlrpc_error not found\\.$#"
       count: 1
+      path: src/Plugin/RemotedbTransport/Xmlrpc.php
+
+    -
+      message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
+      count: 1
+      path: src/Plugin/RemotedbTransport/Rest.php
+
+    -
+      message: "#^\\\\Drupal calls should be avoided in classes, use dependency injection instead$#"
+      count: 2
       path: src/Entity/Remotedb.php
 
     -

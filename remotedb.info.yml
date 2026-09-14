@@ -1,5 +1,5 @@
 name: 'Remote database Base'
-description: 'Base module for connection with remote database.'
+description: 'Base module for connection with a remote database via XML-RPC or REST.'
 package: 'Remote database'
 core_version_requirement: ^10.2 || ^11 || ^12
 type: module

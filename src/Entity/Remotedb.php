@@ -5,8 +5,10 @@ namespace Drupal\remotedb\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\remotedb\AuthenticationPluginCollection;
-use Drupal\remotedb\Exception\RemotedbException;
+use Drupal\remotedb\AuthenticationPluginManager;
 use Drupal\remotedb\Plugin\AuthenticationInterface;
+use Drupal\remotedb\Plugin\RemotedbTransportInterface;
+use Drupal\remotedb\TransportPluginManager;
 
 /**
  * Defines the remote database entity type.
@@ -45,6 +47,8 @@ use Drupal\remotedb\Plugin\AuthenticationInterface;
  *     "name",
  *     "label",
  *     "url",
+ *     "transport",
+ *     "transport_settings",
  *     "authentication_methods",
  *   }
  * )
@@ -73,6 +77,20 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   protected $url;
 
   /**
+   * Transport plugin ID.
+   *
+   * @var string
+   */
+  protected $transport = 'xmlrpc';
+
+  /**
+   * Transport-specific settings.
+   *
+   * @var array
+   */
+  protected $transport_settings = [];
+
+  /**
    * Configured authentication methods for this remote database.
    *
    * @var array
@@ -83,6 +101,11 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
    * A collection of authentications.
    */
   protected ?AuthenticationPluginCollection $authenticationCollection;
+
+  /**
+   * Instantiated transport plugin.
+   */
+  protected ?RemotedbTransportInterface $transportPlugin = NULL;
 
   /**
    * An array of headers to send along with the HTTP Request.
@@ -115,9 +138,64 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   /**
    * {@inheritdoc}
    */
+  public function getTransport(): string {
+    return $this->transport ?: 'xmlrpc';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransportSettings(): array {
+    return $this->transport_settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransportPluginSettings(?string $plugin_id = NULL): array {
+    $plugin_id = $plugin_id ?? $this->getTransport();
+    $settings = $this->getTransportSettings();
+    if (isset($settings[$plugin_id]) && is_array($settings[$plugin_id])) {
+      return $settings[$plugin_id];
+    }
+    // Prefix used to be stored flat on transport_settings.
+    if ($plugin_id === 'rest' && isset($settings['prefix'])) {
+      $prefix = $settings['prefix'];
+      return ['prefix' => is_string($prefix) ? $prefix : ''];
+    }
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTransportPlugin(): RemotedbTransportInterface {
+    if (!$this->transportPlugin instanceof RemotedbTransportInterface) {
+      $manager = \Drupal::service('plugin.manager.remotedb.transport');
+      if (!$manager instanceof TransportPluginManager) {
+        throw new \LogicException('Expected a TransportPluginManager.');
+      }
+      $configuration = $this->getTransportPluginSettings();
+      $configuration['remotedb'] = $this;
+      $plugin = $manager->createInstance($this->getTransport(), $configuration);
+      if (!$plugin instanceof RemotedbTransportInterface) {
+        throw new \LogicException('Expected a RemotedbTransport plugin instance.');
+      }
+      $this->transportPlugin = $plugin;
+    }
+    return $this->transportPlugin;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getAuthenticationMethods(): AuthenticationPluginCollection {
     if (!isset($this->authenticationCollection)) {
-      $this->authenticationCollection = new AuthenticationPluginCollection(\Drupal::service('plugin.manager.remotedb.authentication'), $this->authentication_methods, $this);
+      $manager = \Drupal::service('plugin.manager.remotedb.authentication');
+      if (!$manager instanceof AuthenticationPluginManager) {
+        throw new \LogicException('Expected an AuthenticationPluginManager.');
+      }
+      $this->authenticationCollection = new AuthenticationPluginCollection($manager, $this->authentication_methods, $this);
       $this->authenticationCollection->sort();
     }
     return $this->authenticationCollection;
@@ -178,7 +256,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   }
 
   /**
-   * Authenticates to the XML-RPC server.
+   * Authenticates to the remote server.
    */
   public function authenticate(): bool {
     $this->authenticated = FALSE;
@@ -199,7 +277,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
   }
 
   /**
-   * Sends a request to the XML-RPC server.
+   * Sends a request to the remote server.
    *
    * @param string $method
    *   The method to call on the server.
@@ -216,24 +294,7 @@ class Remotedb extends ConfigEntityBase implements RemotedbInterface, EntityWith
     if (!$this->authenticated) {
       $this->authenticate();
     }
-
-    $args = [$method => $params];
-    // Call XML-RPC.
-    $result = xmlrpc($this->url, $args, $this->headers);
-    if ($result === FALSE) {
-      $error = xmlrpc_error();
-      // Throw exception in case of errors.
-      if (
-        is_object($error)
-        && property_exists($error, 'is_error')
-        && $error->is_error
-        && property_exists($error, 'message')
-        && property_exists($error, 'code')
-      ) {
-        throw new RemotedbException((string) $error->message, (int) $error->code);
-      }
-    }
-    return $result;
+    return $this->getTransportPlugin()->sendRequest($method, $params);
   }
 
 }
