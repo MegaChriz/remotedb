@@ -79,6 +79,10 @@ class RemotedbUserAuthentication implements RemotedbUserAuthenticationInterface 
 
     // Not found. Try remote database instead.
     $remote_account = $this->getRemotedbUserStorage()->loadBy($identifier, 'name');
+    if (!$remote_account instanceof RemotedbUserInterface) {
+      // Try by mail instead.
+      $remote_account = $this->getRemotedbUserStorage()->loadBy($identifier, 'mail');
+    }
     if ($remote_account instanceof RemotedbUserInterface) {
       // Convert it to a local account, but do not save it.
       return $remote_account->toAccount();
